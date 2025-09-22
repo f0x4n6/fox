@@ -50,16 +50,7 @@ func New(model string, keep time.Duration) *LLM {
 	}
 }
 
-func (llm *LLM) Use(model string, fn api.PullProgressFunc) error {
-	ctx := context.Background()
-	req := &api.PullRequest{
-		Model: model,
-	}
-
-	return llm.client.Pull(ctx, req, fn)
-}
-
-func (llm *LLM) Ask(model, query, lines string, fn api.ChatResponseFunc) error {
+func (llm *LLM) Query(model, query, lines string, fn api.ChatResponseFunc) error {
 	llm.AddSystem(fmt.Sprintf(fox.Prompt, lines))
 	llm.AddUser(query)
 
@@ -83,6 +74,28 @@ func (llm *LLM) Ask(model, query, lines string, fn api.ChatResponseFunc) error {
 	llm.RUnlock()
 
 	return llm.client.Chat(ctx, req, fn)
+}
+
+func (llm *LLM) List() (*api.ListResponse, error) {
+	return llm.client.List(context.Background())
+}
+
+func (llm *LLM) AddModel(model string, fn api.PullProgressFunc) error {
+	ctx := context.Background()
+	req := &api.PullRequest{
+		Model: model,
+	}
+
+	return llm.client.Pull(ctx, req, fn)
+}
+
+func (llm *LLM) DelModel(model string) error {
+	ctx := context.Background()
+	req := &api.DeleteRequest{
+		Model: model,
+	}
+
+	return llm.client.Delete(ctx, req)
 }
 
 func (llm *LLM) AddUser(content string) {

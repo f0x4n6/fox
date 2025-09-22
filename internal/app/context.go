@@ -23,6 +23,7 @@ type Context struct {
 	last mode.Mode
 
 	model string
+	embed string
 	theme string
 
 	space atomic.Uint32
@@ -46,8 +47,9 @@ func NewContext(root tcell.Screen) *Context {
 		mode: mode.Default,
 		last: mode.Default,
 
-		// model
+		// models
 		model: cfg.GetString("ai.model"),
+		embed: cfg.GetString("ai.embed"),
 
 		// theme
 		theme: cfg.GetString("ui.theme"),
@@ -92,6 +94,12 @@ func (ctx *Context) Model() string {
 	ctx.RLock()
 	defer ctx.RUnlock()
 	return ctx.model
+}
+
+func (ctx *Context) Embed() string {
+	ctx.RLock()
+	defer ctx.RUnlock()
+	return ctx.embed
 }
 
 func (ctx *Context) Theme() string {
@@ -143,9 +151,15 @@ func (ctx *Context) SwitchMode(m mode.Mode) bool {
 	return true
 }
 
-func (ctx *Context) ChangeModel(t string) {
+func (ctx *Context) ChangeModel(m string) {
 	ctx.Lock()
-	ctx.model = t
+	ctx.model = m
+	ctx.Unlock()
+}
+
+func (ctx *Context) ChangeEmbed(e string) {
+	ctx.Lock()
+	ctx.embed = e
 	ctx.Unlock()
 }
 
@@ -182,6 +196,7 @@ func (ctx *Context) Save() {
 	cfg := config.Get()
 
 	cfg.Set("ai.model", ctx.Model())
+	cfg.Set("ai.embed", ctx.Embed())
 	cfg.Set("ui.theme", ctx.Theme())
 	cfg.Set("ui.space", ctx.Space())
 	cfg.Set("ui.state.n", ctx.IsNavi())

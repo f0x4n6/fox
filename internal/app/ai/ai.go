@@ -13,20 +13,16 @@ import (
 )
 
 func NewAgent(ctx *app.Context) *agent.Agent {
-	if len(ctx.Model()) == 0 {
-		return nil // no model set
-	}
-
 	client, err := api.ClientFromEnvironment()
 
 	if err != nil {
 		return nil // no client found
 	}
 
-	ctxTo, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	cto, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	err = client.Heartbeat(ctxTo)
+	err = client.Heartbeat(cto)
 
 	if err != nil {
 		return nil // no server found

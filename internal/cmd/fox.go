@@ -28,7 +28,7 @@ import (
 
 var Usage = fmt.Sprintf(fox.Ascii+`
 The Swiss Army Knife for examining text files (%s)
-By %s <%s>
+Visit https://%s for documentation.
 
 Usage:
   fox [ACTION] [FLAG ...] [PATH ...]
@@ -52,7 +52,6 @@ Print:
 Deflate:
   -P, --pwd=PASSWORD       password for decryption (only RAR, ZIP)
 
-
 Hex display:
   -x, --hex                show file in canonical hex
 
@@ -69,8 +68,9 @@ Line filter:
   -A, --after=NUMBER       number of lines trailing context after match
 
 AI agent:
-  -m, --model=MODEL        model for the agent to use
   -q, --query=QUERY        query for the agent to process
+  -m, --model=MODEL        model for the agent to use
+      --embed=MODEL        embedding model for RAG
 
 AI model:
       --num-ctx=SIZE       context window length (default: 4096)
@@ -132,7 +132,7 @@ Example: print event log analysis
   $ fox -pq="analyse this" log.evtx
 
 Type "fox help COMMAND" for more help...
-`, fox.Version, fox.Author, fox.Website)
+`, fox.Version, fox.Website)
 
 var Fox = &cobra.Command{
 	Use:     "fox",
@@ -145,7 +145,7 @@ var Fox = &cobra.Command{
 
 		// print credits
 		if flg.Credits {
-			fmt.Printf("%s <%s>\n- Soli Deo Gloria\n", fox.Author, fox.Email)
+			fmt.Printf("%s <%s>\nFor O.E.U. S.D.G.\n", fox.Author, fox.Email)
 			os.Exit(0)
 		}
 
@@ -267,8 +267,9 @@ func init() {
 	Fox.Flags().IntVarP(&flg.Filters.Before, "before", "B", 0, "number of lines leading context before match")
 	Fox.Flags().IntVarP(&flg.Filters.After, "after", "A", 0, "number of lines trailing context after match")
 
-	Fox.Flags().StringVarP(&flg.AI.Model, "model", "m", "", "model for the agent to use")
 	Fox.Flags().StringVarP(&flg.AI.Query, "query", "q", "", "query for the agent to process")
+	Fox.Flags().StringVarP(&flg.AI.Model, "model", "m", "", "model for the agent to use")
+	Fox.Flags().StringVarP(&flg.AI.Embed, "embed", "", "", "embedding model for RAG")
 	Fox.Flags().IntVarP(&flg.AI.NumCtx, "num-ctx", "", 4096, "context window length")
 	Fox.Flags().Float64VarP(&flg.AI.Temp, "temp", "", 0.2, "option for temperature")
 	Fox.Flags().Float64VarP(&flg.AI.TopP, "topp", "", 0.5, "option for model top_p")
@@ -337,16 +338,21 @@ func run(args []string) {
 	var flg = flags.Get()
 	var agt *agent.Agent
 
+	hs := heapset.New(args)
+	defer hs.ThrowAway()
+
 	if len(flg.AI.Query) > 0 {
 		agt = ai.NewAgent(app.NewContext(nil))
 
 		if agt == nil {
 			sys.Exit("Agent is not available")
 		}
-	}
 
-	hs := heapset.New(args)
-	defer hs.ThrowAway()
+		agt.HeapSet(hs)
+		agt.Process(flg.AI.Query)
+
+		return
+	}
 
 	hs.Each(func(_ int, h *heap.Heap) {
 		if h.Type != types.Stdin {
@@ -356,9 +362,7 @@ func run(args []string) {
 				fmt.Println(text.Title(h.String(), page.TermW))
 			}
 
-			if len(flg.AI.Query) > 0 {
-				agt.Process(flg.AI.Query, h)
-			} else if flg.Hex {
+			if flg.Hex {
 				buf.W = page.TermW
 
 				for l := range page.Hex(buf).Lines {

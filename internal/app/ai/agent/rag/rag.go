@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"runtime"
-	"strconv"
 	"strings"
 
+	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/philippgille/chromem-go"
 
 	"github.com/cuhsat/fox/internal/pkg/sys"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
 type RAG struct {
@@ -23,10 +23,12 @@ func New() *RAG {
 	}
 }
 
-func (rag *RAG) Embed(h *heap.Heap) *chromem.Collection {
-	fn := chromem.NewEmbeddingFuncOllama("nomic-embed-text", "")
+func (rag *RAG) Embed(name, model string, hs *heapset.HeapSet) *chromem.Collection {
+	fn := chromem.NewEmbeddingFuncOllama(model, "")
 
-	col, err := rag.db.GetOrCreateCollection("fox", nil, fn)
+	col, err := rag.db.GetOrCreateCollection(name, nil, fn)
+
+	// TODO: Clear collection before
 
 	if err != nil {
 		sys.Error(err)
@@ -35,13 +37,15 @@ func (rag *RAG) Embed(h *heap.Heap) *chromem.Collection {
 
 	var docs []chromem.Document
 
-	for i, str := range *h.FMap() {
-		docs = append(docs, chromem.Document{
-			ID:       strconv.Itoa(i),
-			Metadata: map[string]string{"path": h.Base},
-			Content:  fmt.Sprintf("line %d: %s", str.Nr, str.Str),
-		})
-	}
+	hs.Each(func(i int, h *heap.Heap) {
+		for j, str := range *h.FMap() {
+			docs = append(docs, chromem.Document{
+				ID:       fmt.Sprintf("%d:%d", i, j),
+				Metadata: map[string]string{"path": h.Base},
+				Content:  fmt.Sprintf("line %d: %s", str.Nr, str.Str),
+			})
+		}
+	})
 
 	err = col.AddDocuments(context.Background(), docs, runtime.NumCPU())
 

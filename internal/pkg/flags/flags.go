@@ -40,8 +40,9 @@ type Flags struct {
 
 	// ai flags
 	AI struct {
-		Model  string
 		Query  string
+		Model  string
+		Embed  string
 		NumCtx int
 		Temp   float64
 		TopP   float64

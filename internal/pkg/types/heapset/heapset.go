@@ -9,6 +9,7 @@ import (
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/loader"
@@ -158,8 +159,10 @@ func (hs *HeapSet) OpenPlugin(path, base, title string) {
 	hs.LoadHeap()
 }
 
-func (hs *HeapSet) OpenAgent(path, title string) {
-	idx, ok := hs.findByPath(path)
+func (hs *HeapSet) OpenAgent(path, model string) {
+	title := fmt.Sprintf("Agent %c %s", text.Icons().HSep, model)
+
+	idx, ok := hs.findByName(title)
 
 	if !ok {
 		idx = hs.Len()
@@ -169,7 +172,7 @@ func (hs *HeapSet) OpenAgent(path, title string) {
 
 	atomic.StoreInt32(hs.index, idx)
 
-	hs.LoadHeap().Title = title
+	hs.LoadHeap()
 }
 
 func (hs *HeapSet) PrevHeap() *heap.Heap {

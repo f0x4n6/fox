@@ -2,7 +2,7 @@
 The Swiss Army Knife for examining text files (%s)
 
 GLOBAL:
-  Esc (x2)             Exit
+  Esc x 2              Exit
   Shift + Up           Scroll page up
   Shift + Down         Scroll page down
   Shift + Left         Scroll page left
@@ -13,31 +13,31 @@ GLOBAL:
   Ctrl + Right / Tab   Load next file
   Ctrl + Left          Load prev file
   Ctrl + ^             Cycle through themes
-  Ctrl + l             Switch to LESS mode
-  Ctrl + g             Switch to GREP mode
-  Ctrl + f             Switch to FOX mode
-  Ctrl + x             Switch to HEX mode
-  Ctrl + n             Toggle navigation
-  Ctrl + w             Toggle text wrap
-  Ctrl + p             Toggle head pinned
-  Ctrl + t             Toggle tail follow
-  Ctrl + k             Increase context
-  Ctrl + j             Decrease context
-  Ctrl + o             Open file(s)
-  Ctrl + a             Merge files
-  Ctrl + q             Close file
-  Ctrl + c             Copy to clipboard
-  Ctrl + s             Save evidence bag
-  Ctrl + b             Open evidence bag
-  Ctrl + z             Suspend to shell
+  Ctrl + L             Switch to LESS mode
+  Ctrl + F             Switch to GREP mode
+  Ctrl + X             Switch to HEX mode
+  Ctrl + N             Toggle navigation
+  Ctrl + W             Toggle text wrap
+  Ctrl + P             Toggle head pinned
+  Ctrl + T             Toggle tail follow
+  Ctrl + K             Increase context
+  Ctrl + J             Decrease context
+  Ctrl + O             Open file(s)
+  Ctrl + A             Merge files
+  Ctrl + Q             Close file
+  Ctrl + C             Copy to clipboard
+  Ctrl + S             Save evidence bag
+  Ctrl + B             Open evidence bag
+  Ctrl + Z             Suspend to shell
   F1                   Show help message
-  F2                   Show file(s) counts
-  F3                   Show file(s) entropy
-  F4                   Show file(s) strings
-  F5                   Show file(s) MD5
-  F6                   Show file(s) SHA1
-  F7                   Show file(s) SHA256
-  F8 - F12             Execute plugin
+  F2                   Show agent prompt
+  F3                   Show file(s) counts
+  F4                   Show file(s) entropy
+  F5                   Show file(s) strings
+  F6                   Show file(s) MD5
+  F7                   Show file(s) SHA1
+  F8                   Show file(s) SHA256
+  F9 - F12             Execute plugin
 
 LESS:
   Enter                Scroll one line down
@@ -54,20 +54,8 @@ GREP:
   Right                Move cursor right
   Ctrl + Left          Move cursor to start
   Ctrl + Right         Move cursor to end
-  Ctrl + v             Paste from clipboard
+  Ctrl + V             Paste from clipboard
   Any other key        Define RegEx pattern
-
-FOX:
-  Esc                  Switch to LESS mode
-  Enter                Query prompt
-  Up                   Prev value in history
-  Down                 Next value in history
-  Left                 Move cursor left
-  Right                Move cursor right
-  Ctrl + Left          Move cursor to start
-  Ctrl + Right         Move cursor to end
-  Ctrl + v             Paste from clipboard
-  Any other key        Define LLM prompt
 
 HEX:
   Enter                Scroll one line down

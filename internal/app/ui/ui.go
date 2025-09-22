@@ -147,6 +147,10 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 	go ui.root.ChannelEvents(events, closed)
 	go ui.overlay.Listen()
 
+	if ui.agent != nil {
+		ui.agent.HeapSet(hs)
+	}
+
 	ui.invoke(hs, util)
 
 	flg := flags.Get()
@@ -268,31 +272,33 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					hs.OpenHelp()
 
 				case tcell.KeyF2:
+					hs.OpenAgent(ui.agent.File.Name(), ui.ctx.Model())
+					ui.change(mode.Fox)
+
+				case tcell.KeyF3:
 					hs.Counts()
 					ui.change(mode.Default)
 
-				case tcell.KeyF3:
+				case tcell.KeyF4:
 					hs.Entropy(0.0, 1.0)
 					ui.change(mode.Default)
 
-				case tcell.KeyF4:
+				case tcell.KeyF5:
 					hs.Strings(3, math.MaxInt, true, nil)
 					ui.change(mode.Default)
 
-				case tcell.KeyF5:
+				case tcell.KeyF6:
 					hs.HashSum(types.MD5)
 					ui.change(mode.Default)
 
-				case tcell.KeyF6:
+				case tcell.KeyF7:
 					hs.HashSum(types.SHA1)
 					ui.change(mode.Default)
 
-				case tcell.KeyF7:
+				case tcell.KeyF8:
 					hs.HashSum(types.SHA256)
 					ui.change(mode.Default)
 
-				case tcell.KeyF8:
-					fallthrough
 				case tcell.KeyF9:
 					fallthrough
 				case tcell.KeyF10:
@@ -419,17 +425,17 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 				case tcell.KeyCtrlO:
 					ui.change(mode.Open)
 
+				case tcell.KeyCtrlG:
+					ui.change(mode.Goto)
+
 				case tcell.KeyCtrlL:
 					ui.change(mode.Less)
 
-				case tcell.KeyCtrlG:
+				case tcell.KeyCtrlF:
 					ui.change(mode.Grep)
 
 				case tcell.KeyCtrlX:
 					ui.change(mode.Hex)
-
-				case tcell.KeyCtrlF:
-					ui.change(mode.Fox)
 
 				case tcell.KeyCtrlP:
 					ui.ctx.TogglePinned()
@@ -551,16 +557,10 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 					case mode.Fox:
 						ui.view.Reset()
-						ui.agent.Prompt(v)
+						ui.agent.Write(v)
 						ui.ctx.Background(func() {
-							ui.agent.Process(v, heap)
-							heap.Title = ui.agent.String()
+							ui.agent.Process(v)
 						})
-
-						hs.OpenAgent(
-							ui.agent.File.Name(),
-							ui.agent.String(),
-						)
 
 					default:
 						plugins.Input <- v
@@ -624,13 +624,16 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 		hs.Compare(
 			flg.Compare.Git,
 		).CloseOther()
+
 	case types.Counts:
 		hs.Counts().CloseOther()
+
 	case types.Entropy:
 		hs.Entropy(
 			flg.Entropy.Min,
 			flg.Entropy.Max,
 		).CloseOther()
+
 	case types.Strings:
 		hs.Strings(
 			flg.Strings.Min,
@@ -638,10 +641,12 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 			flg.Strings.Ioc,
 			flg.Strings.Re,
 		).CloseOther()
+
 	case types.Hash:
 		hs.HashSum(
 			flg.Hash.Algo.String(),
 		).CloseOther()
+
 	case types.None:
 		// normal
 	}

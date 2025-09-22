@@ -41,6 +41,7 @@ All **AI** and **UI** settings will be saved in a configuration file located und
 
 ```toml
 [ai]
+embed = 'nomic-embed-text'
 model = 'deepseek-r1'
 num_ctx = 4096
 seed = 8211

@@ -28,9 +28,8 @@
 | Key                            | Action                              |
 |--------------------------------|-------------------------------------|
 | <kbd>Ctrl</kbd> + <kbd>L</kbd> | Switch to [LESS](mode/less.md) mode |
-| <kbd>Ctrl</kbd> + <kbd>G</kbd> | Switch to [GREP](mode/grep.md) mode |
+| <kbd>Ctrl</kbd> + <kbd>F</kbd> | Switch to [GREP](mode/grep.md) mode |
 | <kbd>Ctrl</kbd> + <kbd>X</kbd> | Switch to [HEX](mode/hex.md) mode   |
-| <kbd>Ctrl</kbd> + <kbd>F</kbd> | Switch to [FOX](mode/fox.md) mode   |
 | <kbd>Ctrl</kbd> + <kbd>N</kbd> | Toggle navigation                   |
 | <kbd>Ctrl</kbd> + <kbd>W</kbd> | Toggle text wrap                    |
 | <kbd>Ctrl</kbd> + <kbd>P</kbd> | Toggle head pinned                  |
@@ -53,10 +52,11 @@
 |--------------------------------|---------------------------------------------|
 | <kbd>Ctrl</kbd> + <kbd>^</kbd> | Cycle through [themes](../../themes.md)     |
 | <kbd>F1</kbd>                  | Show help message                           |
-| <kbd>F2</kbd>                  | Show file(s) [counts](../utils/counts.md)   |
-| <kbd>F3</kbd>                  | Show file(s) [entropy](../utils/entropy.md) |
-| <kbd>F4</kbd>                  | Show file(s) [strings](../utils/strings.md) |
-| <kbd>F5</kbd>                  | Show file(s) `MD5`                          |
-| <kbd>F6</kbd>                  | Show file(s) `SHA1`                         |
-| <kbd>F7</kbd>                  | Show file(s) `SHA256`                       |
-| <kbd>F8</kbd> - <kbd>F12</kbd> | Execute [plugins](../../plugins.md)         |
+| <kbd>F2</kbd>                  | Show agent prompt                           |
+| <kbd>F3</kbd>                  | Show file(s) [counts](../utils/counts.md)   |
+| <kbd>F4</kbd>                  | Show file(s) [entropy](../utils/entropy.md) |
+| <kbd>F5</kbd>                  | Show file(s) [strings](../utils/strings.md) |
+| <kbd>F6</kbd>                  | Show file(s) `MD5`                          |
+| <kbd>F7</kbd>                  | Show file(s) `SHA1`                         |
+| <kbd>F8</kbd>                  | Show file(s) `SHA256`                       |
+| <kbd>F9</kbd> - <kbd>F12</kbd> | Execute [plugins](../../plugins.md)         |

@@ -22,6 +22,7 @@ func Load(flg *pflag.FlagSet) {
 
 	// setup command line flags
 	_ = cfg.BindPFlag("ai.model", flg.Lookup("model"))
+	_ = cfg.BindPFlag("ai.embed", flg.Lookup("embed"))
 	_ = cfg.BindPFlag("ai.num_ctx", flg.Lookup("num-ctx"))
 	_ = cfg.BindPFlag("ai.temp", flg.Lookup("temp"))
 	_ = cfg.BindPFlag("ai.topp", flg.Lookup("topp"))

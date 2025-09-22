@@ -36,8 +36,9 @@ Path(s) to open or `-` for **STDIN**
 - `-A`, `--after=NUMBER` — number of lines trailing context after match
 
 ### AI agent
-- `-m`, `--model=MODEL` — model for the agent to use
 - `-q`, `--query=QUERY` — query for the agent to process
+- `-m`, `--model=MODEL` — model for the agent to use
+- `--embed=MODEL` — embedding model for RAG
 
 ### AI model
 - `--num-ctx=SIZE` — context window length (*default:* `4096`)
