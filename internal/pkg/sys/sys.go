@@ -44,7 +44,10 @@ func Exec(cmds []string) fs.File {
 func Trap() {
 	bin, _ := os.Executable()
 
-	err := exec.Command(shellWin, "/K", bin).Run()
+	args := []string{"/K", bin}
+	args = append(args, os.Args[1:]...)
+
+	err := exec.Command(shellWin, args...).Run()
 
 	if err != nil {
 		fmt.Printf("%s %s\n", Prefix, err.Error())

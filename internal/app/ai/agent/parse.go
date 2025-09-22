@@ -12,9 +12,9 @@ import (
 
 // agent commands
 const (
-	Dir = "list"
-	Add = "set"
+	Add = "use"
 	Del = "del"
+	Dir = "list"
 )
 
 // agent targets
@@ -54,16 +54,21 @@ func (a *Agent) addModel(model string) error {
 	v, model, _ := strings.Cut(model, " ")
 
 	a.busy.Store(true)
+	a.down.Store(0)
 
 	err := a.llm.AddModel(model, func(res api.ProgressResponse) error {
-		if res.Completed >= res.Total {
-			if a.busy.Load() {
-				_, _ = a.File.WriteString(fmt.Sprintf("Using %s %s\n", v, model))
-				a.busy.Store(false)
-			}
-		} else {
-			a.ch <- "."
+		p := uint32((float32(res.Completed) / float32(res.Total)) * 100)
+
+		if a.busy.Load() && (p > a.down.Load() || p == 100) {
+			a.output(fmt.Sprintf("Downloading %s ... % 3d%%\n", model, p))
+			a.down.Store(p)
 		}
+
+		if p == 100 && a.busy.Load() {
+			a.output(fmt.Sprintf("Using %s\n\n", model))
+			a.busy.Store(false)
+		}
+
 		return nil
 	})
 
@@ -91,10 +96,15 @@ func (a *Agent) delModel(model string) error {
 		return err
 	}
 
-	// clear model, if current is deleted
 	if a.ctx.Model() == model {
 		a.ctx.ChangeModel("")
 	}
+
+	if a.ctx.Embed() == model {
+		a.ctx.ChangeEmbed("")
+	}
+
+	a.output(fmt.Sprintf("Deleted model %s\n\n", model))
 
 	return nil
 }
@@ -115,10 +125,10 @@ func (a *Agent) list() error {
 	slices.Sort(ms)
 
 	for _, m := range ms {
-		a.ch <- fmt.Sprintf("\n- %s", m)
+		a.output(fmt.Sprintf("- %s\n", m))
 	}
 
-	a.ch <- "\n\n"
+	a.output("\n")
 
 	return nil
 }

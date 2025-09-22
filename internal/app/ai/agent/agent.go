@@ -22,6 +22,7 @@ const welcome = "How may I assist you today?"
 
 type Agent struct {
 	File fs.File
+	down atomic.Uint32
 	busy atomic.Bool
 
 	hs *heapset.HeapSet
@@ -44,7 +45,7 @@ func New(ctx *app.Context) *Agent {
 		ch: make(chan string, 64),
 	}
 
-	_, _ = a.File.WriteString(welcome + "\n\n")
+	a.output(welcome + "\n\n")
 
 	a.busy.Store(false)
 
@@ -70,7 +71,7 @@ func (a *Agent) Process(query string) {
 }
 
 func (a *Agent) Write(query string) {
-	_, _ = a.File.WriteString(fmt.Sprintf("%c %s\n", text.Icons().Ps1, query))
+	a.output(fmt.Sprintf("%c %s\n", text.Icons().Ps1, query))
 }
 
 func (a *Agent) Close() {
@@ -78,7 +79,7 @@ func (a *Agent) Close() {
 }
 
 func (a *Agent) query(query string) {
-	col := a.rag.Embed("fox", a.ctx.Embed(), a.hs)
+	col := a.rag.Embed(flags.Get().Bag.Case, a.ctx.Embed(), a.hs)
 
 	if col == nil {
 		return
@@ -124,7 +125,7 @@ func (a *Agent) gather() {
 
 		// response chunk
 		if !flg.Print {
-			_, _ = a.File.WriteString(s)
+			a.output(s)
 		} else {
 			_, _ = fmt.Print(s)
 		}
@@ -139,4 +140,8 @@ func (a *Agent) gather() {
 			sb.Reset()
 		}
 	}
+}
+
+func (a *Agent) output(s string) {
+	_, _ = a.File.WriteString(s)
 }

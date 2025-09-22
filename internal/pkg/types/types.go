@@ -1,5 +1,8 @@
 package types
 
+type Set map[string]struct{}
+type Nop struct{}
+
 const (
 	CRC32IEEE = "crc32-ieee"
 	CRC64ECMA = "crc64-ecma"
