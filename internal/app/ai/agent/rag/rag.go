@@ -2,7 +2,6 @@ package rag
 
 import (
 	"context"
-	"fmt"
 	"runtime"
 	"strings"
 
@@ -40,18 +39,14 @@ func (rag *RAG) Embed(name, model string, hs *heapset.HeapSet) *chromem.Collecti
 
 	hs.Each(func(_ int, h *heap.Heap) {
 		if h.Type != types.Agent {
-			for _, str := range *h.FMap() {
-				id := key(h.Base, str.Nr)
+			if _, ok := rag.idx[h.String()]; !ok {
+				docs = append(docs, chromem.Document{
+					ID:       h.String(),
+					Metadata: map[string]string{"file": h.Base},
+					Content:  h.Content(),
+				})
 
-				if _, ok := rag.idx[id]; !ok {
-					docs = append(docs, chromem.Document{
-						ID:       id,
-						Metadata: map[string]string{"file": h.Base},
-						Content:  fmt.Sprintf("line %d: %s", str.Nr, str.Str),
-					})
-
-					rag.idx[id] = types.Nop{}
-				}
+				rag.idx[h.String()] = types.Nop{}
 			}
 		}
 	})
@@ -84,8 +79,4 @@ func (rag *RAG) Query(query string, col *chromem.Collection) string {
 	}
 
 	return sb.String()
-}
-
-func key(f string, l int) string {
-	return fmt.Sprintf("%s:%d", f, l)
 }

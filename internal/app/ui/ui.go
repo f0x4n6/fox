@@ -272,7 +272,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					hs.OpenHelp()
 
 				case tcell.KeyF2:
-					hs.OpenAgent(ui.agent.File.Name(), ui.ctx.Model())
+					hs.OpenAgent(ui.agent.File.Name())
 					ui.change(mode.Fox)
 
 				case tcell.KeyF3:

@@ -6,11 +6,11 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/cuhsat/fox/internal/app"
+	"github.com/cuhsat/fox/internal/app/ai"
 	"github.com/spf13/cobra"
 
 	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/app"
-	"github.com/cuhsat/fox/internal/app/ai"
 	"github.com/cuhsat/fox/internal/app/ai/agent"
 	"github.com/cuhsat/fox/internal/app/ui"
 	"github.com/cuhsat/fox/internal/app/ui/themes"
@@ -331,7 +331,7 @@ func init() {
 
 	config.Load(Fox.Flags())
 
-	cobra.MousetrapHelpText = ""
+	cobra.MousetrapHelpText = "" // disable
 }
 
 func run(args []string) {
@@ -342,15 +342,12 @@ func run(args []string) {
 	defer hs.ThrowAway()
 
 	if len(flg.AI.Query) > 0 {
-		agt = ai.NewAgent(app.NewContext(nil))
-
-		if agt == nil {
+		if agt = ai.NewAgent(app.NewContext(nil)); agt == nil {
 			sys.Exit("Agent is not available")
+		} else {
+			agt.HeapSet(hs)
+			agt.Process(flg.AI.Query)
 		}
-
-		agt.HeapSet(hs)
-		agt.Process(flg.AI.Query)
-
 		return
 	}
 

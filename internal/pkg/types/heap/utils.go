@@ -1,11 +1,27 @@
 package heap
 
 import (
+	"fmt"
 	"math"
 	"regexp"
+	"strings"
 
 	"github.com/cuhsat/fox/internal/pkg/text"
 )
+
+func (h *Heap) Content() string {
+	var sb strings.Builder
+
+	h.RLock()
+
+	for _, str := range *h.smap {
+		sb.WriteString(fmt.Sprintf("line %d: %s\n", str.Nr, str.Str))
+	}
+
+	h.RUnlock()
+
+	return sb.String()
+}
 
 func (h *Heap) Entropy(n, m float64) float64 {
 	var a [256]float64

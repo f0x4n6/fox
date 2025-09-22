@@ -76,7 +76,7 @@ func (llm *LLM) Query(model, query, lines string, fn api.ChatResponseFunc) error
 	return llm.client.Chat(ctx, req, fn)
 }
 
-func (llm *LLM) List() (*api.ListResponse, error) {
+func (llm *LLM) Models() (*api.ListResponse, error) {
 	return llm.client.List(context.Background())
 }
 

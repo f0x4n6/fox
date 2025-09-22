@@ -12,9 +12,9 @@ import (
 
 // agent commands
 const (
-	Add = "use"
-	Del = "del"
-	Dir = "list"
+	Add  = "use"
+	Del  = "del"
+	List = "list"
 )
 
 // agent targets
@@ -26,19 +26,19 @@ const (
 func (a *Agent) parse(query string) bool {
 	cmd, model, _ := strings.Cut(query, " ")
 
-	if !slices.Contains([]string{Add, Del, Dir}, cmd) {
+	if !slices.Contains([]string{Add, Del, List}, cmd) {
 		return false
 	}
 
 	var err error
 
 	switch cmd {
-	case Dir:
-		err = a.list()
 	case Add:
 		err = a.addModel(model)
 	case Del:
 		err = a.delModel(model)
+	case List:
+		err = a.models()
 	default:
 		err = fmt.Errorf("unknown command")
 	}
@@ -59,13 +59,13 @@ func (a *Agent) addModel(model string) error {
 	err := a.llm.AddModel(model, func(res api.ProgressResponse) error {
 		p := uint32((float32(res.Completed) / float32(res.Total)) * 100)
 
-		if a.busy.Load() && (p > a.down.Load() || p == 100) {
-			a.output(fmt.Sprintf("Downloading %s ... % 3d%%\n", model, p))
+		if a.busy.Load() && (p > a.down.Load() && p < 100) {
+			a.output(fmt.Sprintf("Downloading %s ...% 2d%%\n", model, p))
 			a.down.Store(p)
 		}
 
 		if p == 100 && a.busy.Load() {
-			a.output(fmt.Sprintf("Using %s\n\n", model))
+			a.output(fmt.Sprintf("Using model %s\n\n", model))
 			a.busy.Store(false)
 		}
 
@@ -109,10 +109,10 @@ func (a *Agent) delModel(model string) error {
 	return nil
 }
 
-func (a *Agent) list() error {
+func (a *Agent) models() error {
 	var ms []string
 
-	res, err := a.llm.List()
+	res, err := a.llm.Models()
 
 	if err != nil {
 		return err
@@ -125,7 +125,7 @@ func (a *Agent) list() error {
 	slices.Sort(ms)
 
 	for _, m := range ms {
-		a.output(fmt.Sprintf("- %s\n", m))
+		a.output(fmt.Sprintln(m))
 	}
 
 	a.output("\n")
