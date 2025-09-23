@@ -13,6 +13,8 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
+const prefix = "search_document: "
+
 type RAG struct {
 	db  *chromem.DB // in-memory database
 	idx types.Set   // in-memory index
@@ -41,9 +43,11 @@ func (rag *RAG) Embed(name, model string, hs *heapset.HeapSet) *chromem.Collecti
 		if h.Type != types.Agent {
 			if _, ok := rag.idx[h.String()]; !ok {
 				docs = append(docs, chromem.Document{
-					ID:       h.String(),
-					Metadata: map[string]string{"file": h.Base},
-					Content:  h.Content(),
+					ID:      h.String(),
+					Content: prefix + h.Content(),
+					Metadata: map[string]string{
+						"source": h.Base,
+					},
 				})
 
 				rag.idx[h.String()] = types.Nop{}
@@ -74,7 +78,7 @@ func (rag *RAG) Query(query string, col *chromem.Collection) string {
 	var sb strings.Builder
 
 	for _, r := range res {
-		sb.WriteString(r.Content)
+		sb.WriteString(strings.TrimPrefix(r.Content, prefix))
 		sb.WriteRune('\n')
 	}
 
