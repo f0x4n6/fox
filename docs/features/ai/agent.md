@@ -16,8 +16,8 @@ The used models can be switched on-the-fly:
 | Command           | Description                    |
 |-------------------|--------------------------------|
 | `list`            | List locally available models  |
-| `use model MODEL` | Pull and set LLM chat `MODEL`  |
-| `use embed MODEL` | Pull and set embedding `MODEL` |
+| `set model MODEL` | Pull and set LLM chat `MODEL`  |
+| `set embed MODEL` | Pull and set embedding `MODEL` |
 | `del MODEL`       | Delete local `MODEL`           |
 
 ## Example

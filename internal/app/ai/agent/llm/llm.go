@@ -19,6 +19,8 @@ type LLM struct {
 	client  *api.Client   // chat client
 	alive   *api.Duration // chat alive
 	history []api.Message // chat history
+
+	cancel context.CancelFunc
 }
 
 func New(model string, keep time.Duration) *LLM {
@@ -51,13 +53,19 @@ func New(model string, keep time.Duration) *LLM {
 }
 
 func (llm *LLM) Query(model, query, lines string, fn api.ChatResponseFunc) error {
+	var ctx context.Context
+
+	if llm.cancel != nil {
+		llm.cancel()
+	}
+
 	llm.AddSystem(fmt.Sprintf(fox.Prompt, lines))
 	llm.AddUser(query)
 
 	llm.RLock()
 
 	cfg := config.Get()
-	ctx := context.Background()
+	ctx, llm.cancel = context.WithCancel(context.Background())
 	req := &api.ChatRequest{
 		Model:     model,
 		KeepAlive: llm.alive,

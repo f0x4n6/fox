@@ -63,6 +63,10 @@ func (a *Agent) HeapSet(hs *heapset.HeapSet) {
 }
 
 func (a *Agent) Process(query string) {
+	// TODO: cancel here
+	// TODO: context to llm and rag
+	// TODO: a.output("\n(stopped)\n")
+
 	query = strings.TrimSpace(query)
 
 	if !a.parse(query) {

@@ -2,6 +2,7 @@ package agent
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -10,34 +11,23 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/sys"
 )
 
-// agent commands
-const (
-	Add  = "use"
-	Del  = "del"
-	List = "list"
-)
-
-// agent targets
-const (
-	Model = "model"
-	Embed = "embed"
-)
-
 func (a *Agent) parse(query string) bool {
-	cmd, model, _ := strings.Cut(query, " ")
+	var err error
 
-	if !slices.Contains([]string{Add, Del, List}, cmd) {
+	re := regexp.MustCompile(`^(set\s*(model|embed)\s*.+)|(del\s*.+)|list$`)
+
+	if !re.MatchString(query) {
 		return false
 	}
 
-	var err error
+	cmd, model, _ := strings.Cut(query, " ")
 
 	switch cmd {
-	case Add:
+	case "set":
 		err = a.addModel(model)
-	case Del:
+	case "del":
 		err = a.delModel(model)
-	case List:
+	case "list":
 		err = a.models()
 	default:
 		err = fmt.Errorf("unknown command")
@@ -78,9 +68,9 @@ func (a *Agent) addModel(model string) error {
 	}
 
 	switch v {
-	case Model:
+	case "model":
 		a.ctx.ChangeModel(model)
-	case Embed:
+	case "embed":
 		a.ctx.ChangeEmbed(model)
 	default:
 		err = fmt.Errorf("unknown target")

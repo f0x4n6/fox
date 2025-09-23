@@ -41,17 +41,17 @@ func (rag *RAG) Embed(name, model string, hs *heapset.HeapSet) *chromem.Collecti
 
 	hs.Each(func(_ int, h *heap.Heap) {
 		if h.Type != types.Agent {
-			if _, ok := rag.idx[h.String()]; !ok {
-				docs = append(docs, chromem.Document{
-					ID:      h.String(),
-					Content: prefix + h.Content(),
-					Metadata: map[string]string{
-						"source": h.Base,
-					},
-				})
+			//if _, ok := rag.idx[h.String()]; !ok {
+			docs = append(docs, chromem.Document{
+				ID:      h.String(),
+				Content: prefix + h.Content(),
+				Metadata: map[string]string{
+					"source": h.Base,
+				},
+			})
 
-				rag.idx[h.String()] = types.Nop{}
-			}
+			rag.idx[h.String()] = types.Nop{}
+			//}
 		}
 	})
 
