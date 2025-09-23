@@ -19,8 +19,6 @@ type LLM struct {
 	client  *api.Client   // chat client
 	alive   *api.Duration // chat alive
 	history []api.Message // chat history
-
-	cancel context.CancelFunc
 }
 
 func New(model string, keep time.Duration) *LLM {
@@ -34,10 +32,7 @@ func New(model string, keep time.Duration) *LLM {
 
 	// preload model
 	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-		defer cancel()
-
-		_ = client.Chat(ctx, &api.ChatRequest{
+		_ = client.Chat(context.Background(), &api.ChatRequest{
 			Model:     model,
 			KeepAlive: alive,
 		}, func(cr api.ChatResponse) error {
@@ -52,20 +47,13 @@ func New(model string, keep time.Duration) *LLM {
 	}
 }
 
-func (llm *LLM) Query(model, query, lines string, fn api.ChatResponseFunc) error {
-	var ctx context.Context
-
-	if llm.cancel != nil {
-		llm.cancel()
-	}
-
+func (llm *LLM) Query(ctx context.Context, model, query, lines string, fn api.ChatResponseFunc) error {
 	llm.AddSystem(fmt.Sprintf(fox.Prompt, lines))
 	llm.AddUser(query)
 
 	llm.RLock()
 
 	cfg := config.Get()
-	ctx, llm.cancel = context.WithCancel(context.Background())
 	req := &api.ChatRequest{
 		Model:     model,
 		KeepAlive: llm.alive,
@@ -84,26 +72,20 @@ func (llm *LLM) Query(model, query, lines string, fn api.ChatResponseFunc) error
 	return llm.client.Chat(ctx, req, fn)
 }
 
-func (llm *LLM) Models() (*api.ListResponse, error) {
-	return llm.client.List(context.Background())
+func (llm *LLM) Models(ctx context.Context) (*api.ListResponse, error) {
+	return llm.client.List(ctx)
 }
 
-func (llm *LLM) AddModel(model string, fn api.PullProgressFunc) error {
-	ctx := context.Background()
-	req := &api.PullRequest{
+func (llm *LLM) AddModel(ctx context.Context, model string, fn api.PullProgressFunc) error {
+	return llm.client.Pull(ctx, &api.PullRequest{
 		Model: model,
-	}
-
-	return llm.client.Pull(ctx, req, fn)
+	}, fn)
 }
 
-func (llm *LLM) DelModel(model string) error {
-	ctx := context.Background()
-	req := &api.DeleteRequest{
+func (llm *LLM) DelModel(ctx context.Context, model string) error {
+	return llm.client.Delete(ctx, &api.DeleteRequest{
 		Model: model,
-	}
-
-	return llm.client.Delete(ctx, req)
+	})
 }
 
 func (llm *LLM) AddUser(content string) {

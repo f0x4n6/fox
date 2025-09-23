@@ -17,17 +17,17 @@ const prefix = "search_document: "
 
 type RAG struct {
 	db  *chromem.DB // in-memory database
-	idx types.Set   // in-memory index
+	set types.Set   // in-memory hashmap
 }
 
 func New() *RAG {
 	return &RAG{
 		db:  chromem.NewDB(),
-		idx: types.Set{},
+		set: types.Set{},
 	}
 }
 
-func (rag *RAG) Embed(name, model string, hs *heapset.HeapSet) *chromem.Collection {
+func (rag *RAG) Embed(ctx context.Context, name, model string, hs *heapset.HeapSet) *chromem.Collection {
 	col, err := rag.db.GetOrCreateCollection(name, map[string]string{
 		"model": model,
 	}, chromem.NewEmbeddingFuncOllama(model, ""))
@@ -41,22 +41,22 @@ func (rag *RAG) Embed(name, model string, hs *heapset.HeapSet) *chromem.Collecti
 
 	hs.Each(func(_ int, h *heap.Heap) {
 		if h.Type != types.Agent {
-			//if _, ok := rag.idx[h.String()]; !ok {
-			docs = append(docs, chromem.Document{
-				ID:      h.String(),
-				Content: prefix + h.Content(),
-				Metadata: map[string]string{
-					"source": h.Base,
-				},
-			})
+			if _, ok := rag.set[h.String()]; !ok {
+				docs = append(docs, chromem.Document{
+					ID:      h.String(),
+					Content: prefix + h.Content(),
+					Metadata: map[string]string{
+						"source": h.Base,
+					},
+				})
 
-			rag.idx[h.String()] = types.Nop{}
-			//}
+				rag.set[h.String()] = types.Nop{}
+			}
 		}
 	})
 
 	if len(docs) > 0 {
-		err = col.AddDocuments(context.Background(), docs, runtime.NumCPU())
+		err = col.AddDocuments(ctx, docs, runtime.NumCPU())
 	}
 
 	if err != nil {
@@ -67,8 +67,8 @@ func (rag *RAG) Embed(name, model string, hs *heapset.HeapSet) *chromem.Collecti
 	return col
 }
 
-func (rag *RAG) Query(query string, col *chromem.Collection) string {
-	res, err := col.Query(context.Background(), query, col.Count(), nil, nil)
+func (rag *RAG) Query(ctx context.Context, query string, col *chromem.Collection) string {
+	res, err := col.Query(ctx, query, col.Count(), nil, nil)
 
 	if err != nil {
 		sys.Error(err)

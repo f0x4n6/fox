@@ -1,11 +1,13 @@
 package agent
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync/atomic"
 	"time"
 
+	fox "github.com/cuhsat/fox/internal"
 	"github.com/ollama/ollama/api"
 
 	"github.com/cuhsat/fox/internal/app"
@@ -18,10 +20,12 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
-const welcome = "How may I assist you today?"
+const welcome = "What is the current hypothesis?"
 
 type Agent struct {
 	File fs.File
+
+	done context.CancelFunc
 	down atomic.Uint32
 	busy atomic.Bool
 
@@ -45,7 +49,7 @@ func New(ctx *app.Context) *Agent {
 		ch: make(chan string, 64),
 	}
 
-	a.output(welcome + "\n\n")
+	a.output(fmt.Sprintf("%s\n%s\n", fox.Ascii, welcome))
 
 	a.busy.Store(false)
 
@@ -54,53 +58,59 @@ func New(ctx *app.Context) *Agent {
 	return a
 }
 
-func (a *Agent) IsBusy() bool {
-	return a.busy.Load()
-}
-
 func (a *Agent) HeapSet(hs *heapset.HeapSet) {
 	a.hs = hs
 }
 
 func (a *Agent) Process(query string) {
-	// TODO: cancel here
-	// TODO: context to llm and rag
-	// TODO: a.output("\n(stopped)\n")
+	var ctx context.Context
+
+	if a.done != nil {
+		a.done() // stop current activity
+	}
+
+	ctx, a.done = context.WithCancel(context.Background())
 
 	query = strings.TrimSpace(query)
 
-	if !a.parse(query) {
-		a.query(query)
+	if !a.parse(ctx, query) {
+		a.query(ctx, query)
 	}
 }
 
 func (a *Agent) Write(query string) {
-	a.output(fmt.Sprintf("%c %s\n", text.Icons().Ps1, query))
+	a.output(fmt.Sprintf("\n%c %s\n", text.Icons().Ps1, query))
 }
 
 func (a *Agent) Close() {
+	if a.done != nil {
+		a.done()
+	}
+
 	close(a.ch)
 }
 
-func (a *Agent) query(query string) {
-	col := a.rag.Embed(flags.Get().Bag.Case, a.ctx.Embed(), a.hs)
+func (a *Agent) query(ctx context.Context, query string) {
+	name := flags.Get().Bag.Case
+
+	col := a.rag.Embed(ctx, name, a.ctx.Embed(), a.hs)
 
 	if col == nil {
 		return
 	}
 
-	ctx := a.rag.Query(query, col)
+	lines := a.rag.Query(ctx, query, col)
 
-	if len(ctx) == 0 {
+	if len(lines) == 0 {
 		return
 	}
 
 	a.busy.Store(true)
 
-	err := a.llm.Query(a.ctx.Model(), query, ctx, func(res api.ChatResponse) error {
+	err := a.llm.Query(ctx, a.ctx.Model(), query, lines, func(res api.ChatResponse) error {
 		if len(res.Message.Content) == 0 {
 			a.busy.Store(false)
-			a.ch <- "\n\n"
+			a.ch <- "\r\n"
 		} else {
 			a.ch <- res.Message.Content
 		}
@@ -135,7 +145,7 @@ func (a *Agent) gather() {
 		}
 
 		// response end
-		end = s == "\n\n"
+		end = s == "\r\n"
 
 		sb.WriteString(s)
 

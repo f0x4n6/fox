@@ -1,9 +1,9 @@
 package agent
 
 import (
+	"context"
 	"fmt"
 	"regexp"
-	"slices"
 	"strings"
 
 	"github.com/ollama/ollama/api"
@@ -11,24 +11,28 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/sys"
 )
 
-func (a *Agent) parse(query string) bool {
-	var err error
+const syntax = `^(stop|list|(get\s+(model|embed))|(set\s+(model|embed)\s+.+)|(del\s+.+))$`
 
-	re := regexp.MustCompile(`^(set\s*(model|embed)\s*.+)|(del\s*.+)|list$`)
-
-	if !re.MatchString(query) {
-		return false
+func (a *Agent) parse(ctx context.Context, query string) bool {
+	if !regexp.MustCompile(syntax).MatchString(query) {
+		return false // no command
 	}
 
-	cmd, model, _ := strings.Cut(query, " ")
+	var err error
+
+	cmd, param, _ := strings.Cut(query, " ")
 
 	switch cmd {
-	case "set":
-		err = a.addModel(model)
-	case "del":
-		err = a.delModel(model)
+	case "stop":
+		a.stop(ctx)
 	case "list":
-		err = a.models()
+		err = a.getModel(ctx, "")
+	case "get":
+		err = a.getModel(ctx, param)
+	case "set":
+		err = a.setModel(ctx, param)
+	case "del":
+		err = a.delModel(ctx, param)
 	default:
 		err = fmt.Errorf("unknown command")
 	}
@@ -40,30 +44,17 @@ func (a *Agent) parse(query string) bool {
 	return true
 }
 
-func (a *Agent) addModel(model string) error {
-	v, model, _ := strings.Cut(model, " ")
+func (a *Agent) stop(ctx context.Context) {
+	ctx.Done()
+	a.output("Stopped\n")
+}
 
-	a.busy.Store(true)
-	a.down.Store(0)
+func (a *Agent) setModel(ctx context.Context, param string) error {
+	v, model, _ := strings.Cut(param, " ")
 
-	err := a.llm.AddModel(model, func(res api.ProgressResponse) error {
-		p := uint32((float32(res.Completed) / float32(res.Total)) * 100)
-
-		if a.busy.Load() && (p > a.down.Load() && p < 100) {
-			a.output(fmt.Sprintf("Downloading %s ...% 2d%%\n", model, p))
-			a.down.Store(p)
-		}
-
-		if p == 100 && a.busy.Load() {
-			a.output(fmt.Sprintf("Using model %s\n\n", model))
-			a.busy.Store(false)
-		}
-
-		return nil
-	})
+	err := a.download(ctx, model)
 
 	if err != nil {
-		a.busy.Store(false)
 		return err
 	}
 
@@ -73,52 +64,82 @@ func (a *Agent) addModel(model string) error {
 	case "embed":
 		a.ctx.ChangeEmbed(model)
 	default:
-		err = fmt.Errorf("unknown target")
+		return fmt.Errorf("unknown target")
 	}
 
-	return err
+	return nil
 }
 
-func (a *Agent) delModel(model string) error {
-	err := a.llm.DelModel(model)
+func (a *Agent) getModel(ctx context.Context, param string) error {
+	switch param {
+	case "":
+		res, err := a.llm.Models(ctx)
+
+		if err != nil {
+			return err
+		}
+
+		for _, m := range res.Models {
+			a.output(fmt.Sprintln(m.Name))
+		}
+
+	case "model":
+		a.output(fmt.Sprintln(a.ctx.Model()))
+
+	case "embed":
+		a.output(fmt.Sprintln(a.ctx.Embed()))
+
+	default:
+		return fmt.Errorf("unknown target")
+	}
+
+	return nil
+}
+
+func (a *Agent) delModel(ctx context.Context, param string) error {
+	err := a.llm.DelModel(ctx, param)
 
 	if err != nil {
 		return err
 	}
 
-	if a.ctx.Model() == model {
+	if a.ctx.Model() == param {
 		a.ctx.ChangeModel("")
 	}
 
-	if a.ctx.Embed() == model {
+	if a.ctx.Embed() == param {
 		a.ctx.ChangeEmbed("")
 	}
 
-	a.output(fmt.Sprintf("Deleted model %s\n\n", model))
+	a.output(fmt.Sprintf("Deleted model %s\n\n", param))
 
 	return nil
 }
 
-func (a *Agent) models() error {
-	var ms []string
+func (a *Agent) download(ctx context.Context, model string) error {
+	a.busy.Store(true)
+	a.down.Store(0)
 
-	res, err := a.llm.Models()
+	err := a.llm.AddModel(ctx, model, func(res api.ProgressResponse) error {
+		p := uint32((float32(res.Completed) / float32(res.Total)) * 100)
+
+		if a.busy.Load() && (p > a.down.Load() && p < 100) {
+			a.output(fmt.Sprintf("Downloading %s %2d%%\n", model, p))
+			a.down.Store(p)
+		}
+
+		if p == 100 && a.busy.Load() {
+			a.output(fmt.Sprintf("Using model %s\n", model))
+			a.busy.Store(false)
+		}
+
+		return nil
+	})
 
 	if err != nil {
-		return err
+		a.busy.Store(false)
+		a.down.Store(0)
 	}
 
-	for _, m := range res.Models {
-		ms = append(ms, m.Name)
-	}
-
-	slices.Sort(ms)
-
-	for _, m := range ms {
-		a.output(fmt.Sprintln(m))
-	}
-
-	a.output("\n")
-
-	return nil
+	return err
 }

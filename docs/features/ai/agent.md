@@ -13,12 +13,15 @@ All currently open files will be embedded into an in-memory only **Vector Databa
 ## Commands
 The used models can be switched on-the-fly:
 
-| Command           | Description                    |
-|-------------------|--------------------------------|
-| `list`            | List locally available models  |
-| `set model MODEL` | Pull and set LLM chat `MODEL`  |
-| `set embed MODEL` | Pull and set embedding `MODEL` |
-| `del MODEL`       | Delete local `MODEL`           |
+| Command           | Description                          |
+|-------------------|--------------------------------------|
+| `stop`            | Stops the current activity           |
+| `list`            | Lists locally available models       |
+| `set model MODEL` | Pulls and sets the LLM chat `MODEL`  |
+| `set embed MODEL` | Pulls and sets the embedding `MODEL` |
+| `get model`       | Shows the current LLM chat model     |
+| `get embed`       | Shows the current embedding model    |
+| `del MODEL`       | Deletes the local `MODEL`            |
 
 ## Example
 
