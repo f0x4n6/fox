@@ -147,10 +147,6 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 	go ui.root.ChannelEvents(events, closed)
 	go ui.overlay.Listen()
 
-	if ui.agent != nil {
-		ui.agent.HeapSet(hs)
-	}
-
 	ui.invoke(hs, util)
 
 	flg := flags.Get()
@@ -559,7 +555,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 						ui.view.Reset()
 						ui.agent.Write(v)
 						ui.ctx.Background(func() {
-							ui.agent.Process(v)
+							ui.agent.Process(v, hs)
 						})
 
 					default:

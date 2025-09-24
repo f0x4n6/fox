@@ -11,7 +11,6 @@
   * Remap some key bindings
 
 ## 3. Features
-* Add alternative key binding for GOTO mode
 * Add horizontal scroll support to input field
 * Add support for Fortinet log files
   * https://cyber.wtf/2024/08/30/parsing-fortinet-binary-firewall-logs/

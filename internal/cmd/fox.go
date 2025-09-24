@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/app/ai/agent"
 	"github.com/cuhsat/fox/internal/app/ui"
 	"github.com/cuhsat/fox/internal/app/ui/themes"
 	"github.com/cuhsat/fox/internal/cmd/actions"
@@ -336,18 +335,19 @@ func init() {
 
 func run(args []string) {
 	var flg = flags.Get()
-	var agt *agent.Agent
 
 	hs := heapset.New(args)
 	defer hs.ThrowAway()
 
 	if len(flg.AI.Query) > 0 {
-		if agt = ai.NewAgent(app.NewContext(nil)); agt == nil {
-			sys.Exit("Agent is not available")
+		a := ai.NewAgent(app.NewContext(nil))
+
+		if a != nil {
+			a.Process(flg.AI.Query, hs)
 		} else {
-			agt.HeapSet(hs)
-			agt.Process(flg.AI.Query)
+			sys.Exit("Agent is not available")
 		}
+
 		return
 	}
 

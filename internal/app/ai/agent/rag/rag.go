@@ -2,6 +2,7 @@ package rag
 
 import (
 	"context"
+	"fmt"
 	"runtime"
 	"strings"
 
@@ -13,17 +14,13 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
-const prefix = "search_document: "
-
 type RAG struct {
-	db  *chromem.DB // in-memory database
-	set types.Set   // in-memory hashmap
+	db *chromem.DB // in-memory database
 }
 
 func New() *RAG {
 	return &RAG{
-		db:  chromem.NewDB(),
-		set: types.Set{},
+		db: chromem.NewDB(),
 	}
 }
 
@@ -37,26 +34,21 @@ func (rag *RAG) Embed(ctx context.Context, name, model string, hs *heapset.HeapS
 		return nil
 	}
 
-	var docs []chromem.Document
+	var ds []chromem.Document
 
 	hs.Each(func(_ int, h *heap.Heap) {
 		if h.Type != types.Agent {
-			if _, ok := rag.set[h.String()]; !ok {
-				docs = append(docs, chromem.Document{
-					ID:      h.String(),
-					Content: prefix + h.Content(),
-					Metadata: map[string]string{
-						"source": h.Base,
-					},
+			for _, str := range *h.FMap() {
+				ds = append(ds, chromem.Document{
+					ID:      fmt.Sprintf("%s:%d", h.Title, str.Nr),
+					Content: fmt.Sprintf("line %d: %s\n", str.Nr, str.Str),
 				})
-
-				rag.set[h.String()] = types.Nop{}
 			}
 		}
 	})
 
-	if len(docs) > 0 {
-		err = col.AddDocuments(ctx, docs, runtime.NumCPU())
+	if len(ds) > 0 {
+		err = col.AddDocuments(ctx, ds, runtime.NumCPU())
 	}
 
 	if err != nil {
@@ -78,7 +70,7 @@ func (rag *RAG) Query(ctx context.Context, query string, col *chromem.Collection
 	var sb strings.Builder
 
 	for _, r := range res {
-		sb.WriteString(strings.TrimPrefix(r.Content, prefix))
+		sb.WriteString(r.Content)
 		sb.WriteRune('\n')
 	}
 

@@ -20,7 +20,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
-const welcome = "What is the current hypothesis?"
+const welcome = "Please formulate your current work hypothesis"
 
 type Agent struct {
 	File fs.File
@@ -28,8 +28,6 @@ type Agent struct {
 	done context.CancelFunc
 	down atomic.Uint32
 	busy atomic.Bool
-
-	hs *heapset.HeapSet
 
 	ctx *app.Context
 	llm *llm.LLM
@@ -58,11 +56,7 @@ func New(ctx *app.Context) *Agent {
 	return a
 }
 
-func (a *Agent) HeapSet(hs *heapset.HeapSet) {
-	a.hs = hs
-}
-
-func (a *Agent) Process(query string) {
+func (a *Agent) Process(query string, hs *heapset.HeapSet) {
 	var ctx context.Context
 
 	if a.done != nil {
@@ -74,7 +68,7 @@ func (a *Agent) Process(query string) {
 	query = strings.TrimSpace(query)
 
 	if !a.parse(ctx, query) {
-		a.query(ctx, query)
+		a.query(ctx, query, hs)
 	}
 }
 
@@ -90,10 +84,10 @@ func (a *Agent) Close() {
 	close(a.ch)
 }
 
-func (a *Agent) query(ctx context.Context, query string) {
+func (a *Agent) query(ctx context.Context, query string, hs *heapset.HeapSet) {
 	name := flags.Get().Bag.Case
 
-	col := a.rag.Embed(ctx, name, a.ctx.Embed(), a.hs)
+	col := a.rag.Embed(ctx, name, a.ctx.Embed(), hs)
 
 	if col == nil {
 		return
@@ -125,9 +119,9 @@ func (a *Agent) query(ctx context.Context, query string) {
 }
 
 func (a *Agent) gather() {
-	flg, end := flags.Get(), true
-
 	var sb strings.Builder
+
+	flg, end := flags.Get(), true
 
 	for s := range a.ch {
 		// response start
