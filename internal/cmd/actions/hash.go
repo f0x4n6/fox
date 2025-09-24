@@ -82,11 +82,12 @@ var Hash = &cobra.Command{
 			hs := heapset.New(args)
 			defer hs.ThrowAway()
 
-			hs.Each(func(_ int, h *heap.Heap) {
+			hs.Range(func(_ int, h *heap.Heap) bool {
 				sum, err := h.HashSum(algo)
 
 				if err != nil {
 					sys.Exit(fmt.Sprintf("could not compute hash: %s", err.Error()))
+					return false
 				}
 
 				switch algo {
@@ -95,6 +96,7 @@ var Hash = &cobra.Command{
 				default:
 					fmt.Printf("%x  %s\n", sum, h.String())
 				}
+				return true
 			})
 		}
 	},

@@ -76,13 +76,14 @@ var Entropy = &cobra.Command{
 			hs := heapset.New(args)
 			defer hs.ThrowAway()
 
-			hs.Each(func(_ int, h *heap.Heap) {
+			hs.Range(func(_ int, h *heap.Heap) bool {
 				if v := h.Entropy(
 					flg.Entropy.Min,
 					flg.Entropy.Max,
 				); v != -1 {
 					fmt.Printf("%.10f  %s\n", v, h.String())
 				}
+				return true
 			})
 		}
 	},

@@ -3,11 +3,11 @@ package agent
 import (
 	"context"
 	"fmt"
+	"path"
 	"strings"
 	"sync/atomic"
 	"time"
 
-	fox "github.com/cuhsat/fox/internal"
 	"github.com/ollama/ollama/api"
 
 	"github.com/cuhsat/fox/internal/app"
@@ -17,10 +17,10 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/internal/pkg/types/heap"
 )
 
-const welcome = "Please formulate your current work hypothesis"
+const welcome = "Hypothesis?"
 
 type Agent struct {
 	File fs.File
@@ -29,6 +29,8 @@ type Agent struct {
 	down atomic.Uint32
 	busy atomic.Bool
 
+	heap *heap.Heap
+
 	ctx *app.Context
 	llm *llm.LLM
 	rag *rag.RAG
@@ -36,9 +38,10 @@ type Agent struct {
 	ch chan string
 }
 
-func New(ctx *app.Context) *Agent {
+func New(ctx *app.Context, heap *heap.Heap) *Agent {
 	a := &Agent{
-		File: fs.Create("/fox/agent"),
+		File: fs.Create(path.Join(heap.Path, "agent")),
+		heap: heap,
 
 		ctx: ctx,
 		llm: llm.New(ctx.Model(), time.Minute*30),
@@ -47,16 +50,20 @@ func New(ctx *app.Context) *Agent {
 		ch: make(chan string, 64),
 	}
 
-	a.output(fmt.Sprintf("%s\n%s\n", fox.Ascii, welcome))
+	a.output(fmt.Sprintln(welcome))
 
 	a.busy.Store(false)
 
-	go a.gather()
+	go a.listen()
 
 	return a
 }
 
-func (a *Agent) Process(query string, hs *heapset.HeapSet) {
+func (a *Agent) Prompt(query string) {
+	a.output(fmt.Sprintf("\n%c %s\n", text.Icons().Ps1, query))
+}
+
+func (a *Agent) Process(query string) {
 	var ctx context.Context
 
 	if a.done != nil {
@@ -68,12 +75,8 @@ func (a *Agent) Process(query string, hs *heapset.HeapSet) {
 	query = strings.TrimSpace(query)
 
 	if !a.parse(ctx, query) {
-		a.query(ctx, query, hs)
+		a.query(ctx, query)
 	}
-}
-
-func (a *Agent) Write(query string) {
-	a.output(fmt.Sprintf("\n%c %s\n", text.Icons().Ps1, query))
 }
 
 func (a *Agent) Close() {
@@ -84,10 +87,8 @@ func (a *Agent) Close() {
 	close(a.ch)
 }
 
-func (a *Agent) query(ctx context.Context, query string, hs *heapset.HeapSet) {
-	name := flags.Get().Bag.Case
-
-	col := a.rag.Embed(ctx, name, a.ctx.Embed(), hs)
+func (a *Agent) query(ctx context.Context, query string) {
+	col := a.rag.Embed(ctx, a.ctx.Embed(), a.heap)
 
 	if col == nil {
 		return
@@ -118,7 +119,7 @@ func (a *Agent) query(ctx context.Context, query string, hs *heapset.HeapSet) {
 	}
 }
 
-func (a *Agent) gather() {
+func (a *Agent) listen() {
 	var sb strings.Builder
 
 	flg, end := flags.Get(), true

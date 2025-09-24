@@ -3,15 +3,13 @@ package rag
 import (
 	"context"
 	"fmt"
-	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/philippgille/chromem-go"
 
 	"github.com/cuhsat/fox/internal/pkg/sys"
-	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
 type RAG struct {
@@ -24,8 +22,8 @@ func New() *RAG {
 	}
 }
 
-func (rag *RAG) Embed(ctx context.Context, name, model string, hs *heapset.HeapSet) *chromem.Collection {
-	col, err := rag.db.GetOrCreateCollection(name, map[string]string{
+func (rag *RAG) Embed(ctx context.Context, model string, heap *heap.Heap) *chromem.Collection {
+	col, err := rag.db.GetOrCreateCollection(heap.String(), map[string]string{
 		"model": model,
 	}, chromem.NewEmbeddingFuncOllama(model, ""))
 
@@ -34,26 +32,16 @@ func (rag *RAG) Embed(ctx context.Context, name, model string, hs *heapset.HeapS
 		return nil
 	}
 
-	var ds []chromem.Document
+	for _, str := range *heap.FMap() {
+		err := col.AddDocument(ctx, chromem.Document{
+			ID:      strconv.Itoa(str.Nr),
+			Content: fmt.Sprintf("line %d: %s\n", str.Nr, str.Str),
+		})
 
-	hs.Each(func(_ int, h *heap.Heap) {
-		if h.Type != types.Agent {
-			for _, str := range *h.FMap() {
-				ds = append(ds, chromem.Document{
-					ID:      fmt.Sprintf("%s:%d", h.Title, str.Nr),
-					Content: fmt.Sprintf("line %d: %s\n", str.Nr, str.Str),
-				})
-			}
+		if err != nil {
+			sys.Error(err)
+			return nil
 		}
-	})
-
-	if len(ds) > 0 {
-		err = col.AddDocuments(ctx, ds, runtime.NumCPU())
-	}
-
-	if err != nil {
-		sys.Error(err)
-		return nil
 	}
 
 	return col

@@ -15,7 +15,7 @@ import (
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/app"
 	"github.com/cuhsat/fox/internal/app/ai"
-	"github.com/cuhsat/fox/internal/app/ai/agent"
+	"github.com/cuhsat/fox/internal/app/ai/handler"
 	"github.com/cuhsat/fox/internal/app/ui/themes"
 	"github.com/cuhsat/fox/internal/app/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
@@ -45,9 +45,9 @@ type UI struct {
 
 	root tcell.Screen
 
-	agent   *agent.Agent
 	themes  *themes.Themes
 	plugins *plugins.Plugins
+	handler *handler.Handler
 
 	title   *widgets.Title
 	view    *widgets.View
@@ -101,6 +101,7 @@ func create() *UI {
 
 		themes:  themes.New(ctx.Theme()),
 		plugins: plugins.New(),
+		handler: handler.New(ctx),
 
 		title:   widgets.NewTitle(ctx),
 		view:    widgets.NewView(ctx),
@@ -115,20 +116,15 @@ func create() *UI {
 	ui.render(nil)
 	ui.change(flags.Get().UI.Mode)
 
-	ui.agent = ai.NewAgent(ctx)
-
 	return &ui
 }
 
 func (ui *UI) delete() {
-	if ui.agent != nil {
-		ui.agent.Close()
-	}
-
 	if ui.plugins != nil {
 		plugins.Close()
 	}
 
+	ui.handler.Close()
 	ui.overlay.Close()
 	ui.root.Fini()
 	ui.ctx.Save()
@@ -268,7 +264,8 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					hs.OpenHelp()
 
 				case tcell.KeyF2:
-					hs.OpenAgent(ui.agent.File.Name())
+					a := ui.handler.NewAgent(heap.Base, heap)
+					hs.OpenAgent(a.File.Name(), heap.Base, text.Title(heap.Path, "Agent"))
 					ui.change(mode.Fox)
 
 				case tcell.KeyF3:
@@ -318,13 +315,11 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					}
 
 					go p.Execute(heap.Path, heap.Base, func(path, base, dir string) {
-						name := fmt.Sprintf("%s %c %s", base, ui.ctx.Icon.HSep, p.Name)
-
 						if len(dir) > 0 {
 							hs.Open(dir)
 						}
 
-						hs.OpenPlugin(path, base, name)
+						hs.OpenPlugin(path, base, text.Title(base, p.Name))
 
 						ui.ctx.ForceRender()
 						ui.overlay.SendInfo(fmt.Sprintf("%s executed", p.Name))
@@ -553,9 +548,10 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 					case mode.Fox:
 						ui.view.Reset()
-						ui.agent.Write(v)
 						ui.ctx.Background(func() {
-							ui.agent.Process(v, hs)
+							a := ui.handler.GetAgent(heap.Base)
+							a.Prompt(v)
+							a.Process(v)
 						})
 
 					default:
@@ -650,8 +646,8 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 
 func (ui *UI) change(m mode.Mode) {
 	// check for examiner support
-	if m == mode.Fox && ui.agent == nil {
-		ui.overlay.SendError("Agent is not available")
+	if m == mode.Fox && !ai.Check() {
+		ui.overlay.SendError("AI is not available")
 		return
 	}
 
@@ -687,7 +683,7 @@ func (ui *UI) render(hs *heapset.HeapSet) {
 			ui.root.Sync() // prevent hiccups
 		}
 
-		title = fmt.Sprintf("%s %c %s", title, ui.ctx.Icon.HSep, heap)
+		title = text.Title(title, heap.String())
 	}
 
 	ui.root.SetTitle(title)

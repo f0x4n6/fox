@@ -65,8 +65,9 @@ var Compare = &cobra.Command{
 			hs := heapset.New(args)
 			defer hs.ThrowAway()
 
-			hs.Each(func(i int, h *heap.Heap) {
+			hs.Range(func(i int, h *heap.Heap) bool {
 				a[i] = h
+				return true
 			})
 
 			fmt.Print(text.Diff(

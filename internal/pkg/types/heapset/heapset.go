@@ -16,7 +16,7 @@ import (
 
 type Callback func()
 
-type Each func(int, *heap.Heap)
+type Range func(int, *heap.Heap) bool
 
 type HeapSet struct {
 	sync.RWMutex
@@ -58,11 +58,13 @@ func (hs *HeapSet) Len() int32 {
 	return int32(len(hs.heaps))
 }
 
-func (hs *HeapSet) Each(fn Each) {
+func (hs *HeapSet) Range(fn Range) {
 	hs.RLock()
 
 	for i, h := range hs.heaps {
-		fn(i, h.Ensure())
+		if !fn(i, h.Ensure()) {
+			break
+		}
 	}
 
 	hs.RUnlock()
@@ -158,18 +160,13 @@ func (hs *HeapSet) OpenPlugin(path, base, title string) {
 	hs.LoadHeap()
 }
 
-func (hs *HeapSet) OpenAgent(path string) {
-	idx, ok := hs.findByPath(path)
+func (hs *HeapSet) OpenAgent(path, base, title string) {
+	idx, ok := hs.findByName(path)
 
 	if !ok {
 		idx = hs.Len()
 
-		hs.atomicAdd(heap.New(
-			"Agent",
-			path,
-			path,
-			types.Agent,
-		))
+		hs.atomicAdd(heap.New(title, path, base, types.Agent))
 	}
 
 	atomic.StoreInt32(hs.index, idx)

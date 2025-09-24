@@ -58,24 +58,28 @@ func Trim(s string, l, r int) string {
 	return s
 }
 
-func Title(s string, w int) (r string) {
-	if w < 0 {
-		w = 4 + len(s)
-	}
-
-	l := strings.Repeat("─", w-2)
-
-	r += fmt.Sprintf("┌%s┐\n", l)
-	r += fmt.Sprintf("│ %-*s │\n", w-4, s)
-	r += fmt.Sprintf("└%s┘", l)
-
-	return
-}
-
 func Icons() *Icon {
 	if !flags.Get().UI.Legacy {
 		return &unicodeIcons
 	} else {
 		return &defaultIcons
 	}
+}
+
+func Title(l, r string) string {
+	return fmt.Sprintf("%s %c %s", l, Icons().HSep, r)
+}
+
+func Header(s string, w int) (t string) {
+	if w < 0 {
+		w = 4 + len(s)
+	}
+
+	l := strings.Repeat("─", w-2)
+
+	t += fmt.Sprintf("┌%s┐\n", l)
+	t += fmt.Sprintf("│ %-*s │\n", w-4, s)
+	t += fmt.Sprintf("└%s┘", l)
+
+	return
 }

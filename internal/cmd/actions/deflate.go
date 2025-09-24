@@ -62,8 +62,9 @@ var Deflate = &cobra.Command{
 			hs := heapset.New(args)
 			defer hs.ThrowAway()
 
-			hs.Each(func(_ int, h *heap.Heap) {
+			hs.Range(func(_ int, h *heap.Heap) bool {
 				fmt.Println(strings.TrimPrefix(h.Title, h.Base)[1:])
+				return true
 			})
 		} else {
 			flg := flags.Get()
@@ -71,7 +72,7 @@ var Deflate = &cobra.Command{
 			hs := heapset.New(args)
 			defer hs.ThrowAway()
 
-			hs.Each(func(_ int, h *heap.Heap) {
+			hs.Range(func(_ int, h *heap.Heap) bool {
 				root := flg.Deflate.Path
 
 				if root == "." {
@@ -118,6 +119,7 @@ var Deflate = &cobra.Command{
 
 					fmt.Printf("%x  %s\n", sum, path)
 				}
+				return true
 			})
 
 			fmt.Printf("%d file(s) written\n", hs.Len())

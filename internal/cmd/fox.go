@@ -6,11 +6,12 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/cuhsat/fox/internal/app"
-	"github.com/cuhsat/fox/internal/app/ai"
 	"github.com/spf13/cobra"
 
 	"github.com/cuhsat/fox/internal"
+	"github.com/cuhsat/fox/internal/app"
+	"github.com/cuhsat/fox/internal/app/ai"
+	"github.com/cuhsat/fox/internal/app/ai/handler"
 	"github.com/cuhsat/fox/internal/app/ui"
 	"github.com/cuhsat/fox/internal/app/ui/themes"
 	"github.com/cuhsat/fox/internal/cmd/actions"
@@ -334,32 +335,29 @@ func init() {
 }
 
 func run(args []string) {
+	var hnd = handler.New(app.NewContext(nil))
+	defer hnd.Close()
+
 	var flg = flags.Get()
+
+	if len(flg.AI.Query) > 0 && !ai.Check() {
+		sys.Exit("AI is not available")
+	}
 
 	hs := heapset.New(args)
 	defer hs.ThrowAway()
 
-	if len(flg.AI.Query) > 0 {
-		a := ai.NewAgent(app.NewContext(nil))
-
-		if a != nil {
-			a.Process(flg.AI.Query, hs)
-		} else {
-			sys.Exit("Agent is not available")
-		}
-
-		return
-	}
-
-	hs.Each(func(_ int, h *heap.Heap) {
+	hs.Range(func(_ int, h *heap.Heap) bool {
 		if h.Type != types.Stdin {
 			buf := page.NewContext(h)
 
 			if hs.Len() > 1 && !flg.NoFile {
-				fmt.Println(text.Title(h.String(), page.TermW))
+				fmt.Println(text.Header(h.String(), page.TermW))
 			}
 
-			if flg.Hex {
+			if len(flg.AI.Query) > 0 {
+				hnd.NewAgent(h.String(), h).Process(flg.AI.Query)
+			} else if flg.Hex {
 				buf.W = page.TermW
 
 				for l := range page.Hex(buf).Lines {
@@ -367,7 +365,7 @@ func run(args []string) {
 				}
 			} else {
 				if buf.Heap.Len() == 0 {
-					return // ignore empty files
+					return true // ignore empty files
 				}
 
 				for l := range page.Text(buf).Lines {
@@ -385,5 +383,6 @@ func run(args []string) {
 				}
 			}
 		}
+		return true
 	})
 }

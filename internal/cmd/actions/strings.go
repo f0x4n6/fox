@@ -99,10 +99,10 @@ var Strings = &cobra.Command{
 			hs := heapset.New(args)
 			defer hs.ThrowAway()
 
-			hs.Each(func(_ int, h *heap.Heap) {
+			hs.Range(func(_ int, h *heap.Heap) bool {
 				if h.Type != types.Stdin {
 					if !flg.NoFile {
-						fmt.Println(text.Title(h.String(), page.TermW))
+						fmt.Println(text.Header(h.String(), page.TermW))
 					}
 
 					for s := range h.Strings(
@@ -118,6 +118,7 @@ var Strings = &cobra.Command{
 						}
 					}
 				}
+				return true
 			})
 		}
 	},

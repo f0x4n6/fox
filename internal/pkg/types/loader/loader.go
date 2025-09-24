@@ -211,7 +211,7 @@ func (l *Loader) addItem(path, base string) {
 
 func (l *Loader) addPlugin(path, base, name string) {
 	l.heaps = append(l.heaps, heap.New(
-		fmt.Sprintf("%s %c %s", base, text.Icons().HSep, name),
+		text.Title(base, name),
 		path,
 		base,
 		types.Plugin,

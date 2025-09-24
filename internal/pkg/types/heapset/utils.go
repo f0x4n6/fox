@@ -20,7 +20,7 @@ func (hs *HeapSet) Merge() bool {
 
 	f := fs.Create("/fox/merged")
 
-	hs.Each(func(i int, h *heap.Heap) {
+	hs.Range(func(i int, h *heap.Heap) bool {
 		switch h.Type {
 		case types.Regular, types.Deflate:
 			_, _ = f.Write(h.Bytes())
@@ -30,6 +30,7 @@ func (hs *HeapSet) Merge() bool {
 		default:
 			heaps = append(heaps, h)
 		}
+		return true
 	})
 
 	fi, _ := f.Stat()
@@ -46,10 +47,11 @@ func (hs *HeapSet) Merge() bool {
 func (hs *HeapSet) Compare(git bool) *HeapSet {
 	var heaps [2]*heap.Heap
 
-	hs.Each(func(i int, h *heap.Heap) {
+	hs.Range(func(i int, h *heap.Heap) bool {
 		if h.Type == types.Regular || h.Type == types.Deflate {
 			heaps[i] = h
 		}
+		return true
 	})
 
 	f := fs.Create("/fox/compare")
@@ -126,14 +128,16 @@ func (hs *HeapSet) HashSum(algo string) *HeapSet {
 func (hs *HeapSet) newUtil(t string, fn util) {
 	f := sys.Stdout()
 
-	hs.Each(func(i int, h *heap.Heap) {
+	hs.Range(func(i int, h *heap.Heap) bool {
 		if h.Type == types.Regular || h.Type == types.Deflate {
 			_, err := f.WriteString(fn(h))
 
 			if err != nil {
 				sys.Error(err)
+				return false
 			}
 		}
+		return true
 	})
 
 	_ = f.Close()
