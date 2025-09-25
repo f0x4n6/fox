@@ -13,15 +13,15 @@ The currently filtered lines will be embedded into an in-memory only **Vector Da
 ## Commands
 The used models can be switched on-the-fly:
 
-| Command           | Description                          |
-|-------------------|--------------------------------------|
-| `stop`            | Stops the current activity           |
-| `list`            | Lists locally available models       |
-| `set model MODEL` | Pulls and sets the LLM chat `MODEL`  |
-| `set embed MODEL` | Pulls and sets the embedding `MODEL` |
-| `get model`       | Shows the current LLM chat model     |
-| `get embed`       | Shows the current embedding model    |
-| `del MODEL`       | Deletes the local `MODEL`            |
+| Command          | Description                            |
+|------------------|----------------------------------------|
+| `stop`           | Stops the current activity             |
+| `list`           | Lists locally available models         |
+| `set model NAME` | Pulls and sets the LLM analysing model |
+| `set embed NAME` | Pulls and sets the RAG embedding model |
+| `get model`      | Shows the current LLM analysing model  |
+| `get embed`      | Shows the current RAG embedding model  |
+| `del NAME`       | Deletes the local model                |
 
 ## Example
 

@@ -113,7 +113,7 @@ func (hs *HeapSet) OpenHelp() {
 			"Help",
 			f.Name(),
 			f.Name(),
-			types.Stdout,
+			types.Ignore,
 		))
 	}
 

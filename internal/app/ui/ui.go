@@ -260,9 +260,9 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					ui.view.LoadState(heap.Path)
 
 					if heap.Type == types.Agent {
-						ui.ctx.SwitchMode(mode.Fox)
+						ui.change(mode.Fox)
 					} else if ui.ctx.Mode() == mode.Fox {
-						ui.ctx.SwitchMode(ui.ctx.Last())
+						ui.change(ui.ctx.Last())
 					}
 
 				case tcell.KeyF1:
@@ -270,7 +270,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					hs.OpenHelp()
 
 				case tcell.KeyF2:
-					if heap.Type == types.Agent {
+					if heap.Type == types.Agent || heap.Type == types.Ignore {
 						continue
 					}
 
