@@ -35,7 +35,7 @@ func (h *Handler) GetAgent(name string) *agent.Agent {
 		return a.(*agent.Agent)
 	}
 
-	sys.Error("agent not found")
+	sys.Panic("agent not found")
 	return nil
 }
 

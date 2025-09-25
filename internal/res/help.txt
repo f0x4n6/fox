@@ -1,7 +1,7 @@
 
 The Swiss Army Knife for examining text files (%s)
 
-GLOBAL:
+Keymap:
   Esc x 2              Exit
   Shift + Up           Scroll page up
   Shift + Down         Scroll page down
@@ -39,12 +39,12 @@ GLOBAL:
   F8                   Show file(s) SHA256
   F9 - F12             Execute plugin
 
-LESS:
+Keymap LESS:
   Enter                Scroll one line down
   Space                Scroll one page down
   Any other key        Switch to GREP mode
 
-GREP:
+Keymap GREP:
   Esc                  Switch to LESS mode
   Enter                Append filter
   Backspace            Remove filter
@@ -57,6 +57,15 @@ GREP:
   Ctrl + V             Paste from clipboard
   Any other key        Define RegEx pattern
 
-HEX:
+Keymap HEX:
   Enter                Scroll one line down
   Space                Scroll one page down
+
+Agent:
+  stop                 Stops the current activity
+  list                 Lists locally available models
+  set model MODEL      Pulls and sets the LLM chat MODEL
+  set embed MODEL      Pulls and sets the embedding MODEL
+  get model            Shows the current LLM chat model
+  get embed            Shows the current embedding model
+  del MODEL            Deletes the local MODEL

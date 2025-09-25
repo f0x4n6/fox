@@ -20,8 +20,6 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 )
 
-const welcome = "Hypothesis?"
-
 type Agent struct {
 	File fs.File
 
@@ -50,7 +48,7 @@ func New(ctx *app.Context, heap *heap.Heap) *Agent {
 		ch: make(chan string, 64),
 	}
 
-	a.output(fmt.Sprintln(welcome))
+	a.output(fmt.Sprintln("Please specify your request..."))
 
 	a.busy.Store(false)
 

@@ -161,7 +161,7 @@ func (hs *HeapSet) OpenPlugin(path, base, title string) {
 }
 
 func (hs *HeapSet) OpenAgent(path, base, title string) {
-	idx, ok := hs.findByName(path)
+	idx, ok := hs.findByName(title)
 
 	if !ok {
 		idx = hs.Len()

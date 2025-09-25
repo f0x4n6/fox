@@ -259,13 +259,24 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 					ui.view.LoadState(heap.Path)
 
+					if heap.Type == types.Agent {
+						ui.ctx.SwitchMode(mode.Fox)
+					} else if ui.ctx.Mode() == mode.Fox {
+						ui.ctx.SwitchMode(ui.ctx.Last())
+					}
+
 				case tcell.KeyF1:
 					ui.view.Reset()
 					hs.OpenHelp()
 
 				case tcell.KeyF2:
-					a := ui.handler.NewAgent(heap.Base, heap)
-					hs.OpenAgent(a.File.Name(), heap.Base, text.Title(heap.Path, "Agent"))
+					if heap.Type == types.Agent {
+						continue
+					}
+
+					title := text.Title(heap.Path, "agent")
+					path := ui.handler.NewAgent(title, heap).File.Name()
+					hs.OpenAgent(path, path, title)
 					ui.change(mode.Fox)
 
 				case tcell.KeyF3:
@@ -549,7 +560,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					case mode.Fox:
 						ui.view.Reset()
 						ui.ctx.Background(func() {
-							a := ui.handler.GetAgent(heap.Base)
+							a := ui.handler.GetAgent(heap.String())
 							a.Prompt(v)
 							a.Process(v)
 						})
