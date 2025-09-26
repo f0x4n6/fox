@@ -52,7 +52,7 @@ func (rag *RAG) Embed(ctx context.Context, model string, heap *heap.Heap) *chrom
 }
 
 func (rag *RAG) Query(ctx context.Context, query string, col *chromem.Collection) string {
-	res, err := col.Query(ctx, query, 10, nil, nil)
+	res, err := col.Query(ctx, query, col.Count(), nil, nil)
 
 	if err != nil {
 		sys.Error(err)
