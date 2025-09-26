@@ -13,8 +13,8 @@ const (
 	Grep = Mode("Grep")
 	Goto = Mode("Goto")
 	Open = Mode("Open")
+	Chat = Mode("Chat")
 	Hex  = Mode("Hex")
-	Fox  = Mode("Fox")
 )
 
 type Mode string

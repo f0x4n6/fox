@@ -10,6 +10,8 @@ The used model and its parameters can be configured per user config or given per
 ## Retrieval-Augmented Generation
 The currently filtered lines will be embedded into an in-memory only **Vector Database** as a document collection. A relevant subset of these lines will be retried by the LLM for generating the response. It is advised to use a specialized embedding model like `nomic-embed-text`.
 
+> Embedding large chunks of text can take a certain amount of time.
+
 ## Commands
 The used models can be switched on-the-fly:
 

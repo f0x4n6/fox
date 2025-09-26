@@ -180,7 +180,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 				v = strings.TrimPrefix(v, brPrefix)
 				v = strings.TrimSuffix(v, brSuffix)
 
-				ui.prompt.Enter(v)
+				ui.prompt.SetValue(v)
 
 			case *tcell.EventResize:
 				ui.root.Sync()
@@ -204,6 +204,10 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 				if btns&tcell.ButtonMiddle != 0 {
 					ui.root.GetClipboard()
+				} else if btns&tcell.Button4 != 0 {
+					ui.nextTab(hs, heap)
+				} else if btns&tcell.Button5 != 0 {
+					ui.prevTab(hs, heap)
 				} else if btns&tcell.WheelUp != 0 {
 					ui.view.ScrollUp(wheel)
 				} else if btns&tcell.WheelDown != 0 {
@@ -245,24 +249,10 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					esc = true
 
 				case tcell.KeyTab:
-					if hs.Len() <= 1 {
-						continue
-					}
-
-					ui.view.SaveState(heap.Path)
-
-					if mods&tcell.ModShift != 0 {
-						heap = hs.PrevHeap()
+					if mods&tcell.ModShift == 0 {
+						ui.nextTab(hs, heap)
 					} else {
-						heap = hs.NextHeap()
-					}
-
-					ui.view.LoadState(heap.Path)
-
-					if heap.Type == types.Agent {
-						ui.change(mode.Fox)
-					} else if ui.ctx.Mode() == mode.Fox {
-						ui.change(ui.ctx.Last())
+						ui.prevTab(hs, heap)
 					}
 
 				case tcell.KeyF1:
@@ -277,7 +267,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					title := text.Title(heap.Path, "agent")
 					path := ui.handler.NewAgent(title, heap).File.Name()
 					hs.OpenAgent(path, path, title)
-					ui.change(mode.Fox)
+					ui.change(mode.Chat)
 
 				case tcell.KeyF3:
 					hs.Counts()
@@ -342,7 +332,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 				case tcell.KeyUp:
 					if ui.ctx.Mode().Prompt() {
-						ui.prompt.Enter(hi.PrevLine())
+						ui.prompt.SetValue(hi.PrevLine())
 					} else if mods&tcell.ModCtrl != 0 && mods&tcell.ModShift != 0 {
 						ui.view.ScrollStart()
 					} else if mods&tcell.ModShift != 0 {
@@ -353,7 +343,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 				case tcell.KeyDown:
 					if ui.ctx.Mode().Prompt() {
-						ui.prompt.Enter(hi.NextLine())
+						ui.prompt.SetValue(hi.NextLine())
 					} else if mods&tcell.ModCtrl != 0 && mods&tcell.ModShift != 0 {
 						ui.view.ScrollEnd()
 					} else if mods&tcell.ModShift != 0 {
@@ -557,7 +547,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 						})
 						ui.change(ui.ctx.Last())
 
-					case mode.Fox:
+					case mode.Chat:
 						ui.view.Reset()
 						ui.ctx.Background(func() {
 							a := ui.handler.GetAgent(heap.String())
@@ -574,7 +564,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					ui.prompt.DelRune(false)
 
 				case tcell.KeyBackspace, tcell.KeyBackspace2:
-					if len(ui.prompt.Value()) > 0 {
+					if len(ui.prompt.GetValue()) > 0 {
 						ui.prompt.DelRune(true)
 					} else if ui.ctx.Mode().Prompt() {
 						if !ui.ctx.Last().Prompt() {
@@ -657,7 +647,7 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 
 func (ui *UI) change(m mode.Mode) {
 	// check for examiner support
-	if m == mode.Fox && !ai.Check() {
+	if m == mode.Chat && !ai.Check() {
 		ui.overlay.SendError("AI is not available")
 		return
 	}
@@ -668,7 +658,7 @@ func (ui *UI) change(m mode.Mode) {
 
 	// former mode
 	if ui.ctx.Last().Prompt() {
-		ui.prompt.Enter("")
+		ui.prompt.SetValue("")
 	}
 
 	// actual mode

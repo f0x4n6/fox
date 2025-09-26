@@ -11,17 +11,15 @@ import (
 	"github.com/cuhsat/fox/internal/app/ui/themes"
 	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/internal/pkg/types/mode"
 )
 
-const (
-	Cursor = tcell.CursorStyleBlinkingBar
-)
+const Cursor = tcell.CursorStyleBlinkingBar
 
 type Prompt struct {
 	base
 	lock      atomic.Bool
 	value     atomic.Value
+	offset    atomic.Int32
 	cursor    atomic.Int32
 	cursorEnd atomic.Int32
 	cursorMax atomic.Int32
@@ -33,6 +31,7 @@ func NewPrompt(ctx *app.Context) *Prompt {
 	// defaults
 	p.lock.Store(true)
 	p.value.Store("")
+	p.offset.Store(0)
 	p.cursor.Store(0)
 	p.cursorEnd.Store(0)
 	p.cursorMax.Store(0)
@@ -41,18 +40,19 @@ func NewPrompt(ctx *app.Context) *Prompt {
 }
 
 func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
-	var fl, fc int
+	var ca, cb int
 	var fs []string
 
 	if hs != nil {
 		_, heap := hs.Heap()
-		fl, fc = heap.LastCount()
+		ca, cb = heap.LastCount()
 		fs = heap.Patterns()
 	}
 
 	m := p.fmtMode()
-	i := p.fmtInput(fs)
-	s := p.fmtStatus(fl, fc)
+	f := p.fmtFilter(fs)
+	i := p.fmtInput()
+	s := p.fmtStatus(ca, cb)
 
 	// render blank line
 	p.blank(x, y, w, themes.Surface0)
@@ -60,38 +60,45 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	// render mode
 	p.print(x, y, m, themes.Surface3)
 
-	// skip rest in static modes
+	// skip the rest in static modes
 	if p.ctx.Mode().Static() {
 		return 1
 	}
 
-	lm := text.Len(m)
-	ls := text.Len(s)
-	li := text.Len(i)
+	ml := text.Len(m)
+	fl := text.Len(f)
+	sl := text.Len(s)
 
-	x += lm
+	x += ml
 
-	// render filters
-	if p.ctx.Mode() == mode.Grep || len(i) > 2 {
+	// render filter
+	if p.ctx.Mode().Filter() {
+		p.print(x, y, f, themes.Surface1)
+	}
+
+	x += fl
+
+	// render input
+	if len(i) > 2 {
 		p.print(x, y, i, themes.Surface1)
 	}
 
 	// render status
-	p.print(w-ls, y, s, themes.Surface1)
+	p.print(w-sl, y, s, themes.Surface1)
 
 	// calculate cursor position
-	lv := text.Len(p.value.Load().(string))
-	xc := (li - 1) - lv
-	mc := max(w-(lm+xc+ls), 0)
+	vl := text.Len(p.value.Load().(string))
+	cm := max(w-(ml+fl+sl), 0)
 	c := int(p.cursor.Load())
+	o := int(p.offset.Load())
 
-	p.cursorEnd.Store(int32(lv))
-	p.cursorMax.Store(int32(mc))
+	p.cursorEnd.Store(int32(vl - o))
+	p.cursorMax.Store(int32(cm - 1))
 
-	if !p.ctx.Mode().Prompt() || p.Locked() || mc == 0 {
-		p.ctx.Root.HideCursor()
+	if p.ctx.Mode().Prompt() && !p.Locked() {
+		p.ctx.Root.ShowCursor(x+1+c, y)
 	} else {
-		p.ctx.Root.ShowCursor(x+xc+c, y)
+		p.ctx.Root.HideCursor()
 	}
 
 	return 1
@@ -99,18 +106,38 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 
 func (p *Prompt) MoveStart() {
 	p.cursor.Store(0)
+	p.offset.Store(0)
 }
 
 func (p *Prompt) MoveEnd() {
-	p.cursor.Store(p.cursorEnd.Load())
+	ce := p.cursorEnd.Load()
+	cm := p.cursorMax.Load()
+
+	vl := int32(text.Len(p.value.Load().(string)))
+
+	p.cursor.Store(min(ce, cm))
+	p.offset.Store(max(0, vl-cm))
 }
 
 func (p *Prompt) Move(d int) {
 	c := p.cursor.Add(int32(d))
+	o := p.offset.Load()
 	ce := p.cursorEnd.Load()
 	cm := p.cursorMax.Load()
 
 	p.cursor.Store(min(max(c, 0), ce, cm))
+
+	vl := int32(text.Len(p.value.Load().(string)))
+
+	// scroll past start
+	if c < 0 && o > 0 {
+		p.offset.Add(-1)
+	}
+
+	// scroll past end
+	if c > cm && o+c <= vl {
+		p.offset.Add(1)
+	}
 }
 
 func (p *Prompt) Lock(b bool) {
@@ -123,24 +150,30 @@ func (p *Prompt) Locked() bool {
 
 func (p *Prompt) AddRune(r rune) {
 	v := p.value.Load().(string)
-	c := p.cursor.Load()
-	cm := p.cursorMax.Load()
+	o := int(p.offset.Load())
+	c := int(p.cursor.Load())
+	cm := int(p.cursorMax.Load())
 
-	if p.Locked() || c >= cm || cm == 0 || c < 0 {
+	if p.Locked() {
 		return
 	}
 
-	p.value.Store(v[:c] + string(r) + v[c:])
+	p.value.Store(v[:o+c] + string(r) + v[o+c:])
 
+	// move cursor if there is space left
 	if c < cm {
-		p.cursorEnd.Add(+1)
-		p.Move(+1)
+		p.cursorEnd.Add(1)
+		p.Move(1)
+	} else {
+		p.offset.Add(1)
 	}
 }
 
 func (p *Prompt) DelRune(b bool) {
 	v := p.value.Load().(string)
+	o := int(p.offset.Load())
 	c := int(p.cursor.Load())
+	//cm := int(p.cursorMax.Load())
 
 	if p.Locked() || len(v) <= 0 {
 		return
@@ -151,47 +184,50 @@ func (p *Prompt) DelRune(b bool) {
 	p.cursorEnd.Add(-1)
 
 	if !b {
-		p.value.Store(v[:c] + v[min(c+1, lv):])
+		p.value.Store(v[:o+c] + v[min(o+c+1, lv):]) // del left
 	} else {
-		p.value.Store(v[:max(c-1, 0)] + v[c:])
-		p.Move(-1)
+		p.value.Store(v[:max(o+c-1, 0)] + v[o+c:]) // del right
+
+		if o > 0 {
+			p.offset.Add(-1)
+		} else {
+			p.Move(-1)
+		}
 	}
 }
 
 func (p *Prompt) ReadLine() (s string) {
-	mc := p.cursorMax.Load()
-
-	if p.Locked() || mc == 0 {
+	if p.Locked() || p.cursorMax.Load() == 0 {
 		return
 	}
 
-	s = p.Value()
+	s = p.GetValue()
 
-	p.Enter("")
+	p.SetValue("")
 
 	return
 }
 
-func (p *Prompt) Enter(s string) {
+func (p *Prompt) GetValue() string {
+	return p.value.Load().(string)
+}
+
+func (p *Prompt) SetValue(s string) {
 	if p.Locked() {
 		return
 	}
 
-	c := min(int32(text.Len(s)), p.cursorMax.Load())
-
 	p.value.Store(s)
-	p.cursor.Store(c)
-}
 
-func (p *Prompt) Value() string {
-	return p.value.Load().(string)
+	p.cursor.Store(0)
+	p.offset.Store(0)
 }
 
 func (p *Prompt) fmtMode() string {
 	return fmt.Sprintf(" %s ", p.ctx.Mode())
 }
 
-func (p *Prompt) fmtInput(fs []string) string {
+func (p *Prompt) fmtFilter(fs []string) string {
 	var sb strings.Builder
 
 	if p.ctx.Mode().Filter() {
@@ -203,9 +239,19 @@ func (p *Prompt) fmtInput(fs []string) string {
 		}
 	}
 
+	return sb.String()
+}
+
+func (p *Prompt) fmtInput() string {
+	var sb strings.Builder
+
 	if v, ok := p.value.Load().(string); ok {
 		sb.WriteRune(' ')
-		sb.WriteString(v)
+		sb.WriteString(text.Trim(
+			v,
+			int(p.offset.Load()),
+			int(p.cursorMax.Load()),
+		))
 	}
 
 	sb.WriteRune(' ')
@@ -213,13 +259,13 @@ func (p *Prompt) fmtInput(fs []string) string {
 	return sb.String()
 }
 
-func (p *Prompt) fmtStatus(n, m int) string {
+func (p *Prompt) fmtStatus(a, b int) string {
 	var sb strings.Builder
 
-	if m > 0 {
-		sb.WriteString(fmt.Sprintf(" %d %c %d ", n, p.ctx.Icon.Size, m))
+	if b > 0 {
+		sb.WriteString(fmt.Sprintf(" %d %c %d ", a, p.ctx.Icon.Size, b))
 	} else {
-		sb.WriteString(fmt.Sprintf(" %d ", n))
+		sb.WriteString(fmt.Sprintf(" %d ", a))
 	}
 
 	if p.ctx.IsNavi() {
