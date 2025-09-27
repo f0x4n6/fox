@@ -300,6 +300,30 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 				case tcell.KeyF11:
 					fallthrough
 				case tcell.KeyF12:
+					fallthrough
+				case tcell.KeyF13:
+					fallthrough
+				case tcell.KeyF14:
+					fallthrough
+				case tcell.KeyF15:
+					fallthrough
+				case tcell.KeyF16:
+					fallthrough
+				case tcell.KeyF17:
+					fallthrough
+				case tcell.KeyF18:
+					fallthrough
+				case tcell.KeyF19:
+					fallthrough
+				case tcell.KeyF20:
+					fallthrough
+				case tcell.KeyF21:
+					fallthrough
+				case tcell.KeyF22:
+					fallthrough
+				case tcell.KeyF23:
+					fallthrough
+				case tcell.KeyF24:
 					if ui.plugins == nil {
 						continue
 					}

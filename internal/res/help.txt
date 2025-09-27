@@ -37,7 +37,7 @@ Keymap:
   F6                   Show file(s) MD5
   F7                   Show file(s) SHA1
   F8                   Show file(s) SHA256
-  F9 - F12             Execute plugin
+  F9 - F24             Execute plugin
 
 Keymap LESS:
   Enter                Scroll one line down

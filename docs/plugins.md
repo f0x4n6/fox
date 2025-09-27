@@ -23,7 +23,7 @@ Additional variables for hotkeys:
 
 Available hotkeys:
 
-- <kbd>F9</kbd> to <kbd>F12</kbd>
+- <kbd>F9</kbd> to <kbd>F24</kbd>
 
 ```toml
 [auto.info]

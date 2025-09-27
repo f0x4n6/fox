@@ -69,4 +69,4 @@
 | <kbd>F6</kbd>                  | Show file(s) `MD5`                          |
 | <kbd>F7</kbd>                  | Show file(s) `SHA1`                         |
 | <kbd>F8</kbd>                  | Show file(s) `SHA256`                       |
-| <kbd>F9</kbd> - <kbd>F12</kbd> | Execute [plugins](../../plugins.md)         |
+| <kbd>F9</kbd> - <kbd>F24</kbd> | Execute [plugins](../../plugins.md)         |
