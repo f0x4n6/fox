@@ -66,7 +66,7 @@ func Text(ctx *Context) (page TextPage) {
 		page.Y = min(page.Y, lastY)
 	}
 
-	page.W, page.H = page.FMap.Size()
+	page.W, page.H = page.FMap.Size() // TODO: cache fmap with size
 
 	page.Lines = make(chan TextLine, Size)
 	page.Parts = make(chan TextPart, Size)

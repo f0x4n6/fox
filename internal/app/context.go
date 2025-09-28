@@ -36,12 +36,13 @@ type Context struct {
 
 func NewContext(root tcell.Screen) *Context {
 	cfg := config.Get()
+	flg := flags.Get()
 	ctx := &Context{
 		// screen
 		Root: root,
 
 		// icons
-		Icon: text.Icons(),
+		Icon: text.Icons(!flg.UI.Legacy),
 
 		// modes
 		mode: mode.Default,
@@ -63,7 +64,7 @@ func NewContext(root tcell.Screen) *Context {
 	ctx.p.Store(false)
 
 	// precede flags
-	s := strings.ToUpper(flags.Get().UI.State)
+	s := strings.ToUpper(flg.UI.State)
 
 	if strings.ContainsRune(s, '-') {
 		ctx.n.Store(false)

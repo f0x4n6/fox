@@ -5,7 +5,6 @@ import (
 	"math"
 	"strings"
 
-	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/mattn/go-runewidth"
 )
 
@@ -58,16 +57,16 @@ func Trim(s string, l, r int) string {
 	return s
 }
 
-func Icons() *Icon {
-	if !flags.Get().UI.Legacy {
+func Icons(u bool) *Icon {
+	if u {
 		return &unicodeIcons
 	} else {
 		return &defaultIcons
 	}
 }
 
-func Title(l, r string) string {
-	return fmt.Sprintf("%s %c %s", l, Icons().HSep, r)
+func Title(l, r string, u bool) string {
+	return fmt.Sprintf("%s %c %s", l, Icons(u).HSep, r)
 }
 
 func Header(s string, w int) (t string) {

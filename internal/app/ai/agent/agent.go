@@ -16,7 +16,6 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 )
 
@@ -60,7 +59,7 @@ func New(ctx *app.Context, heap *heap.Heap) *Agent {
 }
 
 func (a *Agent) Prompt(query string) {
-	a.output(fmt.Sprintf("\n%c %s\n", text.Icons().Ps1, query))
+	a.output(fmt.Sprintf("\n%c %s\n", a.ctx.Icon.Ps1, query))
 }
 
 func (a *Agent) Process(query string) {

@@ -264,7 +264,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 						continue
 					}
 
-					title := text.Title(heap.Path, "agent")
+					title := ui.format(heap.Path, "agent")
 					path := ui.handler.NewAgent(title, heap).File.Name()
 					hs.OpenAgent(path, path, title)
 					ui.change(mode.Chat)
@@ -344,7 +344,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 							hs.Open(dir)
 						}
 
-						hs.OpenPlugin(path, base, text.Title(base, p.Name))
+						hs.OpenPlugin(path, base, ui.format(base, p.Name))
 
 						ui.ctx.ForceRender()
 						ui.overlay.SendInfo(fmt.Sprintf("%s executed", p.Name))
@@ -633,6 +633,10 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 	}
 }
 
+func (ui *UI) format(l, r string) string {
+	return text.Title(l, r, !flags.Get().UI.Legacy)
+}
+
 func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 	flg := flags.Get()
 
@@ -708,7 +712,7 @@ func (ui *UI) render(hs *heapset.HeapSet) {
 			ui.root.Sync() // prevent hiccups
 		}
 
-		title = text.Title(title, heap.String())
+		title = ui.format(title, heap.String())
 	}
 
 	ui.root.SetTitle(title)

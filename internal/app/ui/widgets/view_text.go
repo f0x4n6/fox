@@ -8,7 +8,6 @@ import (
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/cuhsat/fox/internal/app/ui/themes"
-	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/page"
 )
@@ -46,7 +45,7 @@ func (v *View) textRender(p *panel) {
 	i := 0
 
 	llm := v.heap.Type == types.Agent
-	ps1 := string(text.Icons().Ps1)
+	ps1 := string(v.ctx.Icon.Ps1)
 
 	// render lines
 	var color tcell.Style

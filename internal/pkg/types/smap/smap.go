@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"github.com/edsrzf/mmap-go"
+	"github.com/mattn/go-runewidth"
 )
 
 type action func(ch chan<- String, c *chunk)
@@ -110,7 +111,7 @@ func (s *SMap) Wrap(e, w int) *SMap {
 		for _, s := range (*s)[c.min:c.max] {
 			i, l = 0, expand(s.Str, tab)
 
-			for i < len(l)-w {
+			for i < runewidth.StringWidth(l)-w {
 				ch <- String{s.Nr, s.Grp, l[i : i+w]}
 				i += w
 			}

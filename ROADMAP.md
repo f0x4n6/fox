@@ -1,7 +1,6 @@
 # Roadmap
 
 ## 1. Bug Fixes
-* Fix SMap wrap to wrap with rune width
 * Fix partial highlighting
 
 ## 2. Refactorings

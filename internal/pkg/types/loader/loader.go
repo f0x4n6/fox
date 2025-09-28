@@ -178,7 +178,7 @@ func (l *Loader) addPipe() {
 	pipe := sys.Stdin().Name()
 
 	l.heaps = append(l.heaps, heap.New(
-		"",
+		"-",
 		pipe,
 		pipe,
 		types.Stdin,
@@ -211,7 +211,7 @@ func (l *Loader) addItem(path, base string) {
 
 func (l *Loader) addPlugin(path, base, name string) {
 	l.heaps = append(l.heaps, heap.New(
-		text.Title(base, name),
+		text.Title(base, name, !flags.Get().UI.Legacy),
 		path,
 		base,
 		types.Plugin,
