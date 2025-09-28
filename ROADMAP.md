@@ -1,7 +1,6 @@
 # Roadmap
 
 ## 1. Bug Fixes
-* Fix tab to smaller file in HEX mode
 * Fix SMap wrap to wrap with rune width
 * Fix partial highlighting
 

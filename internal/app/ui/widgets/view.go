@@ -94,6 +94,11 @@ func (v *View) SaveState(key string) {
 }
 
 func (v *View) LoadState(key string) {
+	// safe defaults
+	v.delta.X = 0
+	v.delta.Y = 0
+
+	// can be nil in hex mode
 	if v.fmap != nil {
 		if s, ok := v.cache[key]; ok {
 			if len(*s.fmap) == len(*v.fmap) {
@@ -101,9 +106,6 @@ func (v *View) LoadState(key string) {
 			} else {
 				v.nr = s.nr
 			}
-		} else {
-			v.delta.X = 0
-			v.delta.Y = 0
 		}
 	}
 }
