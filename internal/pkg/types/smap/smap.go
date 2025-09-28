@@ -151,7 +151,7 @@ func (s *SMap) Size() (w, h int) {
 	}
 
 	for _, str := range *s {
-		w = max(w, len(str.Str))
+		w = max(w, runewidth.StringWidth(str.Str))
 	}
 
 	h = len(*s)

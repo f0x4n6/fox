@@ -26,6 +26,12 @@ type TextPart struct {
 	Part
 }
 
+type entry struct {
+	s *smap.SMap
+	w int // width
+	h int // height
+}
+
 func (tl TextLine) String() string {
 	return tl.Str
 }
@@ -41,7 +47,9 @@ func Text(ctx *Context) (page TextPage) {
 	key := ctx.Hash()
 
 	if val, ok := ctx.Heap.Cache.Load(key); ok {
-		page.FMap = val.(*smap.SMap)
+		page.FMap = val.(entry).s
+		page.W = val.(entry).w
+		page.H = val.(entry).h
 	} else {
 		page.FMap = ctx.Heap.FMap()
 
@@ -53,7 +61,14 @@ func Text(ctx *Context) (page TextPage) {
 			page.FMap = page.FMap.Render(ctx.Space)
 		}
 
-		ctx.Heap.Cache.Store(key, page.FMap)
+		page.W, page.H = page.FMap.Size()
+
+		// cache smap to improve performance
+		ctx.Heap.Cache.Store(key, entry{
+			page.FMap,
+			page.W,
+			page.H,
+		})
 	}
 
 	page.Y = ctx.Y
@@ -65,8 +80,6 @@ func Text(ctx *Context) (page TextPage) {
 		page.Y, _ = page.FMap.Find(ctx.Nr)
 		page.Y = min(page.Y, lastY)
 	}
-
-	page.W, page.H = page.FMap.Size() // TODO: cache fmap with size
 
 	page.Lines = make(chan TextLine, Size)
 	page.Parts = make(chan TextPart, Size)
