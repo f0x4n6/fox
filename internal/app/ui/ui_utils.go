@@ -40,7 +40,7 @@ func (ui *UI) changeTab(hs *heapset.HeapSet, h *heap.Heap, d Direction) {
 
 	ui.view.LoadState(h.Path)
 
-	if h.Type == types.Agent {
+	if h.Type == types.Chat {
 		ui.change(mode.Chat)
 	} else if ui.ctx.Mode() == mode.Chat {
 		ui.change(ui.ctx.Last())

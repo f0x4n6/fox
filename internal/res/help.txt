@@ -30,13 +30,13 @@ Keymap:
   Ctrl + B             Open evidence bag
   Ctrl + Z             Suspend to shell
   F1                   Show help message
-  F2                   Show agent prompt
-  F3                   Show file(s) counts
-  F4                   Show file(s) entropy
-  F5                   Show file(s) strings
-  F6                   Show file(s) MD5
-  F7                   Show file(s) SHA1
-  F8                   Show file(s) SHA256
+  F2                   Show file(s) counts
+  F3                   Show file(s) entropy
+  F4                   Show file(s) strings
+  F5                   Show file(s) MD5
+  F6                   Show file(s) SHA1
+  F7                   Show file(s) SHA256
+  F8                   Open assistant chat
   F9 - F24             Execute plugin
 
 Keymap LESS:
@@ -61,11 +61,12 @@ Keymap HEX:
   Enter                Scroll one line down
   Space                Scroll one page down
 
-Agent Commands:
-  stop                 Stops the current activity
-  list                 Lists locally available models
-  set model NAME       Pulls and sets the LLM analysing model
-  set embed NAME       Pulls and sets the RAG embedding model
-  get model            Shows the current LLM analysing model
-  get embed            Shows the current RAG embedding model
-  del NAME             Deletes the local model
+Assistant:
+  Stop                 Stops the current activity
+  List                 Lists locally available models
+  Set model NAME       Pulls and sets the LLM analysing model
+  Set embed NAME       Pulls and sets the RAG embedding model
+  Get model            Shows the current LLM analysing model
+  Get embed            Shows the current RAG embedding model
+  Del NAME             Deletes the local model
+  Any other input      Define assistant prompt

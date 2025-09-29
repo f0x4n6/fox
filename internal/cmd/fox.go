@@ -11,7 +11,7 @@ import (
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/app"
 	"github.com/cuhsat/fox/internal/app/ai"
-	"github.com/cuhsat/fox/internal/app/ai/handler"
+	"github.com/cuhsat/fox/internal/app/ai/chat"
 	"github.com/cuhsat/fox/internal/app/ui"
 	"github.com/cuhsat/fox/internal/app/ui/themes"
 	"github.com/cuhsat/fox/internal/cmd/actions"
@@ -67,12 +67,12 @@ Line filter:
   -B, --before=NUMBER      number of lines leading context before match
   -A, --after=NUMBER       number of lines trailing context after match
 
-AI agent:
-  -q, --query=QUERY        query for the agent to process
-  -m, --model=MODEL        model for the agent to use
+AI assistant:
+  -q, --query=QUERY        query for the assistant to process
+  -m, --model=MODEL        model for the assistant to use
       --embed=MODEL        embedding model for RAG
 
-AI model:
+AI options:
       --num-ctx=SIZE       context window length (default: 4096)
       --temp=DECIMAL       option for temperature (default: 0.2)
       --topp=DECIMAL       option for model top_p (default: 0.5)
@@ -267,8 +267,8 @@ func init() {
 	Fox.Flags().IntVarP(&flg.Filters.Before, "before", "B", 0, "number of lines leading context before match")
 	Fox.Flags().IntVarP(&flg.Filters.After, "after", "A", 0, "number of lines trailing context after match")
 
-	Fox.Flags().StringVarP(&flg.AI.Query, "query", "q", "", "query for the agent to process")
-	Fox.Flags().StringVarP(&flg.AI.Model, "model", "m", "", "model for the agent to use")
+	Fox.Flags().StringVarP(&flg.AI.Query, "query", "q", "", "query for the assistant to process")
+	Fox.Flags().StringVarP(&flg.AI.Model, "model", "m", "", "model for the assistant to use")
 	Fox.Flags().StringVarP(&flg.AI.Embed, "embed", "", "", "embedding model for RAG")
 	Fox.Flags().IntVarP(&flg.AI.NumCtx, "num-ctx", "", 4096, "context window length")
 	Fox.Flags().Float64VarP(&flg.AI.Temp, "temp", "", 0.2, "option for temperature")
@@ -335,13 +335,11 @@ func init() {
 }
 
 func run(args []string) {
-	var hnd = handler.New(app.NewContext(nil))
-	defer hnd.Close()
-
+	var ctx = app.NewContext(nil)
 	var flg = flags.Get()
 
 	if len(flg.AI.Query) > 0 && !ai.Check() {
-		sys.Exit("AI is not available")
+		sys.Exit("Assistant is not available")
 	}
 
 	hs := heapset.New(args)
@@ -356,7 +354,10 @@ func run(args []string) {
 			}
 
 			if len(flg.AI.Query) > 0 {
-				hnd.NewAgent(h.String(), h).Process(flg.AI.Query)
+				c := chat.New(ctx, h)
+				defer c.Close()
+
+				c.Query(flg.AI.Query, false)
 			} else if flg.Hex {
 				buf.W = page.TermW
 

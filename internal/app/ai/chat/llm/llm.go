@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
+	fox "github.com/cuhsat/fox/internal"
 	"github.com/ollama/ollama/api"
 
-	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/user/config"
 )
@@ -48,8 +48,7 @@ func New(model string, keep time.Duration) *LLM {
 }
 
 func (llm *LLM) Query(ctx context.Context, model, query, lines string, fn api.ChatResponseFunc) error {
-	llm.AddSystem(fmt.Sprintf(fox.Prompt, lines))
-	llm.AddUser(query)
+	llm.AddUser(fmt.Sprintf(fox.Prompt, query, lines))
 
 	llm.RLock()
 
@@ -90,10 +89,6 @@ func (llm *LLM) DelModel(ctx context.Context, model string) error {
 
 func (llm *LLM) AddUser(content string) {
 	llm.addMessage("user", content)
-}
-
-func (llm *LLM) AddSystem(content string) {
-	llm.addMessage("system", content)
 }
 
 func (llm *LLM) AddAssistant(content string) {

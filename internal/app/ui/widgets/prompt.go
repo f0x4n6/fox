@@ -217,10 +217,14 @@ func (p *Prompt) SetValue(s string) {
 		return
 	}
 
+	cm := int(p.cursorMax.Load())
+	o := max(len(s)-cm, 0)
+	c := min(len(s)-o, len(s))
+
 	p.value.Store(s)
 
-	p.cursor.Store(0)
-	p.offset.Store(0)
+	p.cursor.Store(int32(c))
+	p.offset.Store(int32(o))
 }
 
 func (p *Prompt) fmtMode() string {

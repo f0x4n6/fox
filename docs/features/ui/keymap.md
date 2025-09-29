@@ -62,11 +62,11 @@
 |--------------------------------|---------------------------------------------|
 | <kbd>Ctrl</kbd> + <kbd>^</kbd> | Cycle through [themes](../../themes.md)     |
 | <kbd>F1</kbd>                  | Show help message                           |
-| <kbd>F2</kbd>                  | Show agent prompt                           |
-| <kbd>F3</kbd>                  | Show file(s) [counts](../utils/counts.md)   |
-| <kbd>F4</kbd>                  | Show file(s) [entropy](../utils/entropy.md) |
-| <kbd>F5</kbd>                  | Show file(s) [strings](../utils/strings.md) |
-| <kbd>F6</kbd>                  | Show file(s) `MD5`                          |
-| <kbd>F7</kbd>                  | Show file(s) `SHA1`                         |
-| <kbd>F8</kbd>                  | Show file(s) `SHA256`                       |
+| <kbd>F2</kbd>                  | Show file(s) [counts](../utils/counts.md)   |
+| <kbd>F3</kbd>                  | Show file(s) [entropy](../utils/entropy.md) |
+| <kbd>F4</kbd>                  | Show file(s) [strings](../utils/strings.md) |
+| <kbd>F5</kbd>                  | Show file(s) `MD5`                          |
+| <kbd>F6</kbd>                  | Show file(s) `SHA1`                         |
+| <kbd>F7</kbd>                  | Show file(s) `SHA256`                       |
+| <kbd>F8</kbd>                  | Open assistant chat                         |
 | <kbd>F9</kbd> - <kbd>F24</kbd> | Execute [plugins](../../plugins.md)         |

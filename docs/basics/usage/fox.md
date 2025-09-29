@@ -35,12 +35,12 @@ Path(s) to open or `-` for **STDIN**
 - `-B`, `--before=NUMBER` — number of lines leading context before match
 - `-A`, `--after=NUMBER` — number of lines trailing context after match
 
-### AI agent
-- `-q`, `--query=QUERY` — query for the agent to process
-- `-m`, `--model=MODEL` — model for the agent to use
+### AI assistant
+- `-q`, `--query=QUERY` — query for the assistant to process
+- `-m`, `--model=MODEL` — model for the assistant to use
 - `--embed=MODEL` — embedding model for RAG
 
-### AI model
+### AI options
 - `--num-ctx=SIZE` — context window length (*default:* `4096`)
 - `--temp=DECIMAL` — option for temperature (*default:* `0.2`)
 - `--topp=DECIMAL` — option for model top_p (*default:* `0.5`)

@@ -23,4 +23,4 @@ Packages are available in:
 - `.rpm` format, use  `sudo rpm -i fox*.rpm`
 
 ## Dependencies
-If you wish to use the LLM capabilities, connection to a local or remote running [Ollama](https://ollama.com) server is required.
+If you wish to use the [LLM capabilities](../features/ai/assistant.md), connection to a local or remote running [Ollama](https://ollama.com) server is required.

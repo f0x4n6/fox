@@ -1,4 +1,4 @@
-package agent
+package chat
 
 import (
 	"context"
@@ -11,17 +11,17 @@ import (
 	"github.com/ollama/ollama/api"
 
 	"github.com/cuhsat/fox/internal/app"
-	"github.com/cuhsat/fox/internal/app/ai/agent/llm"
-	"github.com/cuhsat/fox/internal/app/ai/agent/rag"
+	"github.com/cuhsat/fox/internal/app/ai/chat/llm"
+	"github.com/cuhsat/fox/internal/app/ai/chat/rag"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 )
 
-const banner = "Hello, how may I help you please?"
+const banner = "How may I help you today?"
 
-type Agent struct {
+type Chat struct {
 	File fs.File
 
 	done context.CancelFunc
@@ -37,9 +37,9 @@ type Agent struct {
 	ch chan string
 }
 
-func New(ctx *app.Context, heap *heap.Heap) *Agent {
-	a := &Agent{
-		File: fs.Create(path.Join(heap.Path, "agent")),
+func New(ctx *app.Context, heap *heap.Heap) *Chat {
+	a := &Chat{
+		File: fs.Create(path.Join(heap.Path, "chat")),
 		heap: heap,
 
 		ctx: ctx,
@@ -49,7 +49,7 @@ func New(ctx *app.Context, heap *heap.Heap) *Agent {
 		ch: make(chan string, 64),
 	}
 
-	a.output(fmt.Sprintln(banner))
+	a.write(fmt.Sprintln(banner))
 
 	a.busy.Store(false)
 
@@ -58,72 +58,72 @@ func New(ctx *app.Context, heap *heap.Heap) *Agent {
 	return a
 }
 
-func (a *Agent) Prompt(query string) {
-	a.output(fmt.Sprintf("\n%c %s\n", a.ctx.Icon.Ps1, query))
-}
-
-func (a *Agent) Process(query string) {
+func (c *Chat) Query(query string, echo bool) {
 	var ctx context.Context
 
-	if a.done != nil {
-		a.done() // stop current activity
+	if echo {
+		c.write(fmt.Sprintf("\n%c %s\n", c.ctx.Icon.Ps1, query))
 	}
 
-	ctx, a.done = context.WithCancel(context.Background())
+	if c.done != nil {
+		c.done() // stop current activity
+	}
+
+	ctx, c.done = context.WithCancel(context.Background())
 
 	query = strings.TrimSpace(query)
 
-	if !a.parse(ctx, query) {
-		a.query(ctx, query)
+	if !c.parse(ctx, query) {
+		c.process(ctx, query)
 	}
 }
 
-func (a *Agent) Close() {
-	if a.done != nil {
-		a.done()
+func (c *Chat) Close() {
+	if c.done != nil {
+		c.done()
 	}
 
-	close(a.ch)
+	close(c.ch)
 }
 
-func (a *Agent) query(ctx context.Context, query string) {
-	col := a.rag.Embed(ctx, a.ctx.Embed(), a.heap)
+func (c *Chat) process(ctx context.Context, query string) {
+	col := c.rag.Embed(ctx, c.ctx.Embed(), c.heap)
 
 	if col == nil {
 		return
 	}
 
-	lines := a.rag.Query(ctx, query, col)
+	lines := c.rag.Query(ctx, query, col)
 
 	if len(lines) == 0 {
 		return
 	}
 
-	a.busy.Store(true)
+	c.busy.Store(true)
 
-	err := a.llm.Query(ctx, a.ctx.Model(), query, lines, func(res api.ChatResponse) error {
+	err := c.llm.Query(ctx, c.ctx.Model(), query, lines, func(res api.ChatResponse) error {
 		if len(res.Message.Content) == 0 {
-			a.busy.Store(false)
-			a.ch <- "\r\n"
+			c.busy.Store(false)
+			c.ch <- "\r\n"
 		} else {
-			a.ch <- res.Message.Content
+			c.ch <- res.Message.Content
 		}
 
 		return nil
 	})
 
 	if err != nil {
-		a.busy.Store(false)
+		c.busy.Store(false)
 		sys.Error(err)
 	}
 }
 
-func (a *Agent) listen() {
+func (c *Chat) listen() {
 	var sb strings.Builder
 
 	flg, end := flags.Get(), true
 
-	for s := range a.ch {
+	for s := range c.ch {
 		// response start
 		if end {
 			s = strings.TrimSpace(s)
@@ -133,7 +133,7 @@ func (a *Agent) listen() {
 
 		// response chunk
 		if !flg.Print {
-			a.output(s)
+			c.write(s)
 		} else {
 			_, _ = fmt.Print(s)
 		}
@@ -144,12 +144,12 @@ func (a *Agent) listen() {
 		sb.WriteString(s)
 
 		if end {
-			a.llm.AddAssistant(sb.String())
+			c.llm.AddAssistant(sb.String())
 			sb.Reset()
 		}
 	}
 }
 
-func (a *Agent) output(s string) {
-	_, _ = a.File.WriteString(s)
+func (c *Chat) write(s string) {
+	_, _ = c.File.WriteString(s)
 }

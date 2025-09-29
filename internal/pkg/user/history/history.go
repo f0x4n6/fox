@@ -76,6 +76,10 @@ func (h *History) AddLine(s string) {
 	s = strings.ReplaceAll(s, "\n", "")
 	s = strings.TrimSpace(s)
 
+	if len(s) == 0 {
+		return
+	}
+
 	h.Lock()
 	h.lines = append(h.lines, s)
 	h.Unlock()

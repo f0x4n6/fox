@@ -27,7 +27,7 @@ const (
 	Stdout
 	Stderr
 	Plugin
-	Agent
+	Chat
 )
 
 type Invoke int

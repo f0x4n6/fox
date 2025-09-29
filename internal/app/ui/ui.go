@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"sync"
 
+	"github.com/cuhsat/fox/internal/app/ai/chat"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mattn/go-runewidth"
 
@@ -15,7 +17,6 @@ import (
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/app"
 	"github.com/cuhsat/fox/internal/app/ai"
-	"github.com/cuhsat/fox/internal/app/ai/handler"
 	"github.com/cuhsat/fox/internal/app/ui/themes"
 	"github.com/cuhsat/fox/internal/app/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
@@ -45,9 +46,10 @@ type UI struct {
 
 	root tcell.Screen
 
+	chats sync.Map
+
 	themes  *themes.Themes
 	plugins *plugins.Plugins
-	handler *handler.Handler
 
 	title   *widgets.Title
 	view    *widgets.View
@@ -101,7 +103,6 @@ func create() *UI {
 
 		themes:  themes.New(ctx.Theme()),
 		plugins: plugins.New(),
-		handler: handler.New(ctx),
 
 		title:   widgets.NewTitle(ctx),
 		view:    widgets.NewView(ctx),
@@ -120,11 +121,15 @@ func create() *UI {
 }
 
 func (ui *UI) delete() {
+	ui.chats.Range(func(_, c any) bool {
+		c.(*chat.Chat).Close()
+		return true
+	})
+
 	if ui.plugins != nil {
 		plugins.Close()
 	}
 
-	ui.handler.Close()
 	ui.overlay.Close()
 	ui.root.Fini()
 	ui.ctx.Save()
@@ -260,38 +265,49 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					hs.OpenHelp()
 
 				case tcell.KeyF2:
-					if heap.Type == types.Agent || heap.Type == types.Ignore {
-						continue
-					}
-
-					title := ui.format(heap.Path, "agent")
-					path := ui.handler.NewAgent(title, heap).File.Name()
-					hs.OpenAgent(path, path, title)
-					ui.change(mode.Chat)
-
-				case tcell.KeyF3:
 					hs.Counts()
 					ui.change(mode.Default)
 
-				case tcell.KeyF4:
+				case tcell.KeyF3:
 					hs.Entropy(0.0, 1.0)
 					ui.change(mode.Default)
 
-				case tcell.KeyF5:
+				case tcell.KeyF4:
 					hs.Strings(3, math.MaxInt, true, nil)
 					ui.change(mode.Default)
 
-				case tcell.KeyF6:
+				case tcell.KeyF5:
 					hs.HashSum(types.MD5)
 					ui.change(mode.Default)
 
-				case tcell.KeyF7:
+				case tcell.KeyF6:
 					hs.HashSum(types.SHA1)
 					ui.change(mode.Default)
 
-				case tcell.KeyF8:
+				case tcell.KeyF7:
 					hs.HashSum(types.SHA256)
 					ui.change(mode.Default)
+
+				case tcell.KeyF8:
+					if heap.Type == types.Chat || heap.Type == types.Ignore {
+						continue
+					}
+
+					var c *chat.Chat
+
+					title := ui.format(heap.String(), "assistant")
+
+					if v, ok := ui.chats.Load(title); !ok {
+						c = chat.New(ui.ctx, heap)
+						ui.chats.Store(title, c)
+					} else {
+						c = v.(*chat.Chat)
+					}
+
+					path := c.File.Name()
+
+					hs.OpenChat(path, path, title)
+					ui.change(mode.Chat)
 
 				case tcell.KeyF9:
 					fallthrough
@@ -543,14 +559,14 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					}
 
 				case tcell.KeyEnter:
-					v := ui.prompt.ReadLine()
+					l := ui.prompt.ReadLine()
 					m := ui.ctx.Mode()
 
-					if m.Prompt() && len(v) == 0 {
+					if m.Prompt() && len(strings.TrimSpace(l)) == 0 {
 						continue
 					}
 
-					hi.AddLine(v)
+					hi.AddLine(l)
 
 					switch m {
 					case mode.Less, mode.Hex:
@@ -558,29 +574,29 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 					case mode.Grep:
 						ui.view.Reset()
-						heap.AddFilter(v, 0, 0)
+						heap.AddFilter(l, 0, 0)
 						ui.change(mode.Less)
 
 					case mode.Goto:
-						ui.view.Goto(v)
+						ui.view.Goto(l)
 						ui.change(ui.ctx.Last())
 
 					case mode.Open:
 						ui.ctx.Background(func() {
-							hs.Open(v)
+							hs.Open(l)
 						})
 						ui.change(ui.ctx.Last())
 
 					case mode.Chat:
 						ui.view.Reset()
 						ui.ctx.Background(func() {
-							a := ui.handler.GetAgent(heap.String())
-							a.Prompt(v)
-							a.Process(v)
+							if v, ok := ui.chats.Load(heap.String()); ok {
+								v.(*chat.Chat).Query(l, true)
+							}
 						})
 
 					default:
-						plugins.Input <- v
+						plugins.Input <- l
 						ui.change(ui.ctx.Last())
 					}
 
@@ -676,7 +692,7 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 func (ui *UI) change(m mode.Mode) {
 	// check for examiner support
 	if m == mode.Chat && !ai.Check() {
-		ui.overlay.SendError("AI is not available")
+		ui.overlay.SendError("Assistant is not available")
 		return
 	}
 

@@ -44,7 +44,7 @@ nav:
         - Counts: features/utils/counts.md
 
     - AI:
-      - Agent: features/ai/agent.md
+      - Assistant: features/ai/assistant.md
 
     - UI:
       - Terminal: features/ui/terminal.md

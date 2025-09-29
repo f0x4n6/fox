@@ -140,6 +140,20 @@ func (hs *HeapSet) OpenFile(path, base, title string, tp types.Heap) {
 	hs.LoadHeap()
 }
 
+func (hs *HeapSet) OpenChat(path, base, title string) {
+	idx, ok := hs.findByName(title)
+
+	if !ok {
+		idx = hs.Len()
+
+		hs.atomicAdd(heap.New(title, path, base, types.Chat))
+	}
+
+	atomic.StoreInt32(hs.index, idx)
+
+	hs.LoadHeap()
+}
+
 func (hs *HeapSet) OpenPlugin(path, base, title string) {
 	idx, ok := hs.findByName(title)
 
@@ -153,20 +167,6 @@ func (hs *HeapSet) OpenPlugin(path, base, title string) {
 		hs.atomicAdd(heap.New(title, path, base, types.Plugin))
 
 		old.ThrowAway()
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.LoadHeap()
-}
-
-func (hs *HeapSet) OpenAgent(path, base, title string) {
-	idx, ok := hs.findByName(title)
-
-	if !ok {
-		idx = hs.Len()
-
-		hs.atomicAdd(heap.New(title, path, base, types.Agent))
 	}
 
 	atomic.StoreInt32(hs.index, idx)

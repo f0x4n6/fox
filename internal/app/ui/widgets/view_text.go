@@ -44,7 +44,7 @@ func (v *View) textRender(p *panel) {
 
 	i := 0
 
-	llm := v.heap.Type == types.Agent
+	llm := v.heap.Type == types.Chat
 	ps1 := string(v.ctx.Icon.Ps1)
 
 	// render lines
