@@ -18,7 +18,7 @@ winlogon
 ![](../images/tutorial/step_2.png)
 
 ## 3. Analyse Artifacts
-Use <kbd>F2</kbd> to switch to the [assistant](../features/ai/assistant.md) and specify your prompt. Then press <kbd>Enter</kbd> and wait for the assistant to answer:
+Use <kbd>F8</kbd> to switch to the [assistant](../features/ai/assistant.md) and specify your prompt. Then press <kbd>Enter</kbd> and wait for the assistant to answer:
 
 ```
 analyse this

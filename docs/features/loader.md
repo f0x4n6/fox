@@ -40,9 +40,9 @@ Built-in deflation of:
 | `zstd`   | [Zstandard Compression Algorithm](https://github.com/facebook/zstd) |
 
 ## Examples
-Load all files with `log` extension:
+Load all files with `log.gz` extension:
 ```console
-$ fox *.log
+$ fox *.log.gz
 ```
 
 Load all files with `evtx` extension, in all subfolders:
