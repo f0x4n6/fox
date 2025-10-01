@@ -16,7 +16,6 @@ import (
 
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/app"
-	"github.com/cuhsat/fox/internal/app/ai"
 	"github.com/cuhsat/fox/internal/app/ui/themes"
 	"github.com/cuhsat/fox/internal/app/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
@@ -115,7 +114,7 @@ func create() *UI {
 	root.Sync()
 
 	ui.render(nil)
-	ui.change(flags.Get().UI.Mode)
+	ui.changeMode(flags.Get().UI.Mode)
 
 	return &ui
 }
@@ -192,7 +191,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 				ui.view.Reset()
 
 			case *tcell.EventError:
-				ui.change(mode.Less)
+				ui.changeMode(mode.Less)
 				ui.view.Reset()
 
 				hs.OpenLog()
@@ -245,9 +244,9 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 					if ui.ctx.Mode().Prompt() {
 						if !ui.ctx.Last().Prompt() {
-							ui.change(ui.ctx.Last())
+							ui.changeMode(ui.ctx.Last())
 						} else {
-							ui.change(mode.Default)
+							ui.changeMode(mode.Default)
 						}
 					}
 
@@ -266,27 +265,27 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 				case tcell.KeyF2:
 					hs.Counts()
-					ui.change(mode.Default)
+					ui.changeMode(mode.Default)
 
 				case tcell.KeyF3:
 					hs.Entropy(0.0, 1.0)
-					ui.change(mode.Default)
+					ui.changeMode(mode.Default)
 
 				case tcell.KeyF4:
 					hs.Strings(3, math.MaxInt, true, nil)
-					ui.change(mode.Default)
+					ui.changeMode(mode.Default)
 
 				case tcell.KeyF5:
 					hs.HashSum(types.MD5)
-					ui.change(mode.Default)
+					ui.changeMode(mode.Default)
 
 				case tcell.KeyF6:
 					hs.HashSum(types.SHA1)
-					ui.change(mode.Default)
+					ui.changeMode(mode.Default)
 
 				case tcell.KeyF7:
 					hs.HashSum(types.SHA256)
-					ui.change(mode.Default)
+					ui.changeMode(mode.Default)
 
 				case tcell.KeyF8:
 					if heap.Type == types.Chat || heap.Type == types.Ignore {
@@ -295,7 +294,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 					var c *chat.Chat
 
-					title := ui.format(heap.String(), "assistant")
+					title := format(heap.String(), "assistant")
 
 					if v, ok := ui.chats.Load(title); !ok {
 						c = chat.New(ui.ctx, heap)
@@ -307,7 +306,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					path := c.File.Name()
 
 					hs.OpenChat(path, path, title)
-					ui.change(mode.Chat)
+					ui.changeMode(mode.Chat)
 
 				case tcell.KeyF9:
 					fallthrough
@@ -360,14 +359,14 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 							hs.Open(dir)
 						}
 
-						hs.OpenPlugin(path, base, ui.format(base, p.Name))
+						hs.OpenPlugin(path, base, format(base, p.Name))
 
 						ui.ctx.ForceRender()
 						ui.overlay.SendInfo(fmt.Sprintf("%s executed", p.Name))
 					})
 
 					if len(p.Mode) > 0 {
-						ui.change(mode.Mode(p.Mode))
+						ui.changeMode(mode.Mode(p.Mode))
 					}
 
 				case tcell.KeyUp:
@@ -452,22 +451,22 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					ui.overlay.SendInfo(fmt.Sprintf("Theme %s", ui.ctx.Theme()))
 
 				case tcell.KeyCtrlSpace:
-					ui.change(mode.Goto)
+					ui.changeMode(mode.Goto)
 
 				case tcell.KeyCtrlO:
-					ui.change(mode.Open)
+					ui.changeMode(mode.Open)
 
 				case tcell.KeyCtrlG:
-					ui.change(mode.Goto)
+					ui.changeMode(mode.Goto)
 
 				case tcell.KeyCtrlL:
-					ui.change(mode.Less)
+					ui.changeMode(mode.Less)
 
 				case tcell.KeyCtrlF:
-					ui.change(mode.Grep)
+					ui.changeMode(mode.Grep)
 
 				case tcell.KeyCtrlX:
-					ui.change(mode.Hex)
+					ui.changeMode(mode.Hex)
 
 				case tcell.KeyCtrlP:
 					ui.ctx.TogglePinned()
@@ -575,17 +574,17 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					case mode.Grep:
 						ui.view.Reset()
 						heap.AddFilter(l, 0, 0)
-						ui.change(mode.Less)
+						ui.changeMode(mode.Less)
 
 					case mode.Goto:
 						ui.view.Goto(l)
-						ui.change(ui.ctx.Last())
+						ui.changeMode(ui.ctx.Last())
 
 					case mode.Open:
 						ui.ctx.Background(func() {
 							hs.Open(l)
 						})
-						ui.change(ui.ctx.Last())
+						ui.changeMode(ui.ctx.Last())
 
 					case mode.Chat:
 						ui.view.Reset()
@@ -597,7 +596,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 					default:
 						plugins.Input <- l
-						ui.change(ui.ctx.Last())
+						ui.changeMode(ui.ctx.Last())
 					}
 
 				case tcell.KeyDelete:
@@ -608,9 +607,9 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 						ui.prompt.DelRune(true)
 					} else if ui.ctx.Mode().Prompt() {
 						if !ui.ctx.Last().Prompt() {
-							ui.change(ui.ctx.Last())
+							ui.changeMode(ui.ctx.Last())
 						} else {
-							ui.change(mode.Default)
+							ui.changeMode(mode.Default)
 						}
 					} else if len(heap.Patterns()) > 0 {
 						if !ui.ctx.Mode().Static() {
@@ -635,7 +634,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 					default: // all other keys
 						if ui.ctx.Mode() == mode.Less {
-							ui.change(mode.Grep)
+							ui.changeMode(mode.Grep)
 						}
 
 						ui.prompt.AddRune(r)
@@ -647,10 +646,6 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 			ui.render(hs)
 		}
 	}
-}
-
-func (ui *UI) format(l, r string) string {
-	return text.Title(l, r, !flags.Get().UI.Legacy)
 }
 
 func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
@@ -689,35 +684,6 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 	}
 }
 
-func (ui *UI) change(m mode.Mode) {
-	// check for examiner support
-	if m == mode.Chat && !ai.Check() {
-		ui.overlay.SendError("Assistant is not available")
-		return
-	}
-
-	if !ui.ctx.SwitchMode(m) {
-		return
-	}
-
-	// former mode
-	if ui.ctx.Last().Prompt() {
-		ui.prompt.SetValue("")
-	}
-
-	// actual mode
-	ui.prompt.Lock(!m.Prompt())
-
-	// force the cursor off
-	if ui.prompt.Locked() {
-		ui.ctx.Root.HideCursor()
-	}
-
-	if ui.ctx.Last().Static() || m.Static() {
-		ui.view.Reset()
-	}
-}
-
 func (ui *UI) render(hs *heapset.HeapSet) {
 	title := fox.Product
 
@@ -728,7 +694,7 @@ func (ui *UI) render(hs *heapset.HeapSet) {
 			ui.root.Sync() // prevent hiccups
 		}
 
-		title = ui.format(title, heap.String())
+		title = format(title, heap.String())
 	}
 
 	ui.root.SetTitle(title)

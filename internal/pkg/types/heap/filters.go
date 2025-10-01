@@ -31,7 +31,7 @@ func (h *Heap) AddFilter(pattern string, b, a int) {
 	fmap := h.FMap()
 	last := h.LastFilter()
 
-	// use only the base of the context
+	// use only the base of the context for filtering
 	if last.Context.base != nil {
 		fmap = last.Context.base
 	}
@@ -90,20 +90,6 @@ func (h *Heap) Patterns() []string {
 	}
 
 	return ps
-}
-
-func (h *Heap) LastCount() (int, int) {
-	h.RLock()
-	defer h.RUnlock()
-
-	last := h.LastFilter()
-	fmap := last.fmap
-
-	if last.Context.base != nil {
-		fmap = last.Context.base
-	}
-
-	return len(*fmap), (last.Context.B + last.Context.A) / 2
 }
 
 func (h *Heap) LastFilter() *Filter {
@@ -165,4 +151,16 @@ func (h *Heap) addContext(s *smap.SMap, ctx Context) *smap.SMap {
 	}
 
 	return &fmap
+}
+
+func (f *Filter) Len() int {
+	if f.Context.base != nil {
+		return len(*f.Context.base)
+	} else {
+		return len(*f.fmap)
+	}
+}
+
+func (c *Context) Size() int {
+	return (c.B + c.A) / 2
 }

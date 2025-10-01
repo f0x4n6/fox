@@ -11,22 +11,18 @@ import (
 	"github.com/cuhsat/fox/internal/app/ui/themes"
 )
 
-const (
-	short = 2 // seconds
-	long  = 2 // seconds
-)
+const timeout = 1
 
 type Overlay struct {
 	base
 	m   sync.RWMutex
 	ch  chan message
-	buf *message
+	msg *message
 }
 
 type message struct {
 	v string
 	s tcell.Style
-	t time.Duration
 }
 
 func NewOverlay(ctx *app.Context) *Overlay {
@@ -39,36 +35,37 @@ func NewOverlay(ctx *app.Context) *Overlay {
 
 func (o *Overlay) Render(x, y, w, _ int) {
 	o.m.RLock()
-	msg := o.buf
-	o.m.RUnlock()
+	defer o.m.RUnlock()
 
-	if msg != nil {
-		o.print(x, y, fmt.Sprintf("%-*s", w, msg.v), msg.s)
-	}
-}
-
-func (o *Overlay) Listen() {
-	for msg := range o.ch {
-		o.m.Lock()
-		o.buf = &msg
-		o.m.Unlock()
-
-		time.Sleep(msg.t * time.Second)
-
-		o.m.Lock()
-		o.buf = nil
-		o.m.Unlock()
-
-		o.ctx.ForceRender()
+	if o.msg != nil {
+		o.print(x, y, fmt.Sprintf("%-*s", w, o.msg.v), o.msg.s)
 	}
 }
 
 func (o *Overlay) SendError(err string) {
-	o.ch <- message{err, themes.Overlay0, long}
+	o.ch <- message{err, themes.Overlay0}
 }
 
 func (o *Overlay) SendInfo(msg string) {
-	o.ch <- message{msg, themes.Overlay1, short}
+	o.ch <- message{msg, themes.Overlay1}
+}
+
+func (o *Overlay) Listen() {
+	for {
+		select {
+		case msg := <-o.ch:
+			o.m.Lock()
+			o.msg = &msg
+			o.m.Unlock()
+
+		case <-time.After(timeout * time.Second):
+			o.m.Lock()
+			o.msg = nil
+			o.m.Unlock()
+		}
+
+		o.ctx.ForceRender()
+	}
 }
 
 func (o *Overlay) Close() {

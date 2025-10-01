@@ -6,14 +6,14 @@ By pressing <kbd>Ctrl</kbd> + <kbd>S</kbd> all filtered lines of the current fil
 ## Evidence Bag
 Available evidence bag formats:
 
-| Type      | Details                                          |
-|-----------|--------------------------------------------------|
-| `plain`   | Plain data (*default*)                           |
-| `text`    | Plain data with metadata                         |
-| `json`    | [JSON Schema](../../../api/evidence.schema.json) |
-| `jsonl`   | [JSON Schema](../../../api/evidence.schema.json) |
-| `xml`     | [XML Schema](../../../api/evidence.schema.xsd)   |
-| `sqlite3` | [SQL Schema](../../../api/evidence.schema.sql)   |
+| Type      | Details                                                                         |
+|-----------|---------------------------------------------------------------------------------|
+| `plain`   | Plain data (*default*)                                                          |
+| `text`    | Plain data with metadata                                                        |
+| `json`    | [JSON Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.json) |
+| `jsonl`   | [JSON Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.json) |
+| `xml`     | [XML Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.xsd)   |
+| `sqlite3` | [SQL Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.sql)   |
 
 ## Evidence Signing
 The evidence bag will always be signed using `SHA256` to guarantee the **Chain of Custody**.

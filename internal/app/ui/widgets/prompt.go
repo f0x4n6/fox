@@ -28,7 +28,6 @@ type Prompt struct {
 func NewPrompt(ctx *app.Context) *Prompt {
 	p := Prompt{base: base{ctx}}
 
-	// defaults
 	p.lock.Store(true)
 	p.value.Store("")
 	p.offset.Store(0)
@@ -40,19 +39,20 @@ func NewPrompt(ctx *app.Context) *Prompt {
 }
 
 func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
-	var ca, cb int
+	var hl, hc int
 	var fs []string
 
 	if hs != nil {
 		_, heap := hs.Heap()
-		ca, cb = heap.LastCount()
+		hl = heap.LastFilter().Len()
+		hc = heap.LastFilter().Context.Size()
 		fs = heap.Patterns()
 	}
 
 	m := p.fmtMode()
 	f := p.fmtFilter(fs)
-	i := p.fmtInput()
-	s := p.fmtStatus(ca, cb)
+	i := p.fmtInput(fs)
+	s := p.fmtStatus(hl, hc)
 
 	// render blank line
 	p.blank(x, y, w, themes.Surface0)
@@ -79,7 +79,7 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	x += fl
 
 	// render input
-	if len(i) > 2 {
+	if len(i) > 1 {
 		p.print(x, y, i, themes.Surface1)
 	}
 
@@ -91,12 +91,18 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	cm := max(w-(ml+fl+sl), 0)
 	c := int(p.cursor.Load())
 	o := int(p.offset.Load())
+	d := 0
+
+	// set space for first input
+	if fl == 0 && vl > 0 {
+		d = 1
+	}
 
 	p.cursorEnd.Store(int32(vl - o))
 	p.cursorMax.Store(int32(cm - 1))
 
 	if p.ctx.Mode().Prompt() && !p.Locked() {
-		p.ctx.Root.ShowCursor(x+1+c, y)
+		p.ctx.Root.ShowCursor(x+d+c, y)
 	} else {
 		p.ctx.Root.HideCursor()
 	}
@@ -241,35 +247,45 @@ func (p *Prompt) fmtFilter(fs []string) string {
 			sb.WriteRune(' ')
 			sb.WriteRune(p.ctx.Icon.Grep)
 		}
+
+		// add space after filters
+		if len(fs) > 0 {
+			sb.WriteRune(' ')
+		}
 	}
 
 	return sb.String()
 }
 
-func (p *Prompt) fmtInput() string {
+func (p *Prompt) fmtInput(fs []string) string {
 	var sb strings.Builder
 
 	if v, ok := p.value.Load().(string); ok {
-		sb.WriteRune(' ')
+		// add space before input in all modes
+		if (!p.ctx.Mode().Filter() || len(fs) == 0) && len(v) > 0 {
+			sb.WriteRune(' ')
+		}
+
 		sb.WriteString(text.Trim(
 			v,
 			int(p.offset.Load()),
 			int(p.cursorMax.Load()),
 		))
-	}
 
-	sb.WriteRune(' ')
+		// add space after input
+		sb.WriteRune(' ')
+	}
 
 	return sb.String()
 }
 
-func (p *Prompt) fmtStatus(a, b int) string {
+func (p *Prompt) fmtStatus(l, c int) string {
 	var sb strings.Builder
 
-	if b > 0 {
-		sb.WriteString(fmt.Sprintf(" %d %c %d ", a, p.ctx.Icon.Size, b))
+	if c > 0 {
+		sb.WriteString(fmt.Sprintf(" %d%c%d ", l, p.ctx.Icon.Size, c))
 	} else {
-		sb.WriteString(fmt.Sprintf(" %d ", a))
+		sb.WriteString(fmt.Sprintf(" %d ", l))
 	}
 
 	if p.ctx.IsNavi() {

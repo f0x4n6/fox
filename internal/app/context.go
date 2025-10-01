@@ -126,7 +126,11 @@ func (ctx *Context) IsFollow() bool {
 }
 
 func (ctx *Context) IsPinned() bool {
-	return ctx.p.Load()
+	if ctx.Mode() == mode.Less {
+		return ctx.p.Load()
+	} else {
+		return false
+	}
 }
 
 func (ctx *Context) ForceRender() {

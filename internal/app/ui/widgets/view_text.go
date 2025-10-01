@@ -44,7 +44,7 @@ func (v *View) textRender(p *panel) {
 
 	i := 0
 
-	llm := v.heap.Type == types.Chat
+	chat := v.heap.Type == types.Chat
 	ps1 := string(v.ctx.Icon.Ps1)
 
 	// render lines
@@ -70,7 +70,7 @@ func (v *View) textRender(p *panel) {
 
 		// text value
 		if len(line.Str) > 0 {
-			if llm && strings.HasPrefix(line.Str, ps1) {
+			if chat && strings.HasPrefix(line.Str, ps1) {
 				color = themes.Subtext2
 			} else if i == 1 && v.ctx.IsPinned() {
 				color = themes.Subtext0
