@@ -7,6 +7,12 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/smap"
 )
 
+type Context struct {
+	B    int        // context before
+	A    int        // context after
+	base *smap.SMap // context base map
+}
+
 type Filter struct {
 	Pattern string         // filter pattern
 	Context Context        // filter context
@@ -14,10 +20,16 @@ type Filter struct {
 	fmap    *smap.SMap     // filter string map
 }
 
-type Context struct {
-	B    int        // context before
-	A    int        // context after
-	base *smap.SMap // context base map
+func (c *Context) Size() int {
+	return (c.B + c.A) / 2
+}
+
+func (f *Filter) Len() int {
+	if f.Context.base != nil {
+		return len(*f.Context.base)
+	} else {
+		return len(*f.fmap)
+	}
 }
 
 func (h *Heap) AddFilter(pattern string, b, a int) {
@@ -151,16 +163,4 @@ func (h *Heap) addContext(s *smap.SMap, ctx Context) *smap.SMap {
 	}
 
 	return &fmap
-}
-
-func (f *Filter) Len() int {
-	if f.Context.base != nil {
-		return len(*f.Context.base)
-	} else {
-		return len(*f.fmap)
-	}
-}
-
-func (c *Context) Size() int {
-	return (c.B + c.A) / 2
 }

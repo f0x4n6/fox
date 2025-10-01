@@ -49,9 +49,12 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 		fs = heap.Patterns()
 	}
 
+	fs = p.fitFilters(fs)
+
 	m := p.fmtMode()
-	f := p.fmtFilter(fs)
+	f := p.fmtFilters(fs)
 	i := p.fmtInput(fs)
+
 	s := p.fmtStatus(hl, hc)
 
 	// render blank line
@@ -94,7 +97,7 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	d := 0
 
 	// set space for first input
-	if fl == 0 && vl > 0 {
+	if fl == 0 {
 		d = 1
 	}
 
@@ -237,7 +240,21 @@ func (p *Prompt) fmtMode() string {
 	return fmt.Sprintf(" %s ", p.ctx.Mode())
 }
 
-func (p *Prompt) fmtFilter(fs []string) string {
+func (p *Prompt) fitFilters(fs []string) []string {
+	w, _ := p.ctx.Root.Size()
+
+	for {
+		l := text.Len(p.fmtFilters(fs))
+
+		if len(fs) == 1 || l <= int(float32(w)/1.5) {
+			return fs
+		}
+
+		fs = fs[1:]
+	}
+}
+
+func (p *Prompt) fmtFilters(fs []string) string {
 	var sb strings.Builder
 
 	if p.ctx.Mode().Filter() {
