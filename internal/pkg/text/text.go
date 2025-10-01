@@ -69,7 +69,7 @@ func Title(l, r string, u bool) string {
 	return fmt.Sprintf("%s %c %s", l, Icons(u).HSep, r)
 }
 
-func Header(s string, w int) (t string) {
+func Block(s string, w int) (t string) {
 	if w < 0 {
 		w = 4 + len(s)
 	}

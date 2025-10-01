@@ -2,22 +2,25 @@ package flags
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/cuhsat/fox/internal/pkg/types"
 )
 
-type HashAlgo string
-
-func (ha *HashAlgo) String() string {
-	return strings.ToLower(string(*ha))
+type Algorithms struct {
+	Value []string // patterns
 }
 
-func (ha *HashAlgo) Type() string {
-	return "HashAlgo"
+func (a *Algorithms) String() string {
+	return fmt.Sprintf("%v", a.Value)
 }
 
-func (ha *HashAlgo) Set(v string) error {
+func (a *Algorithms) Type() string {
+	return "strings"
+}
+
+func (a *Algorithms) Set(v string) error {
 	switch strings.ToLower(v) {
 	case types.CRC32IEEE:
 		fallthrough
@@ -46,7 +49,7 @@ func (ha *HashAlgo) Set(v string) error {
 	case types.SHA3384:
 		fallthrough
 	case types.SHA3512:
-		*ha = HashAlgo(v)
+		a.Value = append(a.Value, v)
 		return nil
 
 	default:

@@ -676,7 +676,7 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 
 	case types.Hash:
 		hs.HashSum(
-			flg.Hash.Algo.String(),
+			flg.Hash.Algos.Value...,
 		).CloseOther()
 
 	case types.None:

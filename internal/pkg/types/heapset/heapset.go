@@ -223,19 +223,19 @@ func (hs *HeapSet) CloseHeap() *heap.Heap {
 }
 
 func (hs *HeapSet) CloseOther() {
-	idx := atomic.LoadInt32(hs.index)
-
-	h := hs.atomicGet(idx)
-
 	hs.RLock()
 
-	for i, h := range hs.heaps {
-		if i != int(idx) {
+	var v []*heap.Heap
+
+	for _, h := range hs.heaps {
+		if h.Type == types.Stdout {
+			v = append(v, h)
+		} else {
 			h.ThrowAway()
 		}
 	}
 
-	hs.heaps = []*heap.Heap{h}
+	hs.heaps = v
 
 	hs.RUnlock()
 

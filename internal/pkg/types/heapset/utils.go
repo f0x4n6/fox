@@ -106,21 +106,23 @@ func (hs *HeapSet) Strings(n, m int, i bool, re *regexp.Regexp) *HeapSet {
 	return hs
 }
 
-func (hs *HeapSet) HashSum(algo string) *HeapSet {
-	hs.newUtil(algo, func(h *heap.Heap) string {
-		sum, err := h.HashSum(algo)
+func (hs *HeapSet) HashSum(algos ...string) *HeapSet {
+	for _, algo := range algos {
+		hs.newUtil(algo, func(h *heap.Heap) string {
+			sum, err := h.HashSum(algo)
 
-		if err != nil {
-			sys.Error(err)
-		}
+			if err != nil {
+				sys.Error(err)
+			}
 
-		switch algo {
-		case types.SDHASH:
-			return fmt.Sprintf("%s  %s\n", sum, h.String())
-		default:
-			return fmt.Sprintf("%x  %s\n", sum, h.String())
-		}
-	})
+			switch algo {
+			case types.SDHASH:
+				return fmt.Sprintf("%s  %s\n", sum, h.String())
+			default:
+				return fmt.Sprintf("%x  %s\n", sum, h.String())
+			}
+		})
+	}
 
 	return hs
 }

@@ -13,8 +13,6 @@
   * https://cyber.wtf/2024/08/30/parsing-fortinet-binary-firewall-logs/
   * https://github.com/GDATAAdvancedAnalytics/FortilogDecoder/blob/main/fortilog_decoder.py
 * Add persistence to RAG (`--persist=DB` flag)
-* Add possibility to hash with many formats at once
-  * Usage `--types=MD5,SHA1`
 * Add additional documentation
   * Add manpage(s)
   * Add `bash` and `zsh` autocompletion files

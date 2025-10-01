@@ -350,7 +350,7 @@ func run(args []string) {
 			buf := page.NewContext(h)
 
 			if hs.Len() > 1 && !flg.NoFile {
-				fmt.Println(text.Header(h.String(), page.TermW))
+				fmt.Println(text.Block(h.String(), page.TermW))
 			}
 
 			if len(flg.AI.Query) > 0 {

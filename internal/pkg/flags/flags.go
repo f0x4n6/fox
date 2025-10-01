@@ -90,7 +90,7 @@ type Flags struct {
 
 	// hash command
 	Hash struct {
-		Algo HashAlgo
+		Algos Algorithms
 	}
 
 	// strings command

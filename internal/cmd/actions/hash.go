@@ -3,7 +3,10 @@ package actions
 import (
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/cuhsat/fox/internal/pkg/text"
+	"github.com/cuhsat/fox/internal/pkg/types/page"
 	"github.com/spf13/cobra"
 
 	"github.com/cuhsat/fox/internal"
@@ -43,7 +46,7 @@ Hash:
       CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
 Example:
-  $ fox hash -t=tlsh artifacts.zip
+  $ fox hash -t=md5 -t=sha1 artifacts.zip
 
 Type "fox help" for more help...
 `
@@ -66,8 +69,8 @@ var Hash = &cobra.Command{
 		}
 
 		// default
-		if len(flg.Hash.Algo) == 0 {
-			flg.Hash.Algo = types.SHA256
+		if len(flg.Hash.Algos.Value) == 0 {
+			_ = flg.Hash.Algos.Set(types.SHA256)
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -77,27 +80,33 @@ var Hash = &cobra.Command{
 		} else if !flags.Get().Print {
 			ui.Start(args, types.Hash)
 		} else {
-			algo := flags.Get().Hash.Algo.String()
+			algos := flags.Get().Hash.Algos.Value
 
 			hs := heapset.New(args)
 			defer hs.ThrowAway()
 
-			hs.Range(func(_ int, h *heap.Heap) bool {
-				sum, err := h.HashSum(algo)
-
-				if err != nil {
-					sys.Exit(fmt.Sprintf("could not compute hash: %s", err.Error()))
-					return false
+			for _, algo := range algos {
+				if len(algos) > 1 {
+					fmt.Println(text.Block(strings.ToUpper(algo), page.TermW))
 				}
 
-				switch algo {
-				case types.SDHASH:
-					fmt.Printf("%s  %s\n", sum, h.String())
-				default:
-					fmt.Printf("%x  %s\n", sum, h.String())
-				}
-				return true
-			})
+				hs.Range(func(_ int, h *heap.Heap) bool {
+					sum, err := h.HashSum(algo)
+
+					if err != nil {
+						sys.Exit(fmt.Sprintf("could not compute hash: %s", err.Error()))
+						return false
+					}
+
+					switch algo {
+					case types.SDHASH:
+						fmt.Printf("%s  %s\n", sum, h.String())
+					default:
+						fmt.Printf("%x  %s\n", sum, h.String())
+					}
+					return true
+				})
+			}
 		}
 	},
 }
@@ -107,5 +116,5 @@ func init() {
 
 	Hash.SetHelpTemplate(HashUsage)
 	Hash.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
-	Hash.Flags().VarP(&flg.Hash.Algo, "type", "t", "hash algorithm")
+	Hash.Flags().VarP(&flg.Hash.Algos, "type", "t", "hash algorithm")
 }

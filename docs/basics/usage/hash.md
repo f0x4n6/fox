@@ -29,5 +29,5 @@ Checksum algorithms:
 
 ## Example
 ```console
-$ fox hash -t=tlsh artifacts.zip
+$ fox hash -t=md5 -t=sha1 artifacts.zip
 ```

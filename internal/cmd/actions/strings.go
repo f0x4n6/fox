@@ -102,7 +102,7 @@ var Strings = &cobra.Command{
 			hs.Range(func(_ int, h *heap.Heap) bool {
 				if h.Type != types.Stdin {
 					if !flg.NoFile {
-						fmt.Println(text.Header(h.String(), page.TermW))
+						fmt.Println(text.Block(h.String(), page.TermW))
 					}
 
 					for s := range h.Strings(
