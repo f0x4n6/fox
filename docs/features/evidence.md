@@ -31,7 +31,7 @@ Hello World
 ```
 
 ### ECS Schema
-Evidence can be streamed to an URL using the [Elastic Common Schema](https://www.elastic.co/docs/reference/ecs).
+Evidence can be streamed to a URL using the [Elastic Common Schema](https://www.elastic.co/docs/reference/ecs).
 
 > To use a local running **Logstash** instance, set the `-L` flag.
 

@@ -9,9 +9,6 @@
   * Remap some key bindings
 
 ## 3. Features
-* Add support for Fortinet log files
-  * https://cyber.wtf/2024/08/30/parsing-fortinet-binary-firewall-logs/
-  * https://github.com/GDATAAdvancedAnalytics/FortilogDecoder/blob/main/fortilog_decoder.py
 * Add persistence to RAG (`--persist=DB` flag)
 * Add additional documentation
   * Add manpage(s)

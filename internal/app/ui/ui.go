@@ -8,7 +8,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/cuhsat/fox/internal/app/ai/chat"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mattn/go-runewidth"
 
@@ -16,6 +15,7 @@ import (
 
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/app"
+	"github.com/cuhsat/fox/internal/app/ai/chat"
 	"github.com/cuhsat/fox/internal/app/ui/themes"
 	"github.com/cuhsat/fox/internal/app/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
@@ -308,37 +308,13 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					hs.OpenChat(path, path, title)
 					ui.changeMode(mode.Chat)
 
-				case tcell.KeyF9:
+				case tcell.KeyF9, tcell.KeyF10, tcell.KeyF11, tcell.KeyF12:
 					fallthrough
-				case tcell.KeyF10:
+				case tcell.KeyF13, tcell.KeyF14, tcell.KeyF15, tcell.KeyF16:
 					fallthrough
-				case tcell.KeyF11:
+				case tcell.KeyF17, tcell.KeyF18, tcell.KeyF19, tcell.KeyF20:
 					fallthrough
-				case tcell.KeyF12:
-					fallthrough
-				case tcell.KeyF13:
-					fallthrough
-				case tcell.KeyF14:
-					fallthrough
-				case tcell.KeyF15:
-					fallthrough
-				case tcell.KeyF16:
-					fallthrough
-				case tcell.KeyF17:
-					fallthrough
-				case tcell.KeyF18:
-					fallthrough
-				case tcell.KeyF19:
-					fallthrough
-				case tcell.KeyF20:
-					fallthrough
-				case tcell.KeyF21:
-					fallthrough
-				case tcell.KeyF22:
-					fallthrough
-				case tcell.KeyF23:
-					fallthrough
-				case tcell.KeyF24:
+				case tcell.KeyF21, tcell.KeyF22, tcell.KeyF23, tcell.KeyF24:
 					if ui.plugins == nil {
 						continue
 					}

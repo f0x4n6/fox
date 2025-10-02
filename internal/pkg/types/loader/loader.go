@@ -22,6 +22,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/files/compress/zstd"
 	"github.com/cuhsat/fox/internal/pkg/files/format/csv"
 	"github.com/cuhsat/fox/internal/pkg/files/parser/evtx"
+	"github.com/cuhsat/fox/internal/pkg/files/parser/fortinet"
 	"github.com/cuhsat/fox/internal/pkg/files/parser/journal"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/sys"
@@ -265,6 +266,10 @@ func (l *Loader) process(path, base string) string {
 
 		if journal.Detect(path) {
 			path = journal.Parse(path)
+		}
+
+		if fortinet.Detect(path) {
+			path = fortinet.Parse(path)
 		}
 
 		// check for format

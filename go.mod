@@ -22,6 +22,8 @@ require (
 	github.com/mattn/go-runewidth v0.0.19
 	github.com/nwaples/rardecode v1.1.3
 	github.com/philippgille/chromem-go v0.7.0
+	github.com/pierrec/lz4 v2.6.1+incompatible
+	github.com/pierrec/lz4/v4 v4.1.22
 	github.com/rainu/go-command-chain v0.5.1
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.10.1
@@ -60,7 +62,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/ollama/ollama v0.12.3
-	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	golang.org/x/exp v0.0.0-20250911091902-df9299821621 // indirect
 	golang.org/x/sys v0.36.0 // indirect

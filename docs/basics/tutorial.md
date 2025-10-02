@@ -9,7 +9,7 @@ $ fox testdata/test.evtx
 ![](../images/tutorial/step_1.png)
 
 ## 2. Search Artifacts
-Start typing `winlogon` to switch to [GREP](../features/mode/grep.md) mode. Then press <kbd>Enter</kbd> to filter the file only for lines, that contain this expression:
+Start typing `winlogon` to switch to [GREP](../features/ui/mode/grep.md) mode. Then press <kbd>Enter</kbd> to filter the file only for lines, that contain this expression:
 
 ```
 winlogon
