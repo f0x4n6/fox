@@ -30,6 +30,8 @@ func (a *Algorithms) Set(v string) error {
 		fallthrough
 	case types.SDHASH, types.SSDEEP, types.TLSH:
 		fallthrough
+	case types.FNV1, types.FNV1A:
+		fallthrough
 	case types.XXH64, types.XXH3:
 		fallthrough
 	case types.CRC32IEEE, types.CRC64ISO, types.CRC64ECMA:

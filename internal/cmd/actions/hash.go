@@ -43,7 +43,7 @@ Hash:
       SDHASH, SSDEEP, TLSH
 
     Performance hash algorithms:
-      XXH64, XXH3
+      FNV-1, FNV-1A, XXH64, XXH3
 
     Checksum algorithms:
       CRC32-IEEE, CRC64-ECMA, CRC64-ISO

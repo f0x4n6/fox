@@ -167,7 +167,7 @@ exec = [
 
 ## Firewall Logs
 
-### [FortiAnalyzer Logs](https://github.com/GDATAAdvancedAnalytics/FortilogDecoder)
+### [FortiAnalyzer](https://github.com/GDATAAdvancedAnalytics/FortilogDecoder)
 ```toml
 [auto.fortilog]
 name = 'fortilog'

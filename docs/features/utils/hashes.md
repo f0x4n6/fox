@@ -23,6 +23,8 @@ Built-in similarity hashes *(for malware detection)*:
 ## Performance Hashes
 Built-in performance hashes *(for large files)*:
 
+- `FNV-1`
+- `FNV-1A`
 - `XXH64`
 - `XXH3`
 

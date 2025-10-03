@@ -14,6 +14,8 @@ const (
 	SSDEEP = "ssdeep"
 	TLSH   = "tlsh"
 
+	FNV1  = "fnv-1"
+	FNV1A = "fnv-1a"
 	XXH64 = "xxh64"
 	XXH3  = "xxh3"
 

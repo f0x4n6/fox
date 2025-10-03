@@ -9,6 +9,7 @@ import (
 	"hash"
 	"hash/crc32"
 	"hash/crc64"
+	"hash/fnv"
 	"strings"
 
 	"github.com/cespare/xxhash"
@@ -56,6 +57,10 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 		imp = ssdeep.New()
 	case types.TLSH:
 		imp = tlsh.New()
+	case types.FNV1:
+		imp = fnv.New64()
+	case types.FNV1A:
+		imp = fnv.New64a()
 	case types.XXH64:
 		imp = xxhash.New()
 	case types.XXH3:
