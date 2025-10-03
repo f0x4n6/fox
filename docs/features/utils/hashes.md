@@ -20,6 +20,12 @@ Built-in similarity hashes *(for malware detection)*:
 - `SSDEEP`
 - `TLSH`
 
+## Performance Hashes
+Built-in performance hashes *(for large files)*:
+
+- `XXH64`
+- `XXH3`
+
 ## Checksums
 Built-in checksums *(for file verification)*:
 

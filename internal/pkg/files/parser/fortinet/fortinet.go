@@ -15,11 +15,6 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
-var (
-	ErrNotSupported  = errors.New("format not supported")
-	ErrInvalidLength = errors.New("invalid length")
-)
-
 type llog struct {
 	// raw
 	Magic         uint16
@@ -103,7 +98,7 @@ func decode(f fs.File) (llog, error) {
 	err = binary.Read(f, binary.LittleEndian, &log.Magic)
 
 	if log.Magic != 0xCEEC && log.Magic != 0xCFEC {
-		return log, ErrNotSupported
+		return log, errors.New("log format not supported")
 	}
 
 	err = binary.Read(f, binary.LittleEndian, &log.Flags)
@@ -161,7 +156,7 @@ func deflate(log llog) (string, error) {
 	}
 
 	if uint16(n) != log.LDecompressed {
-		return "", ErrInvalidLength
+		return "", errors.New("invalid block length")
 	}
 
 	if log.Entries == 1 {

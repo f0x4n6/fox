@@ -5,17 +5,17 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types/page"
 	"github.com/spf13/cobra"
 
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/app/ui"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/sys"
+	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/internal/pkg/types/page"
 )
 
 var HashUsage = fox.Ascii + `
@@ -41,6 +41,9 @@ Hash:
 
     Similarity hash algorithms:
       SDHASH, SSDEEP, TLSH
+
+    Performance hash algorithms:
+      XXH64, XXH3
 
     Checksum algorithms:
       CRC32-IEEE, CRC64-ECMA, CRC64-ISO

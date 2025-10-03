@@ -132,7 +132,7 @@ func (h *Heap) Reload() {
 		clear(h.hash)
 	}
 
-	h.hash = make(Hash, 14)
+	h.hash = make(Hash, 16)
 
 	// invalidate cache
 	h.Cache.Clear()

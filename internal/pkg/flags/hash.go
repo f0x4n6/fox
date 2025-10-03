@@ -22,33 +22,17 @@ func (a *Algorithms) Type() string {
 
 func (a *Algorithms) Set(v string) error {
 	switch strings.ToLower(v) {
-	case types.CRC32IEEE:
-		fallthrough
-	case types.CRC64ISO:
-		fallthrough
-	case types.CRC64ECMA:
-		fallthrough
-	case types.SDHASH:
-		fallthrough
-	case types.SSDEEP:
-		fallthrough
-	case types.TLSH:
-		fallthrough
 	case types.MD5:
 		fallthrough
-	case types.SHA1:
+	case types.SHA1, types.SHA256, types.SHA3:
 		fallthrough
-	case types.SHA256:
+	case types.SHA3224, types.SHA3256, types.SHA3384, types.SHA3512:
 		fallthrough
-	case types.SHA3:
+	case types.SDHASH, types.SSDEEP, types.TLSH:
 		fallthrough
-	case types.SHA3224:
+	case types.XXH64, types.XXH3:
 		fallthrough
-	case types.SHA3256:
-		fallthrough
-	case types.SHA3384:
-		fallthrough
-	case types.SHA3512:
+	case types.CRC32IEEE, types.CRC64ISO, types.CRC64ECMA:
 		a.Value = append(a.Value, v)
 		return nil
 

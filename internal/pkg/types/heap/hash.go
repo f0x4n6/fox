@@ -11,9 +11,11 @@ import (
 	"hash/crc64"
 	"strings"
 
+	"github.com/cespare/xxhash"
 	"github.com/eciavatta/sdhash"
 	"github.com/glaslos/ssdeep"
 	"github.com/glaslos/tlsh"
+	"github.com/zeebo/xxh3"
 
 	"github.com/cuhsat/fox/internal/pkg/types"
 )
@@ -34,18 +36,6 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 	var imp hash.Hash
 
 	switch algo {
-	case types.CRC32IEEE:
-		imp = crc32.NewIEEE()
-	case types.CRC64ISO:
-		imp = crc64.New(crc64.MakeTable(crc64.ISO))
-	case types.CRC64ECMA:
-		imp = crc64.New(crc64.MakeTable(crc64.ECMA))
-	case types.SDHASH:
-		imp = new(SDHash)
-	case types.SSDEEP:
-		imp = ssdeep.New()
-	case types.TLSH:
-		imp = tlsh.New()
 	case types.MD5:
 		imp = md5.New()
 	case types.SHA1:
@@ -60,8 +50,24 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 		imp = sha3.New384()
 	case types.SHA3512:
 		imp = sha3.New512()
+	case types.SDHASH:
+		imp = new(SDHash)
+	case types.SSDEEP:
+		imp = ssdeep.New()
+	case types.TLSH:
+		imp = tlsh.New()
+	case types.XXH64:
+		imp = xxhash.New()
+	case types.XXH3:
+		imp = xxh3.New()
+	case types.CRC32IEEE:
+		imp = crc32.NewIEEE()
+	case types.CRC64ISO:
+		imp = crc64.New(crc64.MakeTable(crc64.ISO))
+	case types.CRC64ECMA:
+		imp = crc64.New(crc64.MakeTable(crc64.ECMA))
 	default:
-		return nil, errors.New("hash not supported")
+		return nil, errors.New("algorithm not recognized")
 	}
 
 	imp.Reset()

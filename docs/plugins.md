@@ -165,7 +165,19 @@ exec = [
 ]
 ```
 
-## Forensics
+## Firewall Logs
+
+### [FortiAnalyzer Logs](https://github.com/GDATAAdvancedAnalytics/FortilogDecoder)
+```toml
+[auto.fortilog]
+name = 'fortilog'
+path = '.*\.log.(gz|zst)'
+exec = [
+  'python fortilog_decoder.py "FILE"'
+]
+```
+
+## Forensic Tools
 
 ### [FACT](https://github.com/cuhsat/fact)
 ```toml

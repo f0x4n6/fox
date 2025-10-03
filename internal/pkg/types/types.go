@@ -1,20 +1,25 @@
 package types
 
 const (
+	MD5     = "md5"
+	SHA1    = "sha1"
+	SHA256  = "sha256"
+	SHA3    = "sha3"
+	SHA3224 = "sha3-224"
+	SHA3256 = "sha3-256"
+	SHA3384 = "sha3-384"
+	SHA3512 = "sha3-512"
+
+	SDHASH = "sdhash"
+	SSDEEP = "ssdeep"
+	TLSH   = "tlsh"
+
+	XXH64 = "xxh64"
+	XXH3  = "xxh3"
+
 	CRC32IEEE = "crc32-ieee"
 	CRC64ECMA = "crc64-ecma"
 	CRC64ISO  = "crc64-iso"
-	SDHASH    = "sdhash"
-	SSDEEP    = "ssdeep"
-	TLSH      = "tlsh"
-	MD5       = "md5"
-	SHA1      = "sha1"
-	SHA256    = "sha256"
-	SHA3      = "sha3"
-	SHA3224   = "sha3-224"
-	SHA3256   = "sha3-256"
-	SHA3384   = "sha3-384"
-	SHA3512   = "sha3-512"
 )
 
 type Heap int
