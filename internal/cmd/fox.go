@@ -9,12 +9,12 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/app"
-	"github.com/cuhsat/fox/internal/app/ai"
-	"github.com/cuhsat/fox/internal/app/ai/chat"
-	"github.com/cuhsat/fox/internal/app/ui"
-	"github.com/cuhsat/fox/internal/app/ui/themes"
 	"github.com/cuhsat/fox/internal/cmd/actions"
+	"github.com/cuhsat/fox/internal/opt"
+	"github.com/cuhsat/fox/internal/opt/ai"
+	"github.com/cuhsat/fox/internal/opt/ai/chat"
+	"github.com/cuhsat/fox/internal/opt/ui"
+	"github.com/cuhsat/fox/internal/opt/ui/themes"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/text"
@@ -335,7 +335,7 @@ func init() {
 }
 
 func run(args []string) {
-	var ctx = app.NewContext(nil)
+	var ctx = opt.NewContext(nil)
 	var flg = flags.Get()
 
 	if len(flg.AI.Query) > 0 && !ai.Check() {

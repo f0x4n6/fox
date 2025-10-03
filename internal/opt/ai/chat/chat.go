@@ -10,9 +10,9 @@ import (
 
 	"github.com/ollama/ollama/api"
 
-	"github.com/cuhsat/fox/internal/app"
-	"github.com/cuhsat/fox/internal/app/ai/chat/llm"
-	"github.com/cuhsat/fox/internal/app/ai/chat/rag"
+	"github.com/cuhsat/fox/internal/opt"
+	"github.com/cuhsat/fox/internal/opt/ai/chat/llm"
+	"github.com/cuhsat/fox/internal/opt/ai/chat/rag"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
@@ -30,14 +30,14 @@ type Chat struct {
 
 	heap *heap.Heap
 
-	ctx *app.Context
+	ctx *opt.Context
 	llm *llm.LLM
 	rag *rag.RAG
 
 	ch chan string
 }
 
-func New(ctx *app.Context, heap *heap.Heap) *Chat {
+func New(ctx *opt.Context, heap *heap.Heap) *Chat {
 	a := &Chat{
 		File: fs.Create(path.Join(heap.Path, "chat")),
 		heap: heap,

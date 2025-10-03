@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/app/ui"
+	"github.com/cuhsat/fox/internal/opt/ui"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/text"

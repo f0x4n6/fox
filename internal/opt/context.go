@@ -1,4 +1,4 @@
-package app
+package opt
 
 import (
 	"strings"

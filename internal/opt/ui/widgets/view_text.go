@@ -7,7 +7,7 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/cuhsat/fox/internal/app/ui/themes"
+	"github.com/cuhsat/fox/internal/opt/ui/themes"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/page"
 )

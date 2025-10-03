@@ -3,7 +3,7 @@ package widgets
 import (
 	"math"
 
-	"github.com/cuhsat/fox/internal/app/ui/themes"
+	"github.com/cuhsat/fox/internal/opt/ui/themes"
 	"github.com/cuhsat/fox/internal/pkg/types/page"
 )
 

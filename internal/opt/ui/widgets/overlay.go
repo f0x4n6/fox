@@ -7,8 +7,8 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/cuhsat/fox/internal/app"
-	"github.com/cuhsat/fox/internal/app/ui/themes"
+	"github.com/cuhsat/fox/internal/opt"
+	"github.com/cuhsat/fox/internal/opt/ui/themes"
 )
 
 const timeout = 1
@@ -25,7 +25,7 @@ type message struct {
 	s tcell.Style
 }
 
-func NewOverlay(ctx *app.Context) *Overlay {
+func NewOverlay(ctx *opt.Context) *Overlay {
 	return &Overlay{
 		base: base{ctx},
 

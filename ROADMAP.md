@@ -10,17 +10,19 @@
 
 ## 3. Features
 * Add persistence to RAG (`--persist=DB` flag)
+* Add Super Timeline ability
+    1. Specify *Common Log Format* (CLF)
+    2. Extract timestamps per RegEx
+    3. Sort lines by timestamp
 * Add additional documentation
   * Add manpage(s)
+    * https://appliedgo.net/spotlight/install-with-manpage/
+    * https://eddieantonio.ca/blog/2015/12/18/authoring-manpages-in-markdown-with-pandoc/
   * Add `bash` and `zsh` autocompletion files
     * https://applejag.eu/blog/go-spf13-cobra-custom-flag-types/
     * https://cobra.dev/docs/how-to-guides/shell-completion/
     * https://github.com/spf13/cobra/blob/v1.8.0/site/content/completions/_index.md#completions-for-flags
 * Add *Yara* rules scan
-* Add Super Timeline ability
-  1. Specify *Common Log Format* (CLF)
-  2. Extract timestamps per RegEx 
-  3. Sort lines by timestamp
 
 ## 4. Optimizations
 * Add debug output (`-v` flag)

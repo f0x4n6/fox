@@ -14,10 +14,10 @@ import (
 	_ "github.com/gdamore/tcell/v2/encoding"
 
 	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/app"
-	"github.com/cuhsat/fox/internal/app/ai/chat"
-	"github.com/cuhsat/fox/internal/app/ui/themes"
-	"github.com/cuhsat/fox/internal/app/ui/widgets"
+	"github.com/cuhsat/fox/internal/opt"
+	"github.com/cuhsat/fox/internal/opt/ai/chat"
+	"github.com/cuhsat/fox/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/internal/opt/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
@@ -41,7 +41,7 @@ const (
 )
 
 type UI struct {
-	ctx *app.Context
+	ctx *opt.Context
 
 	root tcell.Screen
 
@@ -93,7 +93,7 @@ func create() *UI {
 
 	root.EnablePaste()
 
-	ctx := app.NewContext(root)
+	ctx := opt.NewContext(root)
 
 	ui := UI{
 		ctx: ctx,

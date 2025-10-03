@@ -3,7 +3,7 @@
 package ui
 
 import (
-	"github.com/cuhsat/fox/internal/app/ai"
+	"github.com/cuhsat/fox/internal/opt/ai"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types"
