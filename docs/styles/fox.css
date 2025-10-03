@@ -1,7 +1,7 @@
 :root > * {
-    --md-primary-fg-color:        #333;
-    --md-primary-fg-color--light: #333;
-    --md-primary-fg-color--dark:  #333;
+    --md-primary-fg-color:        #000;
+    --md-primary-fg-color--light: #000;
+    --md-primary-fg-color--dark:  #000;
 }
 
 :root > * {
@@ -11,13 +11,13 @@
 }
 
 :root > * {
-    --md-header-bg-color:       #333;
-    --md-header-bg-color--dark: #333;
+    --md-header-bg-color:       #000;
+    --md-header-bg-color--dark: #000;
 }
 
 :root > * {
-  --md-footer-bg-color:       #333;
-  --md-footer-bg-color--dark: #333;
+  --md-footer-bg-color:       #000;
+  --md-footer-bg-color--dark: #000;
 }
 
 .md-content a {
