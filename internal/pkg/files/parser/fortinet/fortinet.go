@@ -1,4 +1,4 @@
-// Package fortinet is experimental and turned off by default.
+// Package fortinet is experimental and not yet documented.
 package fortinet
 
 import (
