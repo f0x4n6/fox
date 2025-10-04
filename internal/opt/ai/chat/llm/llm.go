@@ -3,13 +3,13 @@ package llm
 import (
 	"context"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
-	fox "github.com/cuhsat/fox/internal"
 	"github.com/ollama/ollama/api"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
+	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/pkg/user/config"
 )
 
@@ -25,7 +25,7 @@ func New(model string, keep time.Duration) *LLM {
 	client, err := api.ClientFromEnvironment()
 
 	if err != nil {
-		sys.Panic(err)
+		log.Panicln(err)
 	}
 
 	alive := &api.Duration{Duration: keep}

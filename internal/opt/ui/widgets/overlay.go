@@ -9,15 +9,16 @@ import (
 
 	"github.com/cuhsat/fox/internal/opt"
 	"github.com/cuhsat/fox/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/internal/pkg/sys"
 )
 
-const timeout = 1
+const timeout = 3
 
 type Overlay struct {
 	base
-	m   sync.RWMutex
-	ch  chan message
-	msg *message
+	m    sync.RWMutex
+	buf  *message
+	msgs chan message
 }
 
 type message struct {
@@ -25,11 +26,10 @@ type message struct {
 	s tcell.Style
 }
 
-func NewOverlay(ctx *opt.Context) *Overlay {
+func NewOverlay(state *opt.State) *Overlay {
 	return &Overlay{
-		base: base{ctx},
-
-		ch: make(chan message, 64),
+		base: base{state},
+		msgs: make(chan message, 64),
 	}
 }
 
@@ -37,37 +37,40 @@ func (o *Overlay) Render(x, y, w, _ int) {
 	o.m.RLock()
 	defer o.m.RUnlock()
 
-	if o.msg != nil {
-		o.print(x, y, fmt.Sprintf("%-*s", w, o.msg.v), o.msg.s)
+	if o.buf != nil {
+		o.print(x, y, fmt.Sprintf("%-*s", w, o.buf.v), o.buf.s)
 	}
 }
 
 func (o *Overlay) SendError(err string) {
-	o.ch <- message{err, themes.Overlay0}
+	o.msgs <- message{err, themes.Overlay0}
 }
 
 func (o *Overlay) SendInfo(msg string) {
-	o.ch <- message{msg, themes.Overlay1}
+	o.msgs <- message{msg, themes.Overlay1}
 }
 
 func (o *Overlay) Listen() {
 	for {
 		select {
-		case msg := <-o.ch:
+		case log := <-sys.Logs:
+			o.SendError(log)
+
+		case msg := <-o.msgs:
 			o.m.Lock()
-			o.msg = &msg
+			o.buf = &msg
 			o.m.Unlock()
 
 		case <-time.After(timeout * time.Second):
 			o.m.Lock()
-			o.msg = nil
+			o.buf = nil
 			o.m.Unlock()
 		}
 
-		o.ctx.ForceRender()
+		o.state.ForceRender()
 	}
 }
 
 func (o *Overlay) Close() {
-	close(o.ch)
+	close(o.msgs)
 }

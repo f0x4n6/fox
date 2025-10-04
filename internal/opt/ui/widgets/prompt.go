@@ -13,6 +13,13 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
+type Position int
+
+const (
+	Before Position = iota
+	After
+)
+
 const Cursor = tcell.CursorStyleBlinkingBar
 
 type Prompt struct {
@@ -25,8 +32,8 @@ type Prompt struct {
 	cursorMax atomic.Int32
 }
 
-func NewPrompt(ctx *opt.Context) *Prompt {
-	p := Prompt{base: base{ctx}}
+func NewPrompt(state *opt.State) *Prompt {
+	p := Prompt{base: base{state}}
 
 	p.lock.Store(true)
 	p.value.Store("")
@@ -64,7 +71,7 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	p.print(x, y, m, themes.Surface3)
 
 	// skip the rest in static modes
-	if p.ctx.Mode().Static() {
+	if p.state.Mode().Static() {
 		return 1
 	}
 
@@ -75,7 +82,7 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	x += ml
 
 	// render filter
-	if p.ctx.Mode().Filter() {
+	if p.state.Mode().Filter() {
 		p.print(x, y, f, themes.Surface1)
 	}
 
@@ -104,10 +111,10 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	p.cursorEnd.Store(int32(vl - o))
 	p.cursorMax.Store(int32(cm - 1))
 
-	if p.ctx.Mode().Prompt() && !p.Locked() {
-		p.ctx.Root.ShowCursor(x+d+c, y)
+	if p.state.Mode().Prompt() && !p.Locked() {
+		p.state.Root.ShowCursor(x+d+c, y)
 	} else {
-		p.ctx.Root.HideCursor()
+		p.state.Root.HideCursor()
 	}
 
 	return 1
@@ -178,11 +185,10 @@ func (p *Prompt) AddRune(r rune) {
 	}
 }
 
-func (p *Prompt) DelRune(b bool) {
+func (p *Prompt) DelRune(po Position) {
 	v := p.value.Load().(string)
 	o := int(p.offset.Load())
 	c := int(p.cursor.Load())
-	//cm := int(p.cursorMax.Load())
 
 	if p.Locked() || len(v) <= 0 {
 		return
@@ -192,16 +198,17 @@ func (p *Prompt) DelRune(b bool) {
 
 	p.cursorEnd.Add(-1)
 
-	if !b {
-		p.value.Store(v[:o+c] + v[min(o+c+1, lv):]) // del left
-	} else {
-		p.value.Store(v[:max(o+c-1, 0)] + v[o+c:]) // del right
+	switch po {
+	case Before:
+		p.value.Store(v[:max(o+c-1, 0)] + v[o+c:])
 
 		if o > 0 {
 			p.offset.Add(-1)
 		} else {
 			p.Move(-1)
 		}
+	case After:
+		p.value.Store(v[:o+c] + v[min(o+c+1, lv):])
 	}
 }
 
@@ -237,11 +244,11 @@ func (p *Prompt) SetValue(s string) {
 }
 
 func (p *Prompt) fmtMode() string {
-	return fmt.Sprintf(" %s ", p.ctx.Mode())
+	return fmt.Sprintf(" %s ", p.state.Mode())
 }
 
 func (p *Prompt) fitFilters(fs []string) []string {
-	w, _ := p.ctx.Root.Size()
+	w, _ := p.state.Root.Size()
 
 	for {
 		l := text.Len(p.fmtFilters(fs))
@@ -257,12 +264,12 @@ func (p *Prompt) fitFilters(fs []string) []string {
 func (p *Prompt) fmtFilters(fs []string) string {
 	var sb strings.Builder
 
-	if p.ctx.Mode().Filter() {
+	if p.state.Mode().Filter() {
 		for _, f := range fs {
 			sb.WriteRune(' ')
 			sb.WriteString(f)
 			sb.WriteRune(' ')
-			sb.WriteRune(p.ctx.Icon.Grep)
+			sb.WriteRune(p.state.Icon.Grep)
 		}
 
 		// add space after filters
@@ -279,7 +286,7 @@ func (p *Prompt) fmtInput(fs []string) string {
 
 	if v, ok := p.value.Load().(string); ok {
 		// add space before input in all modes
-		if (!p.ctx.Mode().Filter() || len(fs) == 0) && len(v) > 0 {
+		if (!p.state.Mode().Filter() || len(fs) == 0) && len(v) > 0 {
 			sb.WriteRune(' ')
 		}
 
@@ -300,27 +307,27 @@ func (p *Prompt) fmtStatus(l, c int) string {
 	var sb strings.Builder
 
 	if c > 0 {
-		sb.WriteString(fmt.Sprintf(" %d%c%d ", l, p.ctx.Icon.Size, c))
+		sb.WriteString(fmt.Sprintf(" %d%c%d ", l, p.state.Icon.Size, c))
 	} else {
 		sb.WriteString(fmt.Sprintf(" %d ", l))
 	}
 
-	if p.ctx.IsNavi() {
+	if p.state.IsNavi() {
 		sb.WriteRune('N')
 	} else {
-		sb.WriteRune(p.ctx.Icon.None)
+		sb.WriteRune(p.state.Icon.None)
 	}
 
-	if p.ctx.IsWrap() {
+	if p.state.IsWrap() {
 		sb.WriteRune('W')
 	} else {
-		sb.WriteRune(p.ctx.Icon.None)
+		sb.WriteRune(p.state.Icon.None)
 	}
 
-	if p.ctx.IsFollow() {
+	if p.state.IsFollow() {
 		sb.WriteRune('T')
 	} else {
-		sb.WriteRune(p.ctx.Icon.None)
+		sb.WriteRune(p.state.Icon.None)
 	}
 
 	sb.WriteRune(' ')

@@ -26,12 +26,12 @@ type panel struct {
 }
 
 type base struct {
-	ctx *opt.Context
+	state *opt.State
 }
 
 func (b *base) blank(x, y, w int, sty tcell.Style) {
 	for i := range w {
-		b.ctx.Root.SetContent(x+i, y, ' ', nil, sty)
+		b.state.Root.SetContent(x+i, y, ' ', nil, sty)
 	}
 }
 
@@ -63,7 +63,7 @@ func (b *base) print(x, y int, s string, sty tcell.Style) {
 
 		case 1:
 			if len(d) != 0 {
-				b.ctx.Root.SetContent(x+i, y, d[0], d[1:], sty)
+				b.state.Root.SetContent(x+i, y, d[0], d[1:], sty)
 				i += w
 			}
 
@@ -71,7 +71,7 @@ func (b *base) print(x, y int, s string, sty tcell.Style) {
 
 		case 2:
 			if len(d) != 0 {
-				b.ctx.Root.SetContent(x+i, y, d[0], d[1:], sty)
+				b.state.Root.SetContent(x+i, y, d[0], d[1:], sty)
 				i += w
 			}
 
@@ -82,7 +82,7 @@ func (b *base) print(x, y int, s string, sty tcell.Style) {
 	}
 
 	if len(d) != 0 {
-		b.ctx.Root.SetContent(x+i, y, d[0], d[1:], sty)
+		b.state.Root.SetContent(x+i, y, d[0], d[1:], sty)
 		i += w
 	}
 }

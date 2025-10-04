@@ -4,16 +4,19 @@
 * Fix partial highlighting
 
 ## 2. Refactorings
-* Implement State Machine for UI
-  * Add keychain support
+* Add keychain support
   * Remap some key bindings
 
 ## 3. Features
-* Add persistence to RAG (`--persist=DB` flag)
 * Add Super Timeline ability
-    1. Specify *Common Log Format* (CLF)
-    2. Extract timestamps per RegEx
-    3. Sort lines by timestamp
+  * Specify *Common Log Format* (CLF)
+    * Encoding utf-8
+    * Line ending `\n`
+    * Add to docs under *Resource* section
+    * Timestamps as ISO-8601 or RFC 3339
+    * CEF format?
+  * Extract timestamps per RegEx
+  * Sort lines by timestamp
 * Add additional documentation
   * Add manpage(s)
     * https://appliedgo.net/spotlight/install-with-manpage/

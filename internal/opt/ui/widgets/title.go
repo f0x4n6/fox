@@ -14,10 +14,8 @@ type Title struct {
 	base
 }
 
-func NewTitle(ctx *opt.Context) *Title {
-	return &Title{
-		base: base{ctx},
-	}
+func NewTitle(state *opt.State) *Title {
+	return &Title{base{state}}
 }
 
 func (t *Title) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
@@ -35,7 +33,7 @@ func (t *Title) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	var c string
 
 	if n > 1 {
-		c = fmt.Sprintf(" %d %c %d ", i, t.ctx.Icon.VSep, n)
+		c = fmt.Sprintf(" %d %c %d ", i, t.state.Icon.VSep, n)
 	}
 
 	// render blank line

@@ -60,9 +60,9 @@ func (c *Chat) setModel(ctx context.Context, param string) error {
 
 	switch strings.ToLower(v) {
 	case "model":
-		c.ctx.ChangeModel(model)
+		c.state.ChangeModel(model)
 	case "embed":
-		c.ctx.ChangeEmbed(model)
+		c.state.ChangeEmbed(model)
 	default:
 		return fmt.Errorf("unknown target")
 	}
@@ -84,10 +84,10 @@ func (c *Chat) getModel(ctx context.Context, param string) error {
 		}
 
 	case "model":
-		c.write(fmt.Sprintln(c.ctx.Model()))
+		c.write(fmt.Sprintln(c.state.Model()))
 
 	case "embed":
-		c.write(fmt.Sprintln(c.ctx.Embed()))
+		c.write(fmt.Sprintln(c.state.Embed()))
 
 	default:
 		return fmt.Errorf("unknown target")
@@ -103,12 +103,12 @@ func (c *Chat) delModel(ctx context.Context, param string) error {
 		return err
 	}
 
-	if c.ctx.Model() == param {
-		c.ctx.ChangeModel("")
+	if c.state.Model() == param {
+		c.state.ChangeModel("")
 	}
 
-	if c.ctx.Embed() == param {
-		c.ctx.ChangeEmbed("")
+	if c.state.Embed() == param {
+		c.state.ChangeEmbed("")
 	}
 
 	c.write(fmt.Sprintf("Deleted model %s\n\n", param))

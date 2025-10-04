@@ -7,7 +7,6 @@ import (
 	"sync/atomic"
 
 	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
@@ -23,9 +22,7 @@ type HeapSet struct {
 
 	loader *loader.Loader // file loader
 
-	error Callback // error callback
-	watch Callback // watch callback
-
+	watch Callback     // callback
 	heaps []*heap.Heap // set heaps
 	index *int32       // set index
 }
@@ -79,25 +76,6 @@ func (hs *HeapSet) Open(path string) {
 	for _, h := range hs.loader.Open(path) {
 		hs.atomicAdd(h)
 	}
-}
-
-func (hs *HeapSet) OpenLog() {
-	idx, ok := hs.findByPath(sys.Log.Name())
-
-	if !ok {
-		idx = hs.Len()
-
-		hs.atomicAdd(heap.New(
-			"Log",
-			sys.Log.Name(),
-			sys.Log.Name(),
-			types.Stderr,
-		))
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.atomicGet(idx).Reload()
 }
 
 func (hs *HeapSet) OpenHelp() {

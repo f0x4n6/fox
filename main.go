@@ -10,8 +10,6 @@
 package main
 
 import (
-	"runtime/debug"
-
 	"github.com/inconshreveable/mousetrap"
 
 	"github.com/cuhsat/fox/internal/cmd"
@@ -20,11 +18,7 @@ import (
 
 // Main start and catch.
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			sys.Trace(err, debug.Stack())
-		}
-	}()
+	defer sys.Trace()
 
 	if mousetrap.StartedByExplorer() {
 		sys.Trap()

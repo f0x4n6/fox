@@ -24,29 +24,29 @@ const banner = "How may I help you today?"
 type Chat struct {
 	File fs.File
 
-	done context.CancelFunc
-	down atomic.Uint32
-	busy atomic.Bool
+	state *opt.State
+	heap  *heap.Heap
 
-	heap *heap.Heap
-
-	ctx *opt.Context
 	llm *llm.LLM
 	rag *rag.RAG
 
-	ch chan string
+	resp chan string
+	done context.CancelFunc
+	down atomic.Uint32
+	busy atomic.Bool
 }
 
-func New(ctx *opt.Context, heap *heap.Heap) *Chat {
+func New(state *opt.State, heap *heap.Heap) *Chat {
 	a := &Chat{
 		File: fs.Create(path.Join(heap.Path, "chat")),
-		heap: heap,
 
-		ctx: ctx,
-		llm: llm.New(ctx.Model(), time.Minute*30),
+		state: state,
+		heap:  heap,
+
+		llm: llm.New(state.Model(), time.Minute*30),
 		rag: rag.New(),
 
-		ch: make(chan string, 64),
+		resp: make(chan string, 64),
 	}
 
 	a.write(fmt.Sprintln(banner))
@@ -62,7 +62,7 @@ func (c *Chat) Query(query string, echo bool) {
 	var ctx context.Context
 
 	if echo {
-		c.write(fmt.Sprintf("\n%c %s\n", c.ctx.Icon.Ps1, query))
+		c.write(fmt.Sprintf("\n%c %s\n", c.state.Icon.Ps1, query))
 	}
 
 	if c.done != nil {
@@ -83,11 +83,11 @@ func (c *Chat) Close() {
 		c.done()
 	}
 
-	close(c.ch)
+	close(c.resp)
 }
 
 func (c *Chat) process(ctx context.Context, query string) {
-	col := c.rag.Embed(ctx, c.ctx.Embed(), c.heap)
+	col := c.rag.Embed(ctx, c.state.Embed(), c.heap)
 
 	if col == nil {
 		return
@@ -101,12 +101,12 @@ func (c *Chat) process(ctx context.Context, query string) {
 
 	c.busy.Store(true)
 
-	err := c.llm.Query(ctx, c.ctx.Model(), query, lines, func(res api.ChatResponse) error {
+	err := c.llm.Query(ctx, c.state.Model(), query, lines, func(res api.ChatResponse) error {
 		if len(res.Message.Content) == 0 {
 			c.busy.Store(false)
-			c.ch <- "\r\n"
+			c.resp <- "\r\n"
 		} else {
-			c.ch <- res.Message.Content
+			c.resp <- res.Message.Content
 		}
 
 		return nil
@@ -123,7 +123,7 @@ func (c *Chat) listen() {
 
 	flg, end := flags.Get(), true
 
-	for s := range c.ch {
+	for s := range c.resp {
 		// response start
 		if end {
 			s = strings.TrimSpace(s)

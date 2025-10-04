@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
 
@@ -71,13 +72,13 @@ func (w *Writer) Open(file *os.File, _ bool, title string) {
 	buf, err := io.ReadAll(w.file)
 
 	if err != nil {
-		sys.Panic(err)
+		log.Panicln(err)
 	}
 
 	err = xml.Unmarshal(buf, &w.bag)
 
 	if err != nil && err != io.EOF {
-		sys.Panic(err)
+		log.Panicln(err)
 	}
 }
 

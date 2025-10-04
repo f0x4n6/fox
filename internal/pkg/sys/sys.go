@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 	"runtime"
@@ -18,11 +19,6 @@ const (
 	shellWin = `C:\WINDOWS\system32\cmd.exe`
 	shellLin = "/bin/sh"
 )
-
-func Exit(v ...any) {
-	Print(v...)
-	os.Exit(1)
-}
 
 func Exec(cmds []string) fs.File {
 	f := fs.Create("/fox/exec")
@@ -78,7 +74,7 @@ func Shell() {
 
 func Stdin() fs.File {
 	if !Piped(os.Stdin) {
-		Panic("Device mode is invalid")
+		log.Panicln("Device mode is invalid")
 	}
 
 	f := fs.Create("/fox/stdin")

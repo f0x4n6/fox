@@ -3,6 +3,7 @@ package sqlite
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -59,7 +60,7 @@ func (w *Writer) Open(file *os.File, old bool, _ string) {
 	w.db, err = sql.Open("sqlite", fmt.Sprintf("file:%s", file.Name()))
 
 	if err != nil {
-		sys.Panic(err)
+		log.Panicln(err)
 	}
 
 	// create the database from schema
@@ -67,7 +68,7 @@ func (w *Writer) Open(file *os.File, old bool, _ string) {
 		_, err = w.db.Exec(api.SchemaSql)
 
 		if err != nil {
-			sys.Panic(err)
+			log.Panicln(err)
 		}
 	}
 }

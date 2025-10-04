@@ -335,7 +335,7 @@ func init() {
 }
 
 func run(args []string) {
-	var ctx = opt.NewContext(nil)
+	var ctx = opt.NewState(nil)
 	var flg = flags.Get()
 
 	if len(flg.AI.Query) > 0 && !ai.Check() {

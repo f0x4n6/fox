@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -58,7 +59,7 @@ func TempDir(prefix string) string {
 	tmp, err := os.MkdirTemp(Cache(), fmt.Sprintf("%s-*", prefix))
 
 	if err != nil {
-		sys.Panic(err)
+		log.Panicln(err)
 	}
 
 	return tmp
@@ -68,7 +69,7 @@ func TempFile(prefix string) *os.File {
 	tmp, err := os.CreateTemp(Cache(), fmt.Sprintf("%s-*", prefix))
 
 	if err != nil {
-		sys.Panic(err)
+		log.Panicln(err)
 	}
 
 	return tmp
@@ -96,7 +97,7 @@ func Config(name string) string {
 	dir, err := os.UserHomeDir()
 
 	if err != nil {
-		sys.Panic(err)
+		log.Println(err)
 	}
 
 	return filepath.Join(dir, ".config", "fox", name)
@@ -106,7 +107,7 @@ func Cache() string {
 	dir, err := os.UserHomeDir()
 
 	if err != nil {
-		sys.Panic(err)
+		log.Println(err)
 	}
 
 	tmp := filepath.Join(dir, ".cache", "fox")
@@ -114,7 +115,7 @@ func Cache() string {
 	err = os.MkdirAll(tmp, 0700)
 
 	if err != nil {
-		sys.Panic(err)
+		log.Println(err)
 	}
 
 	return tmp

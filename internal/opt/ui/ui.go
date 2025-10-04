@@ -4,9 +4,11 @@ package ui
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"strings"
 	"sync"
+	"unicode"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/mattn/go-runewidth"
@@ -19,7 +21,6 @@ import (
 	"github.com/cuhsat/fox/internal/opt/ui/themes"
 	"github.com/cuhsat/fox/internal/opt/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types"
@@ -36,17 +37,15 @@ const (
 )
 
 const (
-	brPrefix = "ESC[200~" // bracketed paste start
-	brSuffix = "ESC[201~" // bracketed paste end
+	bpPrefix = "ESC[200~" // bracketed paste start
+	bpSuffix = "ESC[201~" // bracketed paste end
 )
 
 type UI struct {
-	ctx *opt.Context
-
 	root tcell.Screen
 
-	chats sync.Map
-
+	state   *opt.State
+	chats   *sync.Map
 	themes  *themes.Themes
 	plugins *plugins.Plugins
 
@@ -78,13 +77,13 @@ func create() *UI {
 	root, err := tcell.NewScreen()
 
 	if err != nil {
-		sys.Panic(err)
+		log.Panicln(err)
 	}
 
 	err = root.Init()
 
 	if err != nil {
-		sys.Panic(err)
+		log.Panicln(err)
 	}
 
 	if !flags.Get().Opt.NoMouse {
@@ -93,20 +92,20 @@ func create() *UI {
 
 	root.EnablePaste()
 
-	ctx := opt.NewContext(root)
+	state := opt.NewState(root)
 
 	ui := UI{
-		ctx: ctx,
-
 		root: root,
 
-		themes:  themes.New(ctx.Theme()),
+		state:   state,
+		chats:   new(sync.Map),
+		themes:  themes.New(state.Theme()),
 		plugins: plugins.New(),
 
-		title:   widgets.NewTitle(ctx),
-		view:    widgets.NewView(ctx),
-		prompt:  widgets.NewPrompt(ctx),
-		overlay: widgets.NewOverlay(ctx),
+		title:   widgets.NewTitle(state),
+		view:    widgets.NewView(state),
+		prompt:  widgets.NewPrompt(state),
+		overlay: widgets.NewOverlay(state),
 	}
 
 	root.SetCursorStyle(widgets.Cursor, themes.Cursor)
@@ -131,14 +130,12 @@ func (ui *UI) delete() {
 
 	ui.overlay.Close()
 	ui.root.Fini()
-	ui.ctx.Save()
+	ui.state.Save()
 }
 
 func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util types.Invoke) {
-	hs.SetCallbacks(func() {
-		_ = ui.root.PostEvent(tcell.NewEventError(nil))
-	}, func() {
-		_ = ui.root.PostEvent(tcell.NewEventInterrupt(ui.ctx.IsFollow()))
+	hs.SetCallback(func() {
+		_ = ui.root.PostEvent(tcell.NewEventInterrupt(ui.state.IsFollow()))
 	})
 
 	events := make(chan tcell.Event, 128)
@@ -149,7 +146,6 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 	ui.invoke(hs, util)
 
-	flg := flags.Get()
 	esc := false
 
 	for {
@@ -159,7 +155,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 		case ev := <-events:
 			if ev == nil {
-				return // term closed
+				return // terminal closed
 			}
 
 			w, h := ui.root.Size()
@@ -168,22 +164,18 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 			switch ev := ev.(type) {
 			case *tcell.EventInterrupt:
-				v, ok := ev.Data().(bool)
-
-				if ok && v {
+				if v, ok := ev.Data().(bool); ok && v {
 					ui.view.ScrollLast()
 				}
 
 			case *tcell.EventClipboard:
-				if ui.ctx.Mode().Static() {
+				if ui.state.Mode().Static() {
 					continue
 				}
 
 				v := string(ev.Data())
-
-				v = strings.TrimPrefix(v, brPrefix)
-				v = strings.TrimSuffix(v, brSuffix)
-
+				v = strings.TrimPrefix(v, bpPrefix)
+				v = strings.TrimSuffix(v, bpSuffix)
 				ui.prompt.SetValue(v)
 
 			case *tcell.EventResize:
@@ -191,36 +183,10 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 				ui.view.Reset()
 
 			case *tcell.EventError:
-				ui.changeMode(mode.Less)
-				ui.view.Reset()
-
-				hs.OpenLog()
-
-				ui.root.Sync()
-				ui.overlay.SendError("An error occurred")
+				ui.overlay.SendError(ev.Error())
 
 			case *tcell.EventMouse:
-				if flg.Opt.NoMouse {
-					continue
-				}
-
-				btns := ev.Buttons()
-
-				if btns&tcell.ButtonMiddle != 0 {
-					ui.root.GetClipboard()
-				} else if btns&tcell.Button4 != 0 {
-					ui.nextTab(hs, heap)
-				} else if btns&tcell.Button5 != 0 {
-					ui.prevTab(hs, heap)
-				} else if btns&tcell.WheelUp != 0 {
-					ui.view.ScrollUp(wheel)
-				} else if btns&tcell.WheelDown != 0 {
-					ui.view.ScrollDown(wheel)
-				} else if btns&tcell.WheelLeft != 0 {
-					ui.view.ScrollLeft(wheel)
-				} else if btns&tcell.WheelRight != 0 {
-					ui.view.ScrollRight(wheel)
-				}
+				ui.handleMouse(hs, heap, ev)
 
 			case *tcell.EventKey:
 				mods := ev.Modifiers()
@@ -228,26 +194,20 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 				pageW := w - 1 // minus text abbreviation
 				pageH := h - 2 // minus title and status
 
-				if ui.ctx.IsNavi() {
+				if ui.state.IsNavi() {
 					pageW -= text.Dec(heap.Count()) + 1
 				}
 
 				if ev.Key() != tcell.KeyEscape {
-					esc = false
+					esc = false // reset
 				}
 
 				switch ev.Key() {
 				case tcell.KeyEscape:
 					if esc {
-						return
-					}
-
-					if ui.ctx.Mode().Prompt() {
-						if !ui.ctx.Last().Prompt() {
-							ui.changeMode(ui.ctx.Last())
-						} else {
-							ui.changeMode(mode.Default)
-						}
+						return // twice to exit
+					} else if ui.state.Mode().Prompt() {
+						ui.changeBack()
 					}
 
 					esc = true
@@ -288,25 +248,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					ui.changeMode(mode.Default)
 
 				case tcell.KeyF8:
-					if heap.Type == types.Chat || heap.Type == types.Ignore {
-						continue
-					}
-
-					var c *chat.Chat
-
-					title := format(heap.String(), "assistant")
-
-					if v, ok := ui.chats.Load(title); !ok {
-						c = chat.New(ui.ctx, heap)
-						ui.chats.Store(title, c)
-					} else {
-						c = v.(*chat.Chat)
-					}
-
-					path := c.File.Name()
-
-					hs.OpenChat(path, path, title)
-					ui.changeMode(mode.Chat)
+					ui.runAssistant(hs, heap)
 
 				case tcell.KeyF9, tcell.KeyF10, tcell.KeyF11, tcell.KeyF12:
 					fallthrough
@@ -315,93 +257,61 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 				case tcell.KeyF17, tcell.KeyF18, tcell.KeyF19, tcell.KeyF20:
 					fallthrough
 				case tcell.KeyF21, tcell.KeyF22, tcell.KeyF23, tcell.KeyF24:
-					if ui.plugins == nil {
-						continue
-					}
-
-					if flg.Opt.NoPlugins {
-						ui.overlay.SendError("Plugins deactivated")
-						goto render
-					}
-
-					p, ok := ui.plugins.Hotkey[strings.ToLower(ev.Name())]
-
-					if !ok {
-						continue
-					}
-
-					go p.Execute(heap.Path, heap.Base, func(path, base, dir string) {
-						if len(dir) > 0 {
-							hs.Open(dir)
-						}
-
-						hs.OpenPlugin(path, base, format(base, p.Name))
-
-						ui.ctx.ForceRender()
-						ui.overlay.SendInfo(fmt.Sprintf("%s executed", p.Name))
-					})
-
-					if len(p.Mode) > 0 {
-						ui.changeMode(mode.Mode(p.Mode))
-					}
+					ui.runPlugin(hs, heap, strings.ToLower(ev.Name()))
 
 				case tcell.KeyUp:
-					if ui.ctx.Mode().Prompt() {
+					switch {
+					case ui.state.Mode().Prompt():
 						ui.prompt.SetValue(hi.PrevLine())
-					} else if mods&tcell.ModCtrl != 0 && mods&tcell.ModShift != 0 {
+					case mods&tcell.ModShift != 0 && mods&tcell.ModCtrl != 0:
 						ui.view.ScrollStart()
-					} else if mods&tcell.ModShift != 0 {
+					case mods&tcell.ModShift != 0:
 						ui.view.ScrollUp(pageH)
-					} else {
+					default:
 						ui.view.ScrollUp(delta)
 					}
 
 				case tcell.KeyDown:
-					if ui.ctx.Mode().Prompt() {
+					switch {
+					case ui.state.Mode().Prompt():
 						ui.prompt.SetValue(hi.NextLine())
-					} else if mods&tcell.ModCtrl != 0 && mods&tcell.ModShift != 0 {
+					case mods&tcell.ModShift != 0 && mods&tcell.ModCtrl != 0:
 						ui.view.ScrollEnd()
-					} else if mods&tcell.ModShift != 0 {
+					case mods&tcell.ModShift != 0:
 						ui.view.ScrollDown(pageH)
-					} else {
+					default:
 						ui.view.ScrollDown(delta)
 					}
 
 				case tcell.KeyLeft:
-					if ui.ctx.Mode().Prompt() {
+					switch {
+					case ui.state.Mode().Prompt():
 						if mods&tcell.ModCtrl != 0 {
 							ui.prompt.MoveStart()
 						} else {
 							ui.prompt.Move(-1)
 						}
-					} else if mods&tcell.ModShift != 0 {
+					case mods&tcell.ModCtrl != 0:
+						ui.prevTab(hs, heap)
+					case mods&tcell.ModShift != 0:
 						ui.view.ScrollLeft(pageW)
-					} else if mods&tcell.ModCtrl != 0 {
-						if hs.Len() > 1 {
-							ui.view.SaveState(heap.Path)
-							heap = hs.PrevHeap()
-							ui.view.LoadState(heap.Path)
-						}
-					} else {
+					default:
 						ui.view.ScrollLeft(delta)
 					}
 
 				case tcell.KeyRight:
-					if ui.ctx.Mode().Prompt() {
+					switch {
+					case ui.state.Mode().Prompt():
 						if mods&tcell.ModCtrl != 0 {
 							ui.prompt.MoveEnd()
 						} else {
 							ui.prompt.Move(+1)
 						}
-					} else if mods&tcell.ModShift != 0 {
+					case mods&tcell.ModCtrl != 0:
+						ui.nextTab(hs, heap)
+					case mods&tcell.ModShift != 0:
 						ui.view.ScrollRight(pageW)
-					} else if mods&tcell.ModCtrl != 0 {
-						if hs.Len() > 1 {
-							ui.view.SaveState(heap.Path)
-							heap = hs.NextHeap()
-							ui.view.LoadState(heap.Path)
-						}
-					} else {
+					default:
 						ui.view.ScrollRight(delta)
 					}
 
@@ -418,13 +328,7 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					ui.view.ScrollEnd()
 
 				case tcell.KeyCtrlCarat:
-					ui.ctx.ChangeTheme(ui.themes.Cycle())
-
-					ui.root.Fill(' ', themes.Terminal)
-					ui.root.Show()
-					ui.root.SetCursorStyle(widgets.Cursor, themes.Cursor)
-
-					ui.overlay.SendInfo(fmt.Sprintf("Theme %s", ui.ctx.Theme()))
+					ui.changeTheme()
 
 				case tcell.KeyCtrlSpace:
 					ui.changeMode(mode.Goto)
@@ -445,17 +349,17 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					ui.changeMode(mode.Hex)
 
 				case tcell.KeyCtrlP:
-					ui.ctx.TogglePinned()
+					ui.state.TogglePinned()
 
 				case tcell.KeyCtrlT:
-					ui.ctx.ToggleFollow()
+					ui.state.ToggleFollow()
 
 				case tcell.KeyCtrlN:
-					ui.ctx.ToggleNavi()
+					ui.state.ToggleNavi()
 					ui.view.Preserve()
 
 				case tcell.KeyCtrlW:
-					ui.ctx.ToggleWrap()
+					ui.state.ToggleWrap()
 					ui.view.Preserve()
 
 				case tcell.KeyCtrlJ:
@@ -472,29 +376,23 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					ui.root.GetClipboard()
 
 				case tcell.KeyCtrlA:
-					if ui.ctx.Mode().Static() {
-						continue
-					}
-
-					if hs.Merge() {
+					if !ui.state.Mode().Static() && hs.Merge() {
 						ui.overlay.SendInfo("Merged all open files")
 					}
 
+				case tcell.KeyCtrlU:
+					//if !ui.state.Mode().Static() && hs.Merge() {
+					//	ui.overlay.SendInfo("Created super timeline")
+					//}
+
 				case tcell.KeyCtrlC:
-					if ui.ctx.Mode().Static() {
-						continue
+					if !ui.state.Mode().Static() {
+						ui.root.SetClipboard(heap.Bytes())
+						ui.overlay.SendInfo(fmt.Sprintf("%s copied to clipboard", heap.String()))
 					}
-
-					ui.root.SetClipboard(heap.Bytes())
-
-					ui.overlay.SendInfo(fmt.Sprintf("%s copied to clipboard", heap.String()))
 
 				case tcell.KeyCtrlS:
-					if ui.ctx.Mode().Static() {
-						continue
-					}
-
-					if bg.Put(heap) {
+					if !ui.state.Mode().Static() && bg.Put(heap) {
 						ui.overlay.SendInfo(fmt.Sprintf("%s saved to %s", heap.String(), bg.String()))
 					}
 
@@ -506,10 +404,6 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 						ui.overlay.SendError(fmt.Sprintf("%s not found", bg.Path))
 					}
 
-				case tcell.KeyCtrlD:
-					ui.view.Reset()
-					hs.OpenLog()
-
 				case tcell.KeyCtrlQ:
 					ui.view.Reset()
 
@@ -518,24 +412,11 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 					}
 
 				case tcell.KeyCtrlZ:
-					err := ui.root.Suspend()
-
-					if err != nil {
-						sys.Error(err)
-						continue
-					}
-
-					sys.Shell()
-
-					err = ui.root.Resume()
-
-					if err != nil {
-						sys.Panic(err)
-					}
+					ui.runShell()
 
 				case tcell.KeyEnter:
 					l := ui.prompt.ReadLine()
-					m := ui.ctx.Mode()
+					m := ui.state.Mode()
 
 					if m.Prompt() && len(strings.TrimSpace(l)) == 0 {
 						continue
@@ -554,17 +435,17 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 					case mode.Goto:
 						ui.view.Goto(l)
-						ui.changeMode(ui.ctx.Last())
+						ui.changeMode(ui.state.Last())
 
 					case mode.Open:
-						ui.ctx.Background(func() {
+						ui.state.Call(func() {
 							hs.Open(l)
 						})
-						ui.changeMode(ui.ctx.Last())
+						ui.changeMode(ui.state.Last())
 
 					case mode.Chat:
 						ui.view.Reset()
-						ui.ctx.Background(func() {
+						ui.state.Call(func() {
 							if v, ok := ui.chats.Load(heap.String()); ok {
 								v.(*chat.Chat).Query(l, true)
 							}
@@ -572,26 +453,21 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 
 					default:
 						plugins.Input <- l
-						ui.changeMode(ui.ctx.Last())
+						ui.changeMode(ui.state.Last())
 					}
 
 				case tcell.KeyDelete:
-					ui.prompt.DelRune(false)
+					ui.prompt.DelRune(widgets.After)
 
 				case tcell.KeyBackspace, tcell.KeyBackspace2:
-					if len(ui.prompt.GetValue()) > 0 {
-						ui.prompt.DelRune(true)
-					} else if ui.ctx.Mode().Prompt() {
-						if !ui.ctx.Last().Prompt() {
-							ui.changeMode(ui.ctx.Last())
-						} else {
-							ui.changeMode(mode.Default)
-						}
-					} else if len(heap.Patterns()) > 0 {
-						if !ui.ctx.Mode().Static() {
-							ui.view.Reset()
-							heap.DelFilter()
-						}
+					switch {
+					case len(ui.prompt.GetValue()) > 0:
+						ui.prompt.DelRune(widgets.Before)
+					case ui.state.Mode().Prompt():
+						ui.changeBack()
+					case len(heap.Patterns()) > 0 && !ui.state.Mode().Static():
+						ui.view.Reset()
+						heap.DelFilter()
 					}
 
 				default:
@@ -609,16 +485,17 @@ func (ui *UI) run(hs *heapset.HeapSet, hi *history.History, bg *bag.Bag, util ty
 						}
 
 					default: // all other keys
-						if ui.ctx.Mode() == mode.Less {
+						if ui.state.Mode() == mode.Less {
 							ui.changeMode(mode.Grep)
 						}
 
-						ui.prompt.AddRune(r)
+						if unicode.IsPrint(r) {
+							ui.prompt.AddRune(r)
+						}
 					}
 				}
 			}
 
-		render:
 			ui.render(hs)
 		}
 	}

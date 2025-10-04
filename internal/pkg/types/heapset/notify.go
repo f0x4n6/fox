@@ -10,9 +10,8 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
-func (hs *HeapSet) SetCallbacks(fn1, fn2 Callback) {
-	hs.error = fn1
-	hs.watch = fn2
+func (hs *HeapSet) SetCallback(fn Callback) {
+	hs.watch = fn
 }
 
 func (hs *HeapSet) addFile(path string) {
@@ -28,14 +27,6 @@ func (hs *HeapSet) watchFiles() {
 		select {
 		case ev, ok := <-fs.Watcher.Events:
 			if !ok || !ev.Has(fsnotify.Write) {
-				continue
-			}
-
-			if ev.Name == sys.Log.Name() {
-				if hs.error != nil {
-					hs.error() // raise error
-				}
-
 				continue
 			}
 

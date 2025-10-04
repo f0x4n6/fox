@@ -4,53 +4,42 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
-
-	"github.com/cuhsat/fox/internal/pkg/sys/fs"
+	"runtime/debug"
+	"strings"
 )
 
 const Prefix = "fox:"
 
-var Log *logger
+var Logs = make(chan string, 64)
 
 func Setup() {
-	Log = &logger{f: Stderr()}
 	log.SetFlags(0)
-	log.SetOutput(Log)
+	log.SetOutput(new(logger))
 }
 
-type logger struct {
-	f fs.File // log file handle
-}
-
-func (l logger) Name() string {
-	return l.f.Name()
-}
+type logger struct{}
 
 func (l logger) Write(b []byte) (int, error) {
-	_, _ = fmt.Fprint(os.Stderr, string(b))
+	msg := strings.TrimSpace(string(b))
 
-	ts := time.Now().UTC().Format(time.RFC3339)
+	if len(msg) > 0 {
+		Logs <- msg
+	}
 
-	return fmt.Fprintf(l.f, "[%s] %s", ts, string(b))
+	return 0, nil
 }
 
-func Trace(v any, stack any) {
-	_, _ = fmt.Fprintln(os.Stderr, fmt.Sprintf(Prefix+" %+v\n\n%s", v, stack))
+func Trace() {
+	if err := recover(); err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, fmt.Sprintf(Prefix+" %+v\n\n%s", err, debug.Stack()))
+	}
 }
 
-func Debug(v ...any) {
-	_, _ = fmt.Fprintln(os.Stderr, fmt.Sprintf(Prefix+" %#v", v...))
-}
-
-func Print(v ...any) {
+func Exit(v ...any) {
 	_, _ = fmt.Fprintln(os.Stderr, fmt.Sprintf(Prefix+" %s", v...))
+	os.Exit(1)
 }
 
 func Error(v ...any) {
-	log.Println(fmt.Sprintf(Prefix+" %s", v...))
-}
-
-func Panic(v ...any) {
-	log.Panic(fmt.Sprintf(Prefix+" %s", v...))
+	log.Println(v...)
 }

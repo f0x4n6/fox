@@ -14,8 +14,8 @@ const (
 func (v *View) hexRender(p *panel) {
 	pg := page.Hex(&page.Context{
 		Heap: v.heap,
-		Navi: v.ctx.IsNavi(),
-		Wrap: v.ctx.IsWrap(),
+		Navi: v.state.IsNavi(),
+		Wrap: v.state.IsWrap(),
 		X:    v.delta.X,
 		Y:    v.delta.Y,
 		W:    p.W - (ruleW * 2),
@@ -59,6 +59,6 @@ func (v *View) hexRender(p *panel) {
 		}
 
 		// vertical scrollbar
-		v.ctx.Root.SetContent(p.W-1, p.Y+scrollY, '│', nil, themes.Terminal)
+		v.state.Root.SetContent(p.W-1, p.Y+scrollY, '│', nil, themes.Terminal)
 	}
 }

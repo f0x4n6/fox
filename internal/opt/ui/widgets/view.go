@@ -10,38 +10,32 @@ import (
 
 type View struct {
 	base
-	cache map[string]state
+	heap  *heap.Heap
+	fmap  *smap.SMap
+	cache map[string]position
 
-	heap *heap.Heap
-	fmap *smap.SMap
-
-	nr int
-	w  int
 	h  int
+	nr int
 
 	last  point
 	delta point
 }
 
-type state struct {
-	fmap *smap.SMap
-
-	nr int
-
+type position struct {
+	nr    int
+	len   int
 	delta point
 }
 
-func NewView(ctx *opt.Context) *View {
+func NewView(state *opt.State) *View {
 	return &View{
-		cache: make(map[string]state),
-		base:  base{ctx},
-		last:  point{0, 0},
-		delta: point{0, 0},
+		base:  base{state},
+		cache: make(map[string]position),
 	}
 }
 
 func (v *View) Render(hs *heapset.HeapSet, x, y, w, h int) int {
-	v.w, v.h = w, h-1 // fill all but the least line
+	v.h = h - 1 // fill all but the least line
 
 	if hs != nil {
 		_, v.heap = hs.Heap()
@@ -49,9 +43,9 @@ func (v *View) Render(hs *heapset.HeapSet, x, y, w, h int) int {
 		return v.h
 	}
 
-	p := &panel{x, y, v.w, v.h}
+	p := &panel{x, y, w, v.h}
 
-	switch v.ctx.Mode() {
+	switch v.state.Mode() {
 	case mode.Hex:
 		v.hexRender(p)
 	default:
@@ -69,7 +63,7 @@ func (v *View) Reset() {
 }
 
 func (v *View) Goto(s string) {
-	if !v.ctx.Mode().Static() {
+	if !v.state.Mode().Static() {
 		v.textGoto(s)
 	}
 }
@@ -80,11 +74,11 @@ func (v *View) Preserve() {
 	}
 }
 
-func (v *View) SaveState(key string) {
+func (v *View) SavePosition(key string) {
 	if v.fmap != nil && len(*v.fmap) > v.delta.Y {
-		v.cache[key] = state{
-			fmap: v.fmap,
-			nr:   (*v.fmap)[v.delta.Y].Nr,
+		v.cache[key] = position{
+			nr:  (*v.fmap)[v.delta.Y].Nr,
+			len: len(*v.fmap),
 			delta: point{
 				v.delta.X,
 				v.delta.Y,
@@ -93,25 +87,23 @@ func (v *View) SaveState(key string) {
 	}
 }
 
-func (v *View) LoadState(key string) {
+func (v *View) LoadPosition(key string) {
 	// safe defaults
 	v.delta.X = 0
 	v.delta.Y = 0
 
 	// can be nil in hex mode
-	if v.fmap != nil {
-		if s, ok := v.cache[key]; ok {
-			if len(*s.fmap) == len(*v.fmap) {
-				v.delta = s.delta
-			} else {
-				v.nr = s.nr
-			}
+	if s, ok := v.cache[key]; ok && v.fmap != nil {
+		if s.len == len(*v.fmap) {
+			v.delta = s.delta
+		} else {
+			v.nr = s.nr
 		}
 	}
 }
 
 func (v *View) ScrollLine() {
-	if v.ctx.Mode().Static() || v.heap.HasContext() {
+	if v.state.Mode().Static() || v.heap.HasContext() {
 		v.ScrollDown(1)
 		return
 	}

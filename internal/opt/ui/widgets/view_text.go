@@ -16,10 +16,10 @@ func (v *View) textRender(p *panel) {
 	pg := page.Text(&page.Context{
 		Heap:    v.heap,
 		Context: v.heap.HasContext(),
-		Pinned:  v.ctx.IsPinned(),
-		Navi:    v.ctx.IsNavi(),
-		Wrap:    v.ctx.IsWrap(),
-		Space:   v.ctx.Space(),
+		Pinned:  v.state.IsPinned(),
+		Navi:    v.state.IsNavi(),
+		Wrap:    v.state.IsWrap(),
+		Space:   v.state.Space(),
 		Nr:      v.nr,
 		X:       v.delta.X,
 		Y:       v.delta.Y,
@@ -45,7 +45,7 @@ func (v *View) textRender(p *panel) {
 	i := 0
 
 	chat := v.heap.Type == types.Chat
-	ps1 := string(v.ctx.Icon.Ps1)
+	ps1 := string(v.state.Icon.Ps1)
 
 	// render lines
 	var color tcell.Style
@@ -63,7 +63,7 @@ func (v *View) textRender(p *panel) {
 		}
 
 		// line number
-		if v.ctx.IsNavi() {
+		if v.state.IsNavi() {
 			v.print(lineX, lineY, line.Nr, themes.Subtext0)
 			lineX += len(line.Nr) + 1
 		}
@@ -72,7 +72,7 @@ func (v *View) textRender(p *panel) {
 		if len(line.Str) > 0 {
 			if chat && strings.HasPrefix(line.Str, ps1) {
 				color = themes.Subtext2
-			} else if i == 1 && v.ctx.IsPinned() {
+			} else if i == 1 && v.state.IsPinned() {
 				color = themes.Subtext0
 			} else {
 				color = themes.Terminal
@@ -87,7 +87,7 @@ func (v *View) textRender(p *panel) {
 		partX := p.X + part.X
 		partY := p.Y + part.Y
 
-		if v.ctx.IsNavi() {
+		if v.state.IsNavi() {
 			partX += pg.N + 1
 		}
 
@@ -96,7 +96,7 @@ func (v *View) textRender(p *panel) {
 	}
 
 	// render scrollbars
-	if v.ctx.IsNavi() {
+	if v.state.IsNavi() {
 		w := p.W - 1
 		h := p.H - 1
 		x := p.X
@@ -115,21 +115,21 @@ func (v *View) textRender(p *panel) {
 		}
 
 		for i := range w {
-			v.ctx.Root.SetContent(x+i, y+h, '─', nil, themes.Subtext1)
+			v.state.Root.SetContent(x+i, y+h, '─', nil, themes.Subtext1)
 		}
 
 		for i := range h {
-			v.ctx.Root.SetContent(x+w, y+i, '│', nil, themes.Subtext1)
+			v.state.Root.SetContent(x+w, y+i, '│', nil, themes.Subtext1)
 		}
 
-		v.ctx.Root.SetContent(x+w, y+h, '┘', nil, themes.Subtext1)
+		v.state.Root.SetContent(x+w, y+h, '┘', nil, themes.Subtext1)
 
 		// horizontal scrollbar
-		v.ctx.Root.SetContent(x+scrollX+0, y+h, '━', nil, themes.Terminal)
-		v.ctx.Root.SetContent(x+scrollX+1, y+h, '━', nil, themes.Terminal)
+		v.state.Root.SetContent(x+scrollX+0, y+h, '━', nil, themes.Terminal)
+		v.state.Root.SetContent(x+scrollX+1, y+h, '━', nil, themes.Terminal)
 
 		// vertical scrollbar
-		v.ctx.Root.SetContent(x+w, y+scrollY, '┃', nil, themes.Terminal)
+		v.state.Root.SetContent(x+w, y+scrollY, '┃', nil, themes.Terminal)
 	}
 }
 

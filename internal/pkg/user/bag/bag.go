@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"hash"
+	"log"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -171,7 +172,7 @@ func (bag *Bag) init() {
 		bag.file, err = os.OpenFile(bag.Path, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
 
 		if err != nil {
-			sys.Panic(err)
+			log.Panicln(err)
 		}
 	}
 
