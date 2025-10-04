@@ -239,10 +239,6 @@ var Fox = &cobra.Command{
 	SilenceUsage: true,
 }
 
-func Execute() error {
-	return Fox.Execute()
-}
-
 func init() {
 	flg := flags.Get()
 

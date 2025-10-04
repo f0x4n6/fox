@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -87,7 +86,7 @@ func Persist(name string) string {
 	_, err := t.WriteTo(f)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 
 	return f.Name()

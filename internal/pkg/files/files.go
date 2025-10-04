@@ -3,8 +3,8 @@ package files
 import (
 	"bytes"
 	"io"
+	"log"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -24,7 +24,7 @@ func HasMagic(p string, o int, m []byte) bool {
 	fi, err := f.Stat()
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return false
 	}
 
@@ -35,7 +35,7 @@ func HasMagic(p string, o int, m []byte) bool {
 	_, err = io.ReadFull(f, buf)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return false
 	}
 

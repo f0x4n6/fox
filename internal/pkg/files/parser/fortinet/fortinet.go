@@ -6,12 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
 	"github.com/pierrec/lz4/v4"
 
 	"github.com/cuhsat/fox/internal/pkg/files"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -59,19 +59,19 @@ func Parse(path string) string {
 	defer t.Close()
 
 	for {
-		log, err := decode(f)
+		l, err := decode(f)
 
 		if errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			break
 		}
 
-		str, err := deflate(log)
+		str, err := deflate(l)
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			break
 		}
 
@@ -82,7 +82,7 @@ func Parse(path string) string {
 		if errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			break
 		}
 	}

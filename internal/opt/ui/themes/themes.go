@@ -1,11 +1,11 @@
 package themes
 
 import (
+	"log"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/user/themes"
 )
 
@@ -305,7 +305,7 @@ func (t *Themes) Load(name string) {
 	}
 
 	if t.index == -1 {
-		sys.Error("theme not found")
+		log.Println("theme not found")
 
 		t.index = 0
 	}

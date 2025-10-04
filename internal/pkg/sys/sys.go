@@ -8,17 +8,40 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"runtime/debug"
+	"strings"
 
+	fox "github.com/cuhsat/fox/internal"
 	"github.com/rainu/go-command-chain"
 
-	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
-const (
-	shellWin = `C:\WINDOWS\system32\cmd.exe`
-	shellLin = "/bin/sh"
-)
+const Prefix = "fox:"
+
+var Logs = make(chan string, 64)
+
+type logger struct{}
+
+func (l logger) Write(b []byte) (int, error) {
+	msg := strings.TrimSpace(string(b))
+
+	if len(msg) > 0 {
+		Logs <- msg
+	}
+
+	return len(msg), nil
+}
+
+func Init() {
+	log.SetFlags(0)
+	log.SetOutput(new(logger))
+}
+
+func Exit(v ...any) {
+	_, _ = fmt.Fprintf(os.Stderr, Prefix+" %s\n", v...)
+	os.Exit(1)
+}
 
 func Exec(cmds []string) fs.File {
 	f := fs.Create("/fox/exec")
@@ -29,7 +52,7 @@ func Exec(cmds []string) fs.File {
 			Finalize().WithOutput(f).Run()
 
 		if err != nil {
-			Error(err)
+			log.Println(err)
 			break
 		}
 	}
@@ -43,7 +66,7 @@ func Trap() {
 	args := []string{"/K", bin}
 	args = append(args, os.Args[1:]...)
 
-	err := exec.Command(shellWin, args...).Run()
+	err := exec.Command("C:\\WINDOWS\\system32\\cmd.exe", args...).Run()
 
 	if err != nil {
 		fmt.Printf("%s %s\n", Prefix, err.Error())
@@ -51,18 +74,18 @@ func Trap() {
 }
 
 func Shell() {
+	fmt.Println(fox.Product, fox.Version)
+	fmt.Println("Type 'exit' to return.")
+
 	shell := os.Getenv("SHELL")
 
 	if len(shell) == 0 {
 		if runtime.GOOS == "windows" {
-			shell = shellWin
+			shell = "C:\\WINDOWS\\system32\\cmd.exe"
 		} else {
-			shell = shellLin
+			shell = "/bin/sh"
 		}
 	}
-
-	fmt.Println(fox.Product, fox.Version)
-	fmt.Println("Type 'exit' to return.")
 
 	cmd := exec.Command(shell, "-l") // login shell
 	cmd.Stdin = os.Stdin
@@ -90,7 +113,7 @@ func Stdin() fs.File {
 				_, err = f.WriteString(s)
 
 				if err != nil {
-					Error(err)
+					log.Println(err)
 				}
 
 			case io.EOF:
@@ -98,7 +121,7 @@ func Stdin() fs.File {
 				break
 
 			default:
-				Error(err)
+				log.Println(err)
 			}
 		}
 	}(f)
@@ -106,37 +129,19 @@ func Stdin() fs.File {
 	return f
 }
 
-func Stdout() fs.File {
-	return fs.Create("/fox/stdout")
-}
-
-func Stderr() fs.File {
-	return fs.Create("/fox/stderr")
-}
-
 func Piped(file fs.File) bool {
 	fi, err := file.Stat()
 
 	if err != nil {
-		Error(err)
+		log.Println(err)
 		return false
 	}
 
 	return (fi.Mode() & os.ModeCharDevice) != os.ModeCharDevice
 }
 
-func Map(file fs.File) ([]byte, error) {
-	b, err := io.ReadAll(file)
-
-	if err != nil {
-		return nil, err
+func Recover() {
+	if err := recover(); err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, Prefix+" %+v\n\n%s\n", err, debug.Stack())
 	}
-
-	_, err = file.Seek(0, io.SeekStart)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return b, nil
 }

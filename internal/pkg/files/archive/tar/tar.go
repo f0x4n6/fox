@@ -3,11 +3,11 @@ package tar
 import (
 	"archive/tar"
 	"io"
+	"log"
 	"path/filepath"
 	"strings"
 
 	"github.com/cuhsat/fox/internal/pkg/files"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -31,7 +31,7 @@ func Deflate(path, _ string) (i []*files.Item) {
 		}
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			break
 		}
 
@@ -45,7 +45,7 @@ func Deflate(path, _ string) (i []*files.Item) {
 		_ = t.Close()
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			continue
 		}
 

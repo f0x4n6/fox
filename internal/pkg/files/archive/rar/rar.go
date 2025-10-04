@@ -2,13 +2,13 @@ package rar
 
 import (
 	"io"
+	"log"
 	"path/filepath"
 	"strings"
 
 	"github.com/nwaples/rardecode"
 
 	"github.com/cuhsat/fox/internal/pkg/files"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -25,7 +25,7 @@ func Deflate(path, pass string) (i []*files.Item) {
 	r, err := rardecode.NewReader(a, pass)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
@@ -37,7 +37,7 @@ func Deflate(path, pass string) (i []*files.Item) {
 		}
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			break
 		}
 
@@ -51,7 +51,7 @@ func Deflate(path, pass string) (i []*files.Item) {
 		_ = t.Close()
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			continue
 		}
 

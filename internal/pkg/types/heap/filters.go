@@ -1,9 +1,9 @@
 package heap
 
 import (
+	"log"
 	"regexp"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/types/smap"
 )
 
@@ -36,7 +36,7 @@ func (h *Heap) AddFilter(pattern string, b, a int) {
 	re, err := regexp.Compile(pattern)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 

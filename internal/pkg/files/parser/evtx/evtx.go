@@ -1,10 +1,11 @@
 package evtx
 
 import (
+	"log"
+
 	"github.com/0xrawsec/golang-evtx/evtx"
 
 	"github.com/cuhsat/fox/internal/pkg/files"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -28,7 +29,7 @@ func Parse(path string) string {
 	r, err := evtx.New(f)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return path
 	}
 
@@ -38,13 +39,13 @@ func Parse(path string) string {
 		_, err := t.Write(evtx.ToJSON(e))
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 		}
 
 		_, err = t.Write([]byte{lf})
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 		}
 	}
 

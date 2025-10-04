@@ -2,13 +2,13 @@ package cab
 
 import (
 	"io"
+	"log"
 	"path/filepath"
 	"strings"
 
 	"github.com/google/go-cabfile/cabfile"
 
 	"github.com/cuhsat/fox/internal/pkg/files"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -25,7 +25,7 @@ func Deflate(path, _ string) (i []*files.Item) {
 	r, err := cabfile.New(a)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
@@ -37,7 +37,7 @@ func Deflate(path, _ string) (i []*files.Item) {
 		h, err := r.Content(s)
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			continue
 		}
 
@@ -47,7 +47,7 @@ func Deflate(path, _ string) (i []*files.Item) {
 		_ = t.Close()
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			continue
 		}
 

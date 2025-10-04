@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/cuhsat/fox/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 )
 
 const Ext = ".xml"
@@ -95,21 +94,21 @@ func (w *Writer) Flush() {
 	buf, err = xml.MarshalIndent(w.bag, "", "  ")
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
 	_, err = w.file.Seek(0, 0)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
 	err = w.file.Truncate(0)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
@@ -121,7 +120,7 @@ func (w *Writer) Flush() {
 	_, err = fmt.Fprintln(w.file, sb.String())
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 }
 

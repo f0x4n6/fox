@@ -18,12 +18,12 @@ import (
 
 // Main start and catch.
 func main() {
-	defer sys.Trace()
+	defer sys.Recover()
 
 	if mousetrap.StartedByExplorer() {
 		sys.Trap()
 	} else {
-		sys.Setup()
-		_ = cmd.Execute()
+		sys.Init()
+		_ = cmd.Fox.Execute()
 	}
 }

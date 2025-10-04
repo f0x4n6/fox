@@ -3,11 +3,11 @@ package json
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
 	"github.com/cuhsat/fox/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 )
 
 const (
@@ -82,14 +82,14 @@ func (w *Writer) Flush() {
 	}
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
 	_, err = fmt.Fprintln(w.file, string(buf))
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 }
 

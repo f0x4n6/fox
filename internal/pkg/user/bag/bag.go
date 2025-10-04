@@ -24,7 +24,6 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/files/schema/hec"
 	"github.com/cuhsat/fox/internal/pkg/files/schema/raw"
 	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
@@ -120,19 +119,19 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 	usr, err := user.Current()
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 
 	sum, err := h.HashSum(types.SHA256)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 
 	abs, err := filepath.Abs(h.String())
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 
 	for _, w := range bag.ws {
@@ -195,7 +194,7 @@ func (bag *Bag) sign() {
 	buf, err := os.ReadFile(bag.Path)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
@@ -206,7 +205,7 @@ func (bag *Bag) sign() {
 	err = os.WriteFile(bag.Path+".sig", []byte(sum), 0600)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 
 	return
@@ -225,7 +224,7 @@ func mod(h *heap.Heap) time.Time {
 		if err == nil {
 			mt = fi.ModTime()
 		} else {
-			sys.Error(err)
+			log.Println(err)
 		}
 	}
 

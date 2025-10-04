@@ -1,6 +1,7 @@
 package plugins
 
 import (
+	"log"
 	"regexp"
 	"slices"
 	"strings"
@@ -43,7 +44,7 @@ func New() *Plugins {
 	err := cfg.Unmarshal(ps)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return nil
 	}
 

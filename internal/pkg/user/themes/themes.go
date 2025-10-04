@@ -1,9 +1,10 @@
 package themes
 
 import (
+	"log"
+
 	"github.com/spf13/viper"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/user"
 )
 
@@ -35,7 +36,7 @@ func New() *Themes {
 	err := cfg.Unmarshal(ts)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return nil
 	}
 

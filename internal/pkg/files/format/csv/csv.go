@@ -1,12 +1,12 @@
 package csv
 
 import (
+	"log"
 	"path/filepath"
 	"strings"
 
 	"github.com/jfyne/csvd"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/text"
 )
@@ -26,7 +26,7 @@ func Format(path string) string {
 	cols, err := r.ReadAll()
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return path
 	}
 
@@ -56,7 +56,7 @@ func Format(path string) string {
 		_, err := t.WriteString(sb.String())
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 		}
 
 		sb.Reset()

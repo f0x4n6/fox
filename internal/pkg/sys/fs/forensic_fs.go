@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"io"
 	"os"
 	"time"
 
@@ -8,33 +9,21 @@ import (
 	"github.com/spf13/afero"
 )
 
-type File = afero.File
-
 var Watcher, _ = fsnotify.NewBufferedWatcher(2048)
 
-var ffs = NewForensicFs(
+var _fs = NewForensicFs(
+	// base filesystem
 	afero.NewReadOnlyFs(
 		afero.NewOsFs(),
 	),
+	// layered filesystem
 	NewNotifyFs(
 		afero.NewMemMapFs(),
 		Watcher,
 	),
 )
 
-func Open(path string) File {
-	f, _ := ffs.Open(path)
-	return f
-}
-
-func Create(path string) File {
-	f, _ := ffs.Create(path)
-	return f
-}
-
-func Exists(path string) bool {
-	return ffs.Exists(path)
-}
+type File = afero.File
 
 type ForensicFs struct {
 	base  afero.Fs
@@ -135,4 +124,34 @@ func (fs *ForensicFs) Exists(name string) bool {
 	}
 
 	return false
+}
+
+func Open(path string) File {
+	f, _ := _fs.Open(path)
+	return f
+}
+
+func Create(path string) File {
+	f, _ := _fs.Create(path)
+	return f
+}
+
+func Exists(path string) bool {
+	return _fs.Exists(path)
+}
+
+func Map(file File) ([]byte, error) {
+	b, err := io.ReadAll(file)
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = file.Seek(0, io.SeekStart)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
 }

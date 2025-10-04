@@ -2,11 +2,11 @@ package xz
 
 import (
 	"io"
+	"log"
 
 	"github.com/ulikunitz/xz"
 
 	"github.com/cuhsat/fox/internal/pkg/files"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -23,7 +23,7 @@ func Deflate(path string) string {
 	r, err := xz.NewReader(a)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return path
 	}
 
@@ -33,7 +33,7 @@ func Deflate(path string) string {
 	_, err = io.Copy(t, r)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return path
 	}
 

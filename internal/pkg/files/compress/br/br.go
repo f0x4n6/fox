@@ -2,11 +2,11 @@ package br
 
 import (
 	"io"
+	"log"
 
 	"github.com/andybalholm/brotli"
 
 	"github.com/cuhsat/fox/internal/pkg/files"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -28,7 +28,7 @@ func Deflate(path string) string {
 	_, err := io.Copy(t, r)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return path
 	}
 

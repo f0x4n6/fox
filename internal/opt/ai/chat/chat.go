@@ -3,6 +3,7 @@ package chat
 import (
 	"context"
 	"fmt"
+	"log"
 	"path"
 	"strings"
 	"sync/atomic"
@@ -14,7 +15,6 @@ import (
 	"github.com/cuhsat/fox/internal/opt/ai/chat/llm"
 	"github.com/cuhsat/fox/internal/opt/ai/chat/rag"
 	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 )
@@ -114,7 +114,7 @@ func (c *Chat) process(ctx context.Context, query string) {
 
 	if err != nil {
 		c.busy.Store(false)
-		sys.Error(err)
+		log.Println(err)
 	}
 }
 

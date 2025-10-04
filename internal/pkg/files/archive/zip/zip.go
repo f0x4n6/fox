@@ -2,13 +2,13 @@ package zip
 
 import (
 	"io"
+	"log"
 	"path/filepath"
 	"strings"
 
 	"github.com/cuhsat/zip/pkg/zip"
 
 	"github.com/cuhsat/fox/internal/pkg/files"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -22,7 +22,7 @@ func Deflate(path, pass string) (i []*files.Item) {
 	r, err := zip.OpenReader(path)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 
 		i = append(i, &files.Item{
 			Path: path,
@@ -46,7 +46,7 @@ func Deflate(path, pass string) (i []*files.Item) {
 		a, err := f.Open()
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			continue
 		}
 
@@ -58,7 +58,7 @@ func Deflate(path, pass string) (i []*files.Item) {
 		_ = a.Close()
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			continue
 		}
 

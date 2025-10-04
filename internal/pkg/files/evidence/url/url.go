@@ -1,13 +1,13 @@
 package url
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/cuhsat/fox/internal/pkg/files/evidence"
 	"github.com/cuhsat/fox/internal/pkg/files/schema"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 )
 
 type Url struct {
@@ -30,7 +30,7 @@ func (w *Url) Flush() {
 	req, err := http.NewRequest("POST", w.url, body)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
@@ -41,14 +41,14 @@ func (w *Url) Flush() {
 	res, err := w.c.Do(req)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		sys.Error(http.StatusText(res.StatusCode))
+		log.Println(http.StatusText(res.StatusCode))
 	}
 }
 

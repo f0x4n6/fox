@@ -3,6 +3,7 @@ package history
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,7 +12,6 @@ import (
 	"time"
 
 	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/user"
 )
 
@@ -38,7 +38,7 @@ func New() *History {
 	err := os.MkdirAll(filepath.Dir(cfg), 0700)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return &h
 	}
 
@@ -46,7 +46,7 @@ func New() *History {
 	h.file, err = os.OpenFile(cfg, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return &h
 	}
 
@@ -61,7 +61,7 @@ func New() *History {
 	}
 
 	if err = s.Err(); err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 
 	h.index.Store(int64(len(h.lines)))

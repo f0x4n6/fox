@@ -12,7 +12,6 @@ import (
 
 	"github.com/cuhsat/fox/api"
 	"github.com/cuhsat/fox/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 )
 
 const Ext = ".sqlite"
@@ -81,7 +80,7 @@ func (w *Writer) Flush() {
 	tx, err := w.db.Begin()
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
@@ -123,7 +122,7 @@ func (w *Writer) Flush() {
 	err = tx.Commit()
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 }
 
@@ -159,14 +158,14 @@ func (w *Writer) execute(query string, v ...any) int64 {
 	res, err := w.db.Exec(query, v...)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return 0
 	}
 
 	id, err := res.LastInsertId()
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return 0
 	}
 

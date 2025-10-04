@@ -2,10 +2,10 @@ package plain
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/cuhsat/fox/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 )
 
 const Ext = ".txt"
@@ -32,6 +32,6 @@ func (w *Writer) WriteLine(_, _ int, str string) {
 	_, err := fmt.Fprintln(w.file, str)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 }

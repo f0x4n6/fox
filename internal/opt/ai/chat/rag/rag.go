@@ -3,13 +3,13 @@ package rag
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/philippgille/chromem-go"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/smap"
 )
@@ -29,7 +29,7 @@ func (rag *RAG) Query(ctx context.Context, query string, col *chromem.Collection
 	res, err := col.Query(ctx, query, col.Count(), nil, nil)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return ""
 	}
 
@@ -49,7 +49,7 @@ func (rag *RAG) Embed(ctx context.Context, model string, heap *heap.Heap) *chrom
 	}, chromem.NewEmbeddingFuncOllama(model, ""))
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return nil
 	}
 
@@ -61,7 +61,7 @@ func (rag *RAG) Embed(ctx context.Context, model string, heap *heap.Heap) *chrom
 			}); err == nil {
 				rag.index.Store(str.Nr, struct{}{})
 			} else {
-				sys.Error(err)
+				log.Println(err)
 			}
 		}
 	})

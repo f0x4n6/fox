@@ -110,7 +110,7 @@ func (ui *UI) runShell() {
 	err := ui.root.Suspend()
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 

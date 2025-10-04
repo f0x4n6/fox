@@ -3,12 +3,11 @@ package chat
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 
 	"github.com/ollama/ollama/api"
-
-	"github.com/cuhsat/fox/internal/pkg/sys"
 )
 
 const syntax = `^(stop|list|(get\s+(model|embed))|(set\s+(model|embed)\s+.+)|(del\s+.+))$`
@@ -38,7 +37,7 @@ func (c *Chat) parse(ctx context.Context, query string) bool {
 	}
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 
 	return true

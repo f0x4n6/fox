@@ -3,6 +3,7 @@ package loader
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -65,7 +66,7 @@ func (l *Loader) Load(paths []string) []*heap.Heap {
 		_, err := os.Stat(path)
 
 		if errors.Is(err, os.ErrNotExist) {
-			sys.Error(fmt.Errorf("%s does not exist", path))
+			log.Println(fmt.Errorf("%s does not exist", path))
 		}
 
 		l.loadPath(path)
@@ -90,14 +91,14 @@ func (l *Loader) loadPath(path string) {
 	match, err := doublestar.FilepathGlob(path)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 
 	for _, m := range match {
 		fi, err := os.Stat(m)
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 			return
 		}
 
@@ -113,7 +114,7 @@ func (l *Loader) loadDir(path string) {
 	dir, err := os.ReadDir(path)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return
 	}
 
@@ -147,7 +148,7 @@ func (l *Loader) loadFile(path string) {
 func (l *Loader) loadArchive(path, base string, fn files.Deflate) {
 	defer func() {
 		if err := recover(); err != nil {
-			sys.Error("corrupted archive or wrong password")
+			log.Println("corrupted archive or wrong password")
 			return
 		}
 	}()

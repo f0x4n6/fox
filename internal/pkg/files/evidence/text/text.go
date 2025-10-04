@@ -2,12 +2,12 @@ package text
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 )
 
 const Ext = ".bag"
@@ -62,6 +62,6 @@ func (w *Writer) write(format string, a ...any) {
 	_, err := fmt.Fprintf(w.file, format, a...)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 }

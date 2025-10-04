@@ -3,11 +3,11 @@ package journal
 import (
 	"context"
 	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/Velocidex/go-journalctl/parser"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -25,7 +25,7 @@ func Parse(path string) string {
 	j, err := parser.OpenFile(f)
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 		return path
 	}
 
@@ -33,7 +33,7 @@ func Parse(path string) string {
 		_, err := t.WriteString(fmt.Sprintf("%v\n", l))
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 		}
 	}
 

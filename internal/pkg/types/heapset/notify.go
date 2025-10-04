@@ -1,12 +1,12 @@
 package heapset
 
 import (
+	"log"
 	"path/filepath"
 	"sync/atomic"
 
 	"github.com/fsnotify/fsnotify"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -18,7 +18,7 @@ func (hs *HeapSet) addFile(path string) {
 	err := fs.Watcher.Add(filepath.Dir(path))
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 }
 
@@ -45,7 +45,7 @@ func (hs *HeapSet) watchFiles() {
 
 		case err, ok := <-fs.Watcher.Errors:
 			if ok {
-				sys.Error(err)
+				log.Println(err)
 			}
 		}
 	}

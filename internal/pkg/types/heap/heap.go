@@ -1,6 +1,7 @@
 package heap
 
 import (
+	"log"
 	"os"
 	"runtime"
 	"sync"
@@ -8,7 +9,6 @@ import (
 	"github.com/edsrzf/mmap-go"
 
 	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/smap"
@@ -122,7 +122,7 @@ func (h *Heap) Reload() {
 	fi, err := h.file.Stat()
 
 	if err != nil {
-		sys.Error(err)
+		log.Println(err)
 	}
 
 	h.size = fi.Size()
@@ -154,11 +154,11 @@ func (h *Heap) Reload() {
 
 		// memory file
 		case fs.File:
-			m, err = sys.Map(f)
+			m, err = fs.Map(f)
 		}
 
 		if err != nil {
-			sys.Error(err)
+			log.Println(err)
 		}
 
 		h.mmap = &m

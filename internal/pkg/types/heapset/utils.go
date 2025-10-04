@@ -2,11 +2,11 @@ package heapset
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"sync/atomic"
 
-	"github.com/cuhsat/fox/internal/pkg/sys"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types"
@@ -112,7 +112,7 @@ func (hs *HeapSet) HashSum(algos ...string) *HeapSet {
 			sum, err := h.HashSum(algo)
 
 			if err != nil {
-				sys.Error(err)
+				log.Println(err)
 			}
 
 			switch algo {
@@ -128,14 +128,14 @@ func (hs *HeapSet) HashSum(algos ...string) *HeapSet {
 }
 
 func (hs *HeapSet) newUtil(t string, fn util) {
-	f := sys.Stdout()
+	f := fs.Create(fmt.Sprintf("/fox/%s", t))
 
 	hs.Range(func(i int, h *heap.Heap) bool {
 		if h.Type == types.Regular || h.Type == types.Deflate {
 			_, err := f.WriteString(fn(h))
 
 			if err != nil {
-				sys.Error(err)
+				log.Println(err)
 				return false
 			}
 		}
