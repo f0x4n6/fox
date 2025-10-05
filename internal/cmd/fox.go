@@ -140,6 +140,11 @@ var Fox = &cobra.Command{
 	Long:    "The Swiss Army Knife for examining text files",
 	Args:    cobra.ArbitraryArgs,
 	Version: fox.Version,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if flags.Get().Print {
+			go log()
+		}
+	},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
 
@@ -382,4 +387,10 @@ func run(args []string) {
 		}
 		return true
 	})
+}
+
+func log() {
+	for {
+		_, _ = fmt.Fprintf(os.Stderr, sys.Prefix+" %s\n", <-sys.Logs)
+	}
 }

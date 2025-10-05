@@ -4,8 +4,7 @@
 * Fix partial highlighting
 
 ## 2. Refactorings
-* Add keychain support
-  * Remap some key bindings
+* Remap some key bindings
 
 ## 3. Features
 * Add Super Timeline ability
