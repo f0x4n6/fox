@@ -26,8 +26,8 @@ import (
 )
 
 const (
-	bpPrefix = "ESC[200~" // bracketed paste start
-	bpSuffix = "ESC[201~" // bracketed paste end
+	prefix = "ESC[200~" // bracketed paste start
+	suffix = "ESC[201~" // bracketed paste end
 )
 
 type UI struct {
@@ -157,8 +157,8 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 			case *tcell.EventClipboard:
 				if !ui.state.Mode().Static() {
 					v := string(ev.Data())
-					v = strings.TrimPrefix(v, bpPrefix)
-					v = strings.TrimSuffix(v, bpSuffix)
+					v = strings.TrimPrefix(v, prefix)
+					v = strings.TrimSuffix(v, suffix)
 					ui.prompt.SetValue(v)
 				}
 
