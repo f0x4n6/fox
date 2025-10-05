@@ -3,11 +3,28 @@
 package ui
 
 import (
+	"fmt"
+	"math"
+	"strings"
+	"unicode"
+
 	"github.com/gdamore/tcell/v2"
 
+	"github.com/cuhsat/fox/internal/opt/ai/chat"
+	"github.com/cuhsat/fox/internal/opt/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
+	"github.com/cuhsat/fox/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/internal/pkg/text"
+	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/internal/pkg/types/mode"
+	"github.com/cuhsat/fox/internal/pkg/user/plugins"
+)
+
+const (
+	delta = 1 // lines
+	wheel = 5 // lines
 )
 
 func (ui *UI) handleMouse(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventMouse) {
@@ -33,4 +50,316 @@ func (ui *UI) handleMouse(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventMous
 	case b&tcell.WheelRight != 0:
 		ui.view.ScrollRight(wheel)
 	}
+}
+
+func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) bool {
+	rootW, rootH := ui.root.Size()
+
+	pageW := rootW - 1 // minus text abbreviation
+	pageH := rootH - 2 // minus title and status
+
+	if ui.state.IsNavi() {
+		pageW -= text.Dec(h.Count()) + 1
+	}
+
+	if ev.Key() != tcell.KeyEscape {
+		ui.last = ev.Key() // reset
+	}
+
+	m := ev.Modifiers()
+
+	switch k := ev.Key(); k {
+	case tcell.KeyEscape:
+		if ui.last == tcell.KeyEscape {
+			return true // twice to exit
+		} else if ui.state.Mode().Prompt() {
+			ui.changeBack()
+		}
+
+		ui.last = k
+
+	case tcell.KeyTab:
+		if m&tcell.ModShift == 0 {
+			ui.nextTab(hs, h)
+		} else {
+			ui.prevTab(hs, h)
+		}
+
+	case tcell.KeyF1:
+		ui.view.Reset()
+		hs.OpenHelp()
+
+	case tcell.KeyF2:
+		hs.Counts()
+		ui.changeMode(mode.Default)
+
+	case tcell.KeyF3:
+		hs.Entropy(0.0, 1.0)
+		ui.changeMode(mode.Default)
+
+	case tcell.KeyF4:
+		hs.Strings(3, math.MaxInt, true, nil)
+		ui.changeMode(mode.Default)
+
+	case tcell.KeyF5:
+		hs.HashSum(types.MD5)
+		ui.changeMode(mode.Default)
+
+	case tcell.KeyF6:
+		hs.HashSum(types.SHA1)
+		ui.changeMode(mode.Default)
+
+	case tcell.KeyF7:
+		hs.HashSum(types.SHA256)
+		ui.changeMode(mode.Default)
+
+	case tcell.KeyF8:
+		ui.runAssistant(hs, h)
+
+	case tcell.KeyF9, tcell.KeyF10, tcell.KeyF11, tcell.KeyF12:
+		fallthrough
+	case tcell.KeyF13, tcell.KeyF14, tcell.KeyF15, tcell.KeyF16:
+		fallthrough
+	case tcell.KeyF17, tcell.KeyF18, tcell.KeyF19, tcell.KeyF20:
+		fallthrough
+	case tcell.KeyF21, tcell.KeyF22, tcell.KeyF23, tcell.KeyF24:
+		ui.runPlugin(hs, h, strings.ToLower(ev.Name()))
+
+	case tcell.KeyUp:
+		switch {
+		case ui.state.Mode().Prompt():
+			ui.prompt.SetValue(ui.history.PrevLine())
+		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
+			ui.view.ScrollStart()
+		case m&tcell.ModShift != 0:
+			ui.view.ScrollUp(pageH)
+		default:
+			ui.view.ScrollUp(delta)
+		}
+
+	case tcell.KeyDown:
+		switch {
+		case ui.state.Mode().Prompt():
+			ui.prompt.SetValue(ui.history.NextLine())
+		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
+			ui.view.ScrollEnd()
+		case m&tcell.ModShift != 0:
+			ui.view.ScrollDown(pageH)
+		default:
+			ui.view.ScrollDown(delta)
+		}
+
+	case tcell.KeyLeft:
+		switch {
+		case ui.state.Mode().Prompt():
+			if m&tcell.ModCtrl != 0 {
+				ui.prompt.MoveStart()
+			} else {
+				ui.prompt.Move(-1)
+			}
+		case m&tcell.ModCtrl != 0:
+			ui.prevTab(hs, h)
+		case m&tcell.ModShift != 0:
+			ui.view.ScrollLeft(pageW)
+		default:
+			ui.view.ScrollLeft(delta)
+		}
+
+	case tcell.KeyRight:
+		switch {
+		case ui.state.Mode().Prompt():
+			if m&tcell.ModCtrl != 0 {
+				ui.prompt.MoveEnd()
+			} else {
+				ui.prompt.Move(+1)
+			}
+		case m&tcell.ModCtrl != 0:
+			ui.nextTab(hs, h)
+		case m&tcell.ModShift != 0:
+			ui.view.ScrollRight(pageW)
+		default:
+			ui.view.ScrollRight(delta)
+		}
+
+	case tcell.KeyHome:
+		ui.view.ScrollStart()
+
+	case tcell.KeyPgUp:
+		ui.view.ScrollUp(pageH)
+
+	case tcell.KeyPgDn:
+		ui.view.ScrollDown(pageH)
+
+	case tcell.KeyEnd:
+		ui.view.ScrollEnd()
+
+	case tcell.KeyCtrlCarat:
+		ui.changeTheme()
+
+	case tcell.KeyCtrlSpace:
+		ui.changeMode(mode.Goto)
+
+	case tcell.KeyCtrlO:
+		ui.changeMode(mode.Open)
+
+	case tcell.KeyCtrlG:
+		ui.changeMode(mode.Goto)
+
+	case tcell.KeyCtrlL:
+		ui.changeMode(mode.Less)
+
+	case tcell.KeyCtrlF:
+		ui.changeMode(mode.Grep)
+
+	case tcell.KeyCtrlX:
+		ui.changeMode(mode.Hex)
+
+	case tcell.KeyCtrlP:
+		ui.state.TogglePinned()
+
+	case tcell.KeyCtrlT:
+		ui.state.ToggleFollow()
+
+	case tcell.KeyCtrlN:
+		ui.state.ToggleNavi()
+		ui.view.Preserve()
+
+	case tcell.KeyCtrlW:
+		ui.state.ToggleWrap()
+		ui.view.Preserve()
+
+	case tcell.KeyCtrlJ:
+		if h.ModContext(-1) {
+			ui.view.Reset()
+		}
+
+	case tcell.KeyCtrlK:
+		if h.ModContext(+1) {
+			ui.view.Reset()
+		}
+
+	case tcell.KeyCtrlV:
+		ui.root.GetClipboard()
+
+	case tcell.KeyCtrlA:
+		if !ui.state.Mode().Static() && hs.Merge() {
+			ui.overlay.SendInfo("Merged all open files")
+		}
+
+	case tcell.KeyCtrlU:
+		//if !ui.state.Mode().Static() && hs.Merge() {
+		//	ui.overlay.SendInfo("Created super timeline")
+		//}
+
+	case tcell.KeyCtrlC:
+		if !ui.state.Mode().Static() {
+			ui.root.SetClipboard(h.Bytes())
+			ui.overlay.SendInfo(fmt.Sprintf("%s copied to clipboard", h.String()))
+		}
+
+	case tcell.KeyCtrlS:
+		if !ui.state.Mode().Static() && ui.bag.Put(h) {
+			ui.overlay.SendInfo(fmt.Sprintf("%s saved to %s", h.String(), ui.bag.String()))
+		}
+
+	case tcell.KeyCtrlB:
+		if fs.Exists(ui.bag.Path) {
+			ui.view.Reset()
+			hs.OpenFile(ui.bag.Path, ui.bag.Path, ui.bag.Path, types.Ignore)
+		} else {
+			ui.overlay.SendError(fmt.Sprintf("%s not found", ui.bag.Path))
+		}
+
+	case tcell.KeyCtrlQ:
+		ui.view.Reset()
+
+		if hs.CloseHeap() == nil {
+			return true // exit
+		}
+
+	case tcell.KeyCtrlZ:
+		ui.runShell()
+
+	case tcell.KeyEnter:
+		l := ui.prompt.ReadLine()
+		m := ui.state.Mode()
+
+		if m.Prompt() && len(strings.TrimSpace(l)) == 0 {
+			return false
+		}
+
+		ui.history.AddLine(l)
+
+		switch m {
+		case mode.Less, mode.Hex:
+			ui.view.ScrollLine()
+
+		case mode.Grep:
+			ui.view.Reset()
+			h.AddFilter(l, 0, 0)
+			ui.changeMode(mode.Less)
+
+		case mode.Goto:
+			ui.view.Goto(l)
+			ui.changeMode(ui.state.Last())
+
+		case mode.Open:
+			ui.state.Call(func() {
+				hs.Open(l)
+			})
+			ui.changeMode(ui.state.Last())
+
+		case mode.Chat:
+			ui.view.Reset()
+			ui.state.Call(func() {
+				if v, ok := ui.chats.Load(h.String()); ok {
+					v.(*chat.Chat).Query(l, true)
+				}
+			})
+
+		default:
+			plugins.Input <- l
+			ui.changeMode(ui.state.Last())
+		}
+
+	case tcell.KeyDelete:
+		ui.prompt.DelRune(widgets.After)
+
+	case tcell.KeyBackspace, tcell.KeyBackspace2:
+		switch {
+		case len(ui.prompt.GetValue()) > 0:
+			ui.prompt.DelRune(widgets.Before)
+		case ui.state.Mode().Prompt():
+			ui.changeBack()
+		case len(h.Patterns()) > 0 && !ui.state.Mode().Static():
+			ui.view.Reset()
+			h.DelFilter()
+		}
+
+	default:
+		r := ev.Rune()
+
+		switch r {
+		case 0: // error
+			return false
+
+		case 32: // space
+			if ui.prompt.Locked() {
+				ui.view.ScrollDown(pageH)
+			} else {
+				ui.prompt.AddRune(r)
+			}
+
+		default: // all other keys
+			if ui.state.Mode() == mode.Less {
+				ui.changeMode(mode.Grep)
+			}
+
+			if unicode.IsPrint(r) {
+				ui.prompt.AddRune(r)
+			}
+		}
+	}
+
+	return false
 }
