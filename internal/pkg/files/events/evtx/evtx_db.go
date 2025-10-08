@@ -45,7 +45,7 @@ var db = map[string]struct {
 		src: "Windows",
 	},
 	"4612": {
-		msg: "Internal reOrigs allocated for the queuing of audit messages have been exhausted, leading to the loss of some audits.",
+		msg: "Internal resources allocated for the queuing of audit messages have been exhausted, leading to the loss of some audits.",
 		src: "Windows",
 	},
 	"4614": {
@@ -2025,7 +2025,7 @@ var db = map[string]struct {
 		src: "SQL Server",
 	},
 	"24031": {
-		msg: "Issued an alter reOrigs command (action_id ALRS)",
+		msg: "Issued an alter resources command (action_id ALRS)",
 		src: "SQL Server",
 	},
 	"24032": {

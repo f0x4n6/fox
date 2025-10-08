@@ -93,52 +93,52 @@ func Parse(path string) string {
 func decode(f fs.File) (llog, error) {
 	var err error
 
-	log := llog{}
+	l := llog{}
 
-	err = binary.Read(f, binary.LittleEndian, &log.Magic)
+	err = binary.Read(f, binary.LittleEndian, &l.Magic)
 
-	if log.Magic != 0xCEEC && log.Magic != 0xCFEC {
-		return log, errors.New("log format not supported")
+	if l.Magic != 0xCEEC && l.Magic != 0xCFEC {
+		return l, errors.New("log format not supported")
 	}
 
-	err = binary.Read(f, binary.LittleEndian, &log.Flags)
-	err = binary.Read(f, binary.LittleEndian, &log.Unused)
-	err = binary.Read(f, binary.LittleEndian, &log.LDevId)
-	err = binary.Read(f, binary.LittleEndian, &log.LDevName)
-	err = binary.Read(f, binary.LittleEndian, &log.LVDom)
-	err = binary.Read(f, binary.BigEndian, &log.Entries)
-	err = binary.Read(f, binary.BigEndian, &log.LCompressed)
-	err = binary.Read(f, binary.BigEndian, &log.LDecompressed)
-	err = binary.Read(f, binary.BigEndian, &log.Timestamp)
+	err = binary.Read(f, binary.LittleEndian, &l.Flags)
+	err = binary.Read(f, binary.LittleEndian, &l.Unused)
+	err = binary.Read(f, binary.LittleEndian, &l.LDevId)
+	err = binary.Read(f, binary.LittleEndian, &l.LDevName)
+	err = binary.Read(f, binary.LittleEndian, &l.LVDom)
+	err = binary.Read(f, binary.BigEndian, &l.Entries)
+	err = binary.Read(f, binary.BigEndian, &l.LCompressed)
+	err = binary.Read(f, binary.BigEndian, &l.LDecompressed)
+	err = binary.Read(f, binary.BigEndian, &l.Timestamp)
 
 	if err != nil {
-		return log, err
+		return l, err
 	}
 
-	log.LEntries = log.Entries * 2
-	log.LAscii = uint16(log.LDevId + log.LDevName + log.LVDom)
+	l.LEntries = l.Entries * 2
+	l.LAscii = uint16(l.LDevId + l.LDevName + l.LVDom)
 
-	if log.Flags&4 == 1 {
-		log.Padding = log.LEntries
+	if l.Flags&4 == 1 {
+		l.Padding = l.LEntries
 	}
 
-	log.Body = make([]byte, log.LAscii+log.LEntries+log.Padding+log.LCompressed)
+	l.Body = make([]byte, l.LAscii+l.LEntries+l.Padding+l.LCompressed)
 
-	_, _ = io.ReadFull(f, log.Body)
+	_, _ = io.ReadFull(f, l.Body)
 
-	i, j := 0, int(log.LDevId)
+	i, j := 0, int(l.LDevId)
 
-	log.DevId = string(log.Body[i:j])
+	l.DevId = string(l.Body[i:j])
 
-	i, j = j, j+int(log.LDevName)
+	i, j = j, j+int(l.LDevName)
 
-	log.DevName = string(log.Body[i:j])
+	l.DevName = string(l.Body[i:j])
 
-	i, j = j, j+int(log.LVDom)
+	i, j = j, j+int(l.LVDom)
 
-	log.VDom = string(log.Body[i:j])
+	l.VDom = string(l.Body[i:j])
 
-	return log, nil
+	return l, nil
 }
 
 func deflate(log llog) (string, error) {
