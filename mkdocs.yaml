@@ -24,6 +24,7 @@ nav:
         - fox entropy: basics/usage/entropy.md
         - fox hash: basics/usage/hash.md
         - fox strings: basics/usage/strings.md
+        - fox timeline: basics/usage/timeline.md
 
   - Features:
     - Loader: features/loader.md
@@ -31,17 +32,18 @@ nav:
 
     - Files:
         - csv: features/files/csv.md
-        - json: features/files/json.md
         - evtx: features/files/evtx.md
         - journal: features/files/journal.md
+        - json: features/files/json.md
 
     - Utils:
         - Deflate: features/utils/deflate.md
         - Compare: features/utils/compare.md
+        - Counts: features/utils/counts.md
+        - Entropy: features/utils/entropy.md
         - Hashes: features/utils/hashes.md
         - Strings: features/utils/strings.md
-        - Entropy: features/utils/entropy.md
-        - Counts: features/utils/counts.md
+        - Timeline: features/utils/timeline.md
 
     - AI:
       - Assistant: features/ai/assistant.md

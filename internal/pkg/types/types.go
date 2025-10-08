@@ -44,6 +44,7 @@ const (
 	Compare
 	Counts
 	Entropy
+	HashSum
 	Strings
-	Hash
+	Timeline
 )

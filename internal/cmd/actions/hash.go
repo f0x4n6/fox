@@ -33,7 +33,7 @@ Positional arguments:
 Global:
   -p, --print              print directly to console
 
-Hash:
+HashSum:
   -t, --type=ALGORITHM     hash algorithm (default: SHA256)
 
     Cryptographic hash algorithms:
@@ -66,11 +66,6 @@ var Hash = &cobra.Command{
 		flg.Opt.NoConvert = true
 		flg.Opt.NoPlugins = true
 
-		if flg.Print {
-			flg.Opt.NoConvert = true
-			flg.Opt.NoPlugins = true
-		}
-
 		// default
 		if len(flg.Hash.Algos.Value) == 0 {
 			_ = flg.Hash.Algos.Set(types.SHA256)
@@ -81,7 +76,7 @@ var Hash = &cobra.Command{
 			fmt.Print(HashUsage)
 			os.Exit(2)
 		} else if !flags.Get().Print {
-			ui.Start(args, types.Hash)
+			ui.Start(args, types.HashSum)
 		} else {
 			algos := flags.Get().Hash.Algos.Value
 

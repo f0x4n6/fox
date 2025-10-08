@@ -32,7 +32,7 @@ const (
 
 type UI struct {
 	root tcell.Screen
-	last tcell.Key
+	lkey tcell.Key
 
 	state   *opt.State
 	chats   *sync.Map
@@ -166,6 +166,11 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 				ui.root.Sync()
 				ui.view.Reset()
 
+			case *tcell.EventFocus:
+				if ev.Focused {
+					ui.root.Sync()
+				}
+
 			case *tcell.EventError:
 				ui.overlay.SendError(ev.Error())
 
@@ -201,6 +206,11 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 			flg.Entropy.Max,
 		).CloseOther()
 
+	case types.HashSum:
+		hs.HashSum(
+			flg.Hash.Algos.Value...,
+		).CloseOther()
+
 	case types.Strings:
 		hs.Strings(
 			flg.Strings.Min,
@@ -209,9 +219,9 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 			flg.Strings.Re,
 		).CloseOther()
 
-	case types.Hash:
-		hs.HashSum(
-			flg.Hash.Algos.Value...,
+	case types.Timeline:
+		hs.Timeline(
+			flg.Timeline.Cef,
 		).CloseOther()
 
 	case types.None:

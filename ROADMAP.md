@@ -2,20 +2,13 @@
 
 ## 1. Bug Fixes
 * Fix partial highlighting
+* Add new image README as GIF 
 
 ## 2. Refactorings
 * Remap some key bindings
 
 ## 3. Features
-* Add Super Timeline ability
-  * Specify *Common Log Format* (CLF)
-    * Encoding utf-8
-    * Line ending `\n`
-    * Add to docs under *Resource* section
-    * Timestamps as ISO-8601 or RFC 3339
-    * CEF format?
-  * Extract timestamps per RegEx
-  * Sort lines by timestamp
+* Add custom render layout, like text, hex, csv, log
 * Add additional documentation
   * Add manpage(s)
     * https://appliedgo.net/spotlight/install-with-manpage/

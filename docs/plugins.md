@@ -23,7 +23,7 @@ Additional variables for hotkeys:
 
 Available hotkeys:
 
-- <kbd>F9</kbd> to <kbd>F24</kbd>
+- <kbd>F8</kbd> to <kbd>F24</kbd>
 
 ```toml
 [auto.info]
@@ -33,7 +33,7 @@ exec = [
   'target-info "FILE"'
 ]
 
-[hotkey.f9]
+[hotkey.f8]
 name = 'target-query'
 mode = 'query'
 exec = [
@@ -55,7 +55,7 @@ exec = [
 
 ### [target-query](https://docs.dissect.tools/en/latest/tools/target-query.html)
 ```toml
-[hotkey.f9]
+[hotkey.f8]
 name = 'target-query'
 mode = 'query'
 exec = [
@@ -65,7 +65,7 @@ exec = [
 
 ### [target-shell](https://docs.dissect.tools/en/latest/tools/target-shell.html)
 ```toml
-[hotkey.f10]
+[hotkey.f9]
 name = 'target-shell'
 mode = 'shell'
 exec = [

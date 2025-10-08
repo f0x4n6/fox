@@ -10,7 +10,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/flags"
 )
 
-var Patterns = []Pattern{
+var IOCs = []Pattern{
 	{
 		Name: "ipv4",
 		Mask: regexp.MustCompile("\\b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\b"),
@@ -135,7 +135,7 @@ func Match(in <-chan String, out chan<- String, i bool, re *regexp.Regexp) {
 
 	// search for built-in IoCs
 	if i {
-		ps = append(ps, Patterns...)
+		ps = append(ps, IOCs...)
 	}
 
 	for s := range in {

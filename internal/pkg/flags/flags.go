@@ -102,6 +102,11 @@ type Flags struct {
 		Ascii bool
 	}
 
+	// timeline command
+	Timeline struct {
+		Cef bool
+	}
+
 	Credits bool
 }
 

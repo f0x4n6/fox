@@ -63,20 +63,20 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	}
 
 	if ev.Key() != tcell.KeyEscape {
-		ui.last = ev.Key() // reset
+		ui.lkey = ev.Key() // reset
 	}
 
 	m := ev.Modifiers()
 
 	switch k := ev.Key(); k {
 	case tcell.KeyEscape:
-		if ui.last == tcell.KeyEscape {
+		if ui.lkey == tcell.KeyEscape {
 			return true // twice to exit
 		} else if ui.state.Mode().Prompt() {
 			ui.changeBack()
 		}
 
-		ui.last = k
+		ui.lkey = k
 
 	case tcell.KeyTab:
 		if m&tcell.ModShift == 0 {
@@ -90,39 +90,61 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		hs.OpenHelp()
 
 	case tcell.KeyF2:
+		ui.runAssistant(hs, h)
+
+	case tcell.KeyF3:
 		hs.Counts()
 		ui.changeMode(mode.Default)
 
-	case tcell.KeyF3:
+	case tcell.KeyF4:
 		hs.Entropy(0.0, 1.0)
 		ui.changeMode(mode.Default)
 
-	case tcell.KeyF4:
+	case tcell.KeyF5:
 		hs.Strings(3, math.MaxInt, true, nil)
 		ui.changeMode(mode.Default)
 
-	case tcell.KeyF5:
-		hs.HashSum(types.MD5)
-		ui.changeMode(mode.Default)
-
 	case tcell.KeyF6:
-		hs.HashSum(types.SHA1)
-		ui.changeMode(mode.Default)
-
-	case tcell.KeyF7:
 		hs.HashSum(types.SHA256)
 		ui.changeMode(mode.Default)
 
-	case tcell.KeyF8:
-		ui.runAssistant(hs, h)
+	case tcell.KeyF7:
+		hs.Timeline(false)
+		ui.changeMode(mode.Default)
 
-	case tcell.KeyF9, tcell.KeyF10, tcell.KeyF11, tcell.KeyF12:
+	case tcell.KeyF8:
 		fallthrough
-	case tcell.KeyF13, tcell.KeyF14, tcell.KeyF15, tcell.KeyF16:
+	case tcell.KeyF9:
 		fallthrough
-	case tcell.KeyF17, tcell.KeyF18, tcell.KeyF19, tcell.KeyF20:
+	case tcell.KeyF10:
 		fallthrough
-	case tcell.KeyF21, tcell.KeyF22, tcell.KeyF23, tcell.KeyF24:
+	case tcell.KeyF11:
+		fallthrough
+	case tcell.KeyF12:
+		fallthrough
+	case tcell.KeyF13:
+		fallthrough
+	case tcell.KeyF14:
+		fallthrough
+	case tcell.KeyF15:
+		fallthrough
+	case tcell.KeyF16:
+		fallthrough
+	case tcell.KeyF17:
+		fallthrough
+	case tcell.KeyF18:
+		fallthrough
+	case tcell.KeyF19:
+		fallthrough
+	case tcell.KeyF20:
+		fallthrough
+	case tcell.KeyF21:
+		fallthrough
+	case tcell.KeyF22:
+		fallthrough
+	case tcell.KeyF23:
+		fallthrough
+	case tcell.KeyF24:
 		ui.runPlugin(hs, h, strings.ToLower(ev.Name()))
 
 	case tcell.KeyUp:
@@ -245,11 +267,6 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		if !ui.state.Mode().Static() && hs.Merge() {
 			ui.overlay.SendInfo("Merged all open files")
 		}
-
-	case tcell.KeyCtrlU:
-		//if !ui.state.Mode().Static() && hs.Merge() {
-		//	ui.overlay.SendInfo("Created super timeline")
-		//}
 
 	case tcell.KeyCtrlC:
 		if !ui.state.Mode().Static() {

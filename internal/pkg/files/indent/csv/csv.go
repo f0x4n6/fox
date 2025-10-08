@@ -15,7 +15,7 @@ func Detect(path string) bool {
 	return filepath.Ext(strings.ToLower(path)) == ".csv"
 }
 
-func Format(path string) string {
+func Indent(path string) string {
 	f := fs.Open(path)
 	defer f.Close()
 

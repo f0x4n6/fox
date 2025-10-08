@@ -43,6 +43,7 @@ Actions:
   entropy                  display file entropy
   hash                     display file hash or checksums
   strings                  display ASCII and Unicode strings
+  timeline                 display super timeline
 
 Print:
   -p, --print              print directly to console
@@ -327,6 +328,7 @@ func init() {
 	Fox.AddCommand(actions.Entropy)
 	Fox.AddCommand(actions.Hash)
 	Fox.AddCommand(actions.Strings)
+	Fox.AddCommand(actions.Timeline)
 
 	Fox.Flags()
 
