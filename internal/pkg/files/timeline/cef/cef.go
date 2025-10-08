@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/pkg/files/extract"
+	"github.com/cuhsat/fox/internal/pkg/files/events"
 )
 
-func Format(e *extract.Event) string {
+func Format(e *events.Event) string {
 	e.Data = strings.ReplaceAll(e.Data, `\`, `\\`)
 	e.Data = strings.ReplaceAll(e.Data, `|`, `\|`)
 

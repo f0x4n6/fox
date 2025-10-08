@@ -9,6 +9,11 @@ import (
 	"strings"
 	"sync/atomic"
 
+	"github.com/cuhsat/fox/internal/pkg/files/events"
+	"github.com/cuhsat/fox/internal/pkg/files/events/evtx"
+	"github.com/cuhsat/fox/internal/pkg/files/events/journal"
+	"github.com/cuhsat/fox/internal/pkg/files/timeline/cef"
+	"github.com/cuhsat/fox/internal/pkg/files/timeline/plain"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types"
@@ -129,15 +134,35 @@ func (hs *HeapSet) Strings(n, m int, i bool, re *regexp.Regexp) *HeapSet {
 	return hs
 }
 
-func (hs *HeapSet) Timeline(cef bool) *HeapSet {
-	var ls []string
-
+func (hs *HeapSet) Timeline(c bool) *HeapSet {
 	f := fs.Create("/fox/timeline")
+
+	for _, l := range hs.Extract(c) {
+		_, _ = f.WriteString(l)
+		_, _ = f.WriteString("\n")
+	}
+
+	hs.OpenFile(f.Name(), f.Name(), "timeline", types.Stdout)
+
+	return hs
+}
+
+func (hs *HeapSet) Extract(c bool) (ls []string) {
+	var fn = plain.Format
+
+	if c {
+		fn = cef.Format
+	}
 
 	hs.Range(func(_ int, h *heap.Heap) bool {
 		for _, str := range *h.FMap() {
-			if l := text.Normalize(str.Str, cef); len(l) > 0 {
-				ls = append(ls, l)
+			for _, ex := range []events.Extract{
+				evtx.Extract,
+				journal.Extract,
+			} {
+				if e := ex(str.Str); e != nil {
+					ls = append(ls, fn(e))
+				}
 			}
 		}
 		return true
@@ -147,11 +172,7 @@ func (hs *HeapSet) Timeline(cef bool) *HeapSet {
 		return cmp.Compare(a, b)
 	})
 
-	_, _ = f.WriteString(strings.Join(ls, "\n"))
-
-	hs.OpenFile(f.Name(), f.Name(), "timeline", types.Stdout)
-
-	return hs
+	return ls
 }
 
 func (hs *HeapSet) reduce(t string, fn util) {

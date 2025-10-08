@@ -21,7 +21,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/files/compress/xz"
 	"github.com/cuhsat/fox/internal/pkg/files/compress/zlib"
 	"github.com/cuhsat/fox/internal/pkg/files/compress/zstd"
-	"github.com/cuhsat/fox/internal/pkg/files/indent/csv"
+	"github.com/cuhsat/fox/internal/pkg/files/format/csv"
 	"github.com/cuhsat/fox/internal/pkg/files/parser/evtx"
 	"github.com/cuhsat/fox/internal/pkg/files/parser/fortinet"
 	"github.com/cuhsat/fox/internal/pkg/files/parser/journal"
@@ -273,9 +273,9 @@ func (l *Loader) process(path, base string) string {
 			path = fortinet.Parse(path)
 		}
 
-		// check for indent
+		// check for format
 		if csv.Detect(path) {
-			path = csv.Indent(path)
+			path = csv.Format(path)
 		}
 	}
 

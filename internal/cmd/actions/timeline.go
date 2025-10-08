@@ -1,19 +1,15 @@
 package actions
 
 import (
-	"cmp"
 	"fmt"
 	"os"
-	"slices"
 
 	"github.com/spf13/cobra"
 
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/opt/ui"
 	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
@@ -54,27 +50,12 @@ var Timeline = &cobra.Command{
 		} else if !flags.Get().Print {
 			ui.Start(args, types.Timeline)
 		} else {
-			var ls []string
-
-			flg := flags.Get()
+			cef := flags.Get().Timeline.Cef
 
 			hs := heapset.New(args)
 			defer hs.ThrowAway()
 
-			hs.Range(func(_ int, h *heap.Heap) bool {
-				for _, str := range *h.FMap() {
-					if l := text.Normalize(str.Str, flg.Timeline.Cef); len(l) > 0 {
-						ls = append(ls, l)
-					}
-				}
-				return true
-			})
-
-			slices.SortStableFunc(ls, func(a, b string) int {
-				return cmp.Compare(a, b)
-			})
-
-			for _, l := range ls {
+			for _, l := range hs.Extract(cef) {
 				fmt.Println(l)
 			}
 		}

@@ -1,8 +1,10 @@
-package extract
+package events
 
 import (
 	"time"
 )
+
+type Extract func(string) *Event
 
 type Event struct {
 	// Event timestamp
