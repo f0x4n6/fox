@@ -15,6 +15,7 @@ var unicodeIcons = Icon{
 	Size: '×',
 	Grep: '❯',
 	Ps1:  '❯',
+	Abr:  '…',
 }
 
 var defaultIcons = Icon{
@@ -24,10 +25,11 @@ var defaultIcons = Icon{
 	Size: 'x',
 	Grep: '>',
 	Ps1:  '>',
+	Abr:  '…',
 }
 
 type Icon struct {
-	None, HSep, VSep, Size, Grep, Ps1 rune
+	None, HSep, VSep, Size, Grep, Ps1, Abr rune
 }
 
 func Dec(n int) int {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sync/atomic"
+	"unicode/utf8"
 
 	"github.com/gdamore/tcell/v2"
 
@@ -56,10 +57,12 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 		fs = heap.Patterns()
 	}
 
+	lb := len(fs)
 	fs = p.fitFilters(fs)
+	la := len(fs)
 
 	m := p.fmtMode()
-	f := p.fmtFilters(fs)
+	f := p.fmtFilters(fs, la < lb)
 	i := p.fmtInput(fs)
 
 	s := p.fmtStatus(hl, hc)
@@ -165,6 +168,10 @@ func (p *Prompt) Locked() bool {
 }
 
 func (p *Prompt) AddRune(r rune) {
+	if !utf8.ValidRune(r) {
+		return
+	}
+
 	v := p.value.Load().(string)
 	o := int(p.offset.Load())
 	c := int(p.cursor.Load())
@@ -229,7 +236,7 @@ func (p *Prompt) GetValue() string {
 }
 
 func (p *Prompt) SetValue(s string) {
-	if p.Locked() {
+	if p.Locked() || !utf8.ValidString(s) {
 		return
 	}
 
@@ -251,7 +258,7 @@ func (p *Prompt) fitFilters(fs []string) []string {
 	w, _ := p.state.Root.Size()
 
 	for {
-		l := text.Len(p.fmtFilters(fs))
+		l := text.Len(p.fmtFilters(fs, false))
 
 		if len(fs) == 1 || l <= int(float32(w)/1.5) {
 			return fs
@@ -261,11 +268,15 @@ func (p *Prompt) fitFilters(fs []string) []string {
 	}
 }
 
-func (p *Prompt) fmtFilters(fs []string) string {
+func (p *Prompt) fmtFilters(fs []string, fit bool) string {
 	var sb strings.Builder
 
 	if p.state.Mode().Filter() {
-		for _, f := range fs {
+		for i, f := range fs {
+			if fit && i == 0 {
+				sb.WriteRune(' ')
+				sb.WriteRune(p.state.Icon.Abr)
+			}
 			sb.WriteRune(' ')
 			sb.WriteString(f)
 			sb.WriteRune(' ')
