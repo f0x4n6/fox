@@ -7,7 +7,7 @@ fox [ACTION] [FLAG ...] [PATH ...]
 ```
 
 ### Actions
-`compare`, `counts`, `deflate`, `entropy`, `hash`, `strings`
+`compare`, `counts`, `deflate`, `entropy`, `hash`, `strings`, `timeline`
 
 ### Arguments
 Path(s) to open or `-` for **STDIN**
@@ -17,11 +17,11 @@ Path(s) to open or `-` for **STDIN**
 - `--no-file` — don't print filenames
 - `--no-line` — don't print line numbers
 
-### Deflate
-- `-P`, `--pwd=PASSWORD` — password for decryption (only **RAR**, **ZIP**)
-
-### Hex display
+### Modes
 - `-x`, `--hex` — show file in canonical hex
+
+### Deflate
+- `-P`, `--pass=PASSWORD` — password for decryption (only **RAR**, **ZIP**)
 
 ### File limits
 - `-`, `--head` — limit head of file by *...*
@@ -86,13 +86,12 @@ Available evidence bag modes:
 - `-X`, `--xml` — short for: `--mode=xml`
 
 ### Standard
-- `--help` — shows this message
-- `--credits` — shows the credits
-- `--version` — shows the version
+- `--help` — prints this message
+- `--version` — prints the version
 
 ## Examples
 ```console
-$ fox -pe "John Doe" ./**/*
+$ fox -pe "John Doe" ./**/*.log
 ```
 
 ```console

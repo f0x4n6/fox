@@ -259,6 +259,23 @@ func (l *Loader) deflate(path, base string) string {
 }
 
 func (l *Loader) process(path, base string) string {
+	if !flags.Get().Opt.NoPlugins {
+		// check for plugin
+		for _, p := range l.plugins {
+			if p.Match(path) {
+				p.Execute(path, base, func(path, base, dir string) {
+					if len(dir) > 0 {
+						l.loadDir(dir) // load dir results
+					}
+
+					l.addPlugin(path, base, p.Name)
+				})
+
+				return ""
+			}
+		}
+	}
+
 	if !flags.Get().Opt.NoConvert {
 		// check for parser
 		if evtx.Detect(path) {
@@ -276,23 +293,6 @@ func (l *Loader) process(path, base string) string {
 		// check for format
 		if csv.Detect(path) {
 			path = csv.Format(path)
-		}
-	}
-
-	if !flags.Get().Opt.NoPlugins {
-		// check for plugin
-		for _, p := range l.plugins {
-			if p.Match(path) {
-				p.Execute(path, base, func(path, base, dir string) {
-					if len(dir) > 0 {
-						l.loadDir(dir) // load dir results
-					}
-
-					l.addPlugin(path, base, p.Name)
-				})
-
-				return ""
-			}
 		}
 	}
 

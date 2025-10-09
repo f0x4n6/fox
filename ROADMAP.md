@@ -8,11 +8,9 @@
 * Remap some key bindings
 
 ## 3. Features
+* Add auto-completion from history
 * Add custom render layout, like text, hex, csv, log
 * Add additional documentation
-  * Add manpage(s)
-    * https://appliedgo.net/spotlight/install-with-manpage/
-    * https://eddieantonio.ca/blog/2015/12/18/authoring-manpages-in-markdown-with-pandoc/
   * Add `bash` and `zsh` autocompletion files
     * https://applejag.eu/blog/go-spf13-cobra-custom-flag-types/
     * https://cobra.dev/docs/how-to-guides/shell-completion/
@@ -32,7 +30,6 @@
 * Watch configs for changes?
   * `viper.WatchConfig()`
   * `viper.OnConfigChange(func(e fsnotify.Event)`
-* Add auto-completion from history?
 * Add search to HEX mode?
 * Add `readline` config support?
   * https://github.com/chzyer/readline

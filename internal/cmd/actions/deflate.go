@@ -34,10 +34,10 @@ Global:
 Deflate:
   -l, --list               don't deflate, only list files
   -d, --dir[=PATH]         deflate into directory (default: .)
-  -P, --pwd=PASSWORD       password for decryption (only RAR, ZIP)
+  -P, --pass=PASSWORD      password for decryption (only RAR, ZIP)
 
 Example:
-  $ fox deflate --pwd=infected ioc.zip
+  $ fox deflate --pass=infected ioc.zip
 
 Type "fox help" for more help...
 `

@@ -106,8 +106,6 @@ type Flags struct {
 	Timeline struct {
 		Cef bool
 	}
-
-	Credits bool
 }
 
 var (

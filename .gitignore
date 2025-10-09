@@ -29,6 +29,9 @@ go.work.sum
 .cache/
 .venv/
 
+# Manpage
+*.1
+
 # MacOS crap
 .DS_Store
 

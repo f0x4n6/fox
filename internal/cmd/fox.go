@@ -50,11 +50,11 @@ Print:
       --no-file            don't print filenames
       --no-line            don't print line numbers
 
-Deflate:
-  -P, --pwd=PASSWORD       password for decryption (only RAR, ZIP)
-
-Hex display:
+Modes:
   -x, --hex                show file in canonical hex
+
+Deflate:
+  -P, --pass=PASSWORD      password for decryption (only RAR, ZIP)
 
 File limits:
   -h, --head               limit head of file by ...
@@ -71,7 +71,7 @@ Line filter:
 AI assistant:
   -q, --query=QUERY        query for the assistant to process
   -m, --model=MODEL        model for the assistant to use
-      --embed=MODEL        embedding model for RAG
+      --embed=MODEL        embedding model used for RAG
 
 AI options:
       --num-ctx=SIZE       context window length (default: 4096)
@@ -87,9 +87,9 @@ UI flags:
       --legacy             don't use any unicode decorations (ISO 8859-1)
 
 Evidence bag:
-  -N  --case=NAME          evidence bag case name (default: YYYY-MM-DD)
-  -f, --file=FILE          evidence bag file name (default: "evidence")
-      --mode=MODE          evidence bag file mode (default: "plain"):
+  -N, --case=NAME          evidence bag case name (default: YYYY-MM-DD)
+  -f, --file=FILE          evidence bag file name (default: evidence)
+      --mode=MODE          evidence bag file mode (default: plain):
 
                              none, plain, text, json, jsonl, xml, sqlite
 
@@ -119,17 +119,16 @@ Aliases:
   -X, --xml                short for: --mode=xml
 
 Standard:
-      --help               shows this message
-      --credits            shows the credits
-      --version            shows the version
+      --help               prints this message
+      --version            prints the version
 
-Example: print matching lines
-  $ fox -pe "John Doe" ./**/*
+Example: search for occurrences in all logs
+  $ fox -pe "John Doe" ./**/*.log
 
-Example: print first sector in hex
+Example: export the disk MBR in hex format
   $ fox -pxhc=512 image.dd > mbr
 
-Example: print event log analysis
+Example: analyse the given event log
   $ fox -pq="analyse this" log.evtx
 
 Type "fox help COMMAND" for more help...
@@ -148,12 +147,6 @@ var Fox = &cobra.Command{
 	},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
-
-		// print credits
-		if flg.Credits {
-			fmt.Printf("%s <%s>\nFor O.E.U. S.D.G.\n", fox.Author, fox.Email)
-			os.Exit(0)
-		}
 
 		// print if output is piped
 		if sys.Piped(os.Stdout) {
@@ -271,7 +264,7 @@ func init() {
 
 	Fox.Flags().StringVarP(&flg.AI.Query, "query", "q", "", "query for the assistant to process")
 	Fox.Flags().StringVarP(&flg.AI.Model, "model", "m", "", "model for the assistant to use")
-	Fox.Flags().StringVarP(&flg.AI.Embed, "embed", "", "", "embedding model for RAG")
+	Fox.Flags().StringVarP(&flg.AI.Embed, "embed", "", "", "embedding model used for RAG")
 	Fox.Flags().IntVarP(&flg.AI.NumCtx, "num-ctx", "", 4096, "context window length")
 	Fox.Flags().Float64VarP(&flg.AI.Temp, "temp", "", 0.2, "option for temperature")
 	Fox.Flags().Float64VarP(&flg.AI.TopP, "topp", "", 0.5, "option for model top_p")
@@ -309,9 +302,8 @@ func init() {
 	Fox.Flags().BoolVarP(&flg.Alias.Sqlite, "sqlite", "s", false, "short for: --mode=sqlite")
 	Fox.Flags().BoolVarP(&flg.Alias.Xml, "xml", "X", false, "short for: --mode=xml")
 
-	Fox.PersistentFlags().BoolVarP(&flg.Credits, "credits", "", false, "shows the credits")
-	Fox.PersistentFlags().BoolP("version", "", false, "shows the version")
-	Fox.PersistentFlags().BoolP("help", "", false, "shows this message")
+	Fox.PersistentFlags().BoolP("version", "", false, "prints the version")
+	Fox.PersistentFlags().BoolP("help", "", false, "prints this message")
 
 	Fox.MarkFlagsRequiredTogether("hec", "auth")
 
