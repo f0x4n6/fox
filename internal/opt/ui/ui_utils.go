@@ -74,7 +74,7 @@ func (ui *UI) changeMode(m mode.Mode) {
 
 	// former mode
 	if ui.state.Last().Prompt() {
-		ui.prompt.SetValue("")
+		ui.prompt.SetInput("")
 	}
 
 	// actual mode

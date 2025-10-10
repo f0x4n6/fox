@@ -8,7 +8,6 @@
 * Remap some key bindings
 
 ## 3. Features
-* Add auto-completion from history
 * Add custom render layout, like text, hex, csv, log
 * Add additional documentation
   * Add `bash` and `zsh` autocompletion files

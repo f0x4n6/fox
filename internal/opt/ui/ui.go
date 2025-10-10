@@ -96,6 +96,8 @@ func New(hs *heapset.HeapSet, util types.Invoke) *UI {
 		overlay: widgets.NewOverlay(state),
 	}
 
+	state.SetFind(ui.history.FindLine)
+
 	root.SetCursorStyle(widgets.Cursor, themes.Cursor)
 	root.SetStyle(themes.Terminal)
 	root.Sync()
@@ -159,7 +161,7 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 					v := string(ev.Data())
 					v = strings.TrimPrefix(v, prefix)
 					v = strings.TrimSuffix(v, suffix)
-					ui.prompt.SetValue(v)
+					ui.prompt.SetInput(v)
 				}
 
 			case *tcell.EventResize:

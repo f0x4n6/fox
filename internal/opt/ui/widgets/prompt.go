@@ -6,27 +6,27 @@ import (
 	"sync/atomic"
 	"unicode/utf8"
 
-	"github.com/gdamore/tcell/v2"
-
 	"github.com/cuhsat/fox/internal/opt"
 	"github.com/cuhsat/fox/internal/opt/ui/themes"
 	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
+	"github.com/gdamore/tcell/v2"
 )
 
 type Position int
+
+const Cursor = tcell.CursorStyleBlinkingBar
 
 const (
 	Before Position = iota
 	After
 )
 
-const Cursor = tcell.CursorStyleBlinkingBar
-
 type Prompt struct {
 	base
 	lock      atomic.Bool
-	value     atomic.Value
+	input     atomic.Value
+	offcut    atomic.Value
 	offset    atomic.Int32
 	cursor    atomic.Int32
 	cursorEnd atomic.Int32
@@ -37,7 +37,8 @@ func NewPrompt(state *opt.State) *Prompt {
 	p := Prompt{base: base{state}}
 
 	p.lock.Store(true)
-	p.value.Store("")
+	p.input.Store("")
+	p.offcut.Store("")
 	p.offset.Store(0)
 	p.cursor.Store(0)
 	p.cursorEnd.Store(0)
@@ -80,6 +81,7 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 
 	ml := text.Len(m)
 	fl := text.Len(f)
+	il := text.Len(i)
 	sl := text.Len(s)
 
 	x += ml
@@ -91,16 +93,22 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 
 	x += fl
 
-	// render input
+	// render input and offcut
 	if len(i) > 1 {
 		p.print(x, y, i, themes.Surface1)
+
+		oc := p.offcut.Load().(string)
+
+		if len(oc) > 0 {
+			p.print(x+il-1, y, oc, themes.Subtext3)
+		}
 	}
 
 	// render status
 	p.print(w-sl, y, s, themes.Surface1)
 
 	// calculate cursor position
-	vl := text.Len(p.value.Load().(string))
+	vl := text.Len(p.input.Load().(string))
 	cm := max(w-(ml+fl+sl), 0)
 	c := int(p.cursor.Load())
 	o := int(p.offset.Load())
@@ -123,6 +131,10 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	return 1
 }
 
+func (p *Prompt) CanMovedEnd() bool {
+	return p.cursor.Load() < p.cursorEnd.Load()
+}
+
 func (p *Prompt) MoveStart() {
 	p.cursor.Store(0)
 	p.offset.Store(0)
@@ -132,7 +144,7 @@ func (p *Prompt) MoveEnd() {
 	ce := p.cursorEnd.Load()
 	cm := p.cursorMax.Load()
 
-	vl := int32(text.Len(p.value.Load().(string)))
+	vl := int32(text.Len(p.input.Load().(string)))
 
 	p.cursor.Store(min(ce, cm))
 	p.offset.Store(max(0, vl-cm))
@@ -146,7 +158,7 @@ func (p *Prompt) Move(d int) {
 
 	p.cursor.Store(min(max(c, 0), ce, cm))
 
-	vl := int32(text.Len(p.value.Load().(string)))
+	vl := int32(text.Len(p.input.Load().(string)))
 
 	// scroll past start
 	if c < 0 && o > 0 {
@@ -172,7 +184,7 @@ func (p *Prompt) AddRune(r rune) {
 		return
 	}
 
-	v := p.value.Load().(string)
+	v := p.input.Load().(string)
 	o := int(p.offset.Load())
 	c := int(p.cursor.Load())
 	cm := int(p.cursorMax.Load())
@@ -181,7 +193,7 @@ func (p *Prompt) AddRune(r rune) {
 		return
 	}
 
-	p.value.Store(v[:o+c] + string(r) + v[o+c:])
+	p.input.Store(v[:o+c] + string(r) + v[o+c:])
 
 	// move cursor if there is space left
 	if c < cm {
@@ -190,10 +202,12 @@ func (p *Prompt) AddRune(r rune) {
 	} else {
 		p.offset.Add(1)
 	}
+
+	p.suggest()
 }
 
 func (p *Prompt) DelRune(po Position) {
-	v := p.value.Load().(string)
+	v := p.input.Load().(string)
 	o := int(p.offset.Load())
 	c := int(p.cursor.Load())
 
@@ -207,7 +221,7 @@ func (p *Prompt) DelRune(po Position) {
 
 	switch po {
 	case Before:
-		p.value.Store(v[:max(o+c-1, 0)] + v[o+c:])
+		p.input.Store(v[:max(o+c-1, 0)] + v[o+c:])
 
 		if o > 0 {
 			p.offset.Add(-1)
@@ -215,8 +229,10 @@ func (p *Prompt) DelRune(po Position) {
 			p.Move(-1)
 		}
 	case After:
-		p.value.Store(v[:o+c] + v[min(o+c+1, lv):])
+		p.input.Store(v[:o+c] + v[min(o+c+1, lv):])
 	}
+
+	p.suggest()
 }
 
 func (p *Prompt) ReadLine() (s string) {
@@ -224,18 +240,26 @@ func (p *Prompt) ReadLine() (s string) {
 		return
 	}
 
-	s = p.GetValue()
+	s = p.GetInput()
 
-	p.SetValue("")
+	p.SetInput("")
 
 	return
 }
 
-func (p *Prompt) GetValue() string {
-	return p.value.Load().(string)
+func (p *Prompt) Complete() {
+	oc := p.offcut.Load().(string)
+
+	if len(oc) > 0 {
+		p.SetInput(p.GetInput() + oc)
+	}
 }
 
-func (p *Prompt) SetValue(s string) {
+func (p *Prompt) GetInput() string {
+	return p.input.Load().(string)
+}
+
+func (p *Prompt) SetInput(s string) {
 	if p.Locked() || !utf8.ValidString(s) {
 		return
 	}
@@ -244,10 +268,18 @@ func (p *Prompt) SetValue(s string) {
 	o := max(len(s)-cm, 0)
 	c := min(len(s)-o, len(s))
 
-	p.value.Store(s)
+	p.input.Store(s)
 
+	p.offcut.Store("")
 	p.cursor.Store(int32(c))
 	p.offset.Store(int32(o))
+}
+
+func (p *Prompt) suggest() {
+	i := p.GetInput()
+	s := p.state.Find(i)
+
+	p.offcut.Store(strings.TrimPrefix(s, i))
 }
 
 func (p *Prompt) fmtMode() string {
@@ -295,7 +327,7 @@ func (p *Prompt) fmtFilters(fs []string, fit bool) string {
 func (p *Prompt) fmtInput(fs []string) string {
 	var sb strings.Builder
 
-	if v, ok := p.value.Load().(string); ok {
+	if v, ok := p.input.Load().(string); ok {
 		// add space before input in all modes
 		if (!p.state.Mode().Filter() || len(fs) == 0) && len(v) > 0 {
 			sb.WriteRune(' ')

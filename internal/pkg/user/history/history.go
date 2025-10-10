@@ -69,26 +69,26 @@ func New() *History {
 	return &h
 }
 
-func (h *History) AddLine(s string) {
+func (h *History) AddLine(line string) {
 	defer h.Reset()
 
-	// prepare string
-	s = strings.ReplaceAll(s, "\n", "")
-	s = strings.TrimSpace(s)
+	// prepare line
+	line = strings.ReplaceAll(line, "\n", "")
+	line = strings.TrimSpace(line)
 
-	if len(s) == 0 {
+	if len(line) == 0 {
 		return
 	}
 
 	h.Lock()
-	h.lines = append(h.lines, s)
+	h.lines = append(h.lines, line)
 	h.Unlock()
 
 	if h.file == nil {
 		return
 	}
 
-	l := fmt.Sprintf("%10d;%s", time.Now().Unix(), s)
+	l := fmt.Sprintf("%10d;%s", time.Now().Unix(), line)
 
 	h.Lock()
 	_, _ = fmt.Fprintln(h.file, l)
@@ -111,6 +111,20 @@ func (h *History) NextLine() string {
 	}
 
 	return h.get(h.index.Add(1))
+}
+
+func (h *History) FindLine(prefix string) string {
+	h.RLock()
+	defer h.RUnlock()
+
+	// reverse search lines
+	for i := len(h.lines) - 1; i >= 0; i-- {
+		if strings.HasPrefix(h.lines[i], prefix) {
+			return h.lines[i]
+		}
+	}
+
+	return ""
 }
 
 func (h *History) Reset() {

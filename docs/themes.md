@@ -16,6 +16,7 @@ overlay1 = [ 0xFFFFFF, 0x000000 ] # success messages
 subtext0 = [ 0xFFFFFF, 0x000000 ] # navigation items
 subtext1 = [ 0xFFFFFF, 0x000000 ] # separator lines
 subtext2 = [ 0xFFFFFF, 0x000000 ] # highlights
+subtext3 = [ 0xFFFFFF, 0x000000 ] # completion
 ```
 
 ## Built-in themes

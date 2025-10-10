@@ -21,6 +21,7 @@ type Themes struct {
 		Subtext0 [2]int32
 		Subtext1 [2]int32
 		Subtext2 [2]int32
+		Subtext3 [2]int32
 	} `mapstructure:"Theme"`
 }
 

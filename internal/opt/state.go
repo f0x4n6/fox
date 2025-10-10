@@ -13,11 +13,15 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/user/config"
 )
 
+type Findable func(string) string
+
 type State struct {
 	sync.RWMutex
 
 	Root tcell.Screen
 	Icon *text.Icon
+
+	Find Findable
 
 	mode mode.Mode
 	last mode.Mode
@@ -172,6 +176,12 @@ func (s *State) ChangeEmbed(e string) {
 func (s *State) ChangeTheme(t string) {
 	s.Lock()
 	s.theme = t
+	s.Unlock()
+}
+
+func (s *State) SetFind(fn Findable) {
+	s.Lock()
+	s.Find = fn
 	s.Unlock()
 }
 

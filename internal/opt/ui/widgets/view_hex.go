@@ -36,7 +36,7 @@ func (v *View) hexRender(p *panel) {
 		// print hex values
 		v.print(p.X+11, y, line.Hex, themes.Terminal)
 
-		// print text value
+		// print text input
 		v.print(p.X+62, y, line.Str, themes.Terminal)
 
 		// print separators on top

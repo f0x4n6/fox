@@ -9,9 +9,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/user/themes"
 )
 
-const (
-	Default = "examiner-dark"
-)
+const Default = "examiner-dark"
 
 var (
 	Cursor   tcell.Color
@@ -25,6 +23,7 @@ var (
 	Subtext0 tcell.Style
 	Subtext1 tcell.Style
 	Subtext2 tcell.Style
+	Subtext3 tcell.Style
 )
 
 type Themes struct {
@@ -49,6 +48,7 @@ func New(name string) *Themes {
 				0x333333, 0x111111, // Subtext0
 				0x333333, 0x111111, // Subtext1
 				0xeeeeee, 0x111111, // Subtext2
+				0x777777, 0x333333, // Subtext3
 			},
 
 			"Examiner-Light": {
@@ -62,6 +62,7 @@ func New(name string) *Themes {
 				0xcccccc, 0xeeeeee, // Subtext0
 				0xcccccc, 0xeeeeee, // Subtext1
 				0x111111, 0xeeeeee, // Subtext2
+				0x888888, 0xcccccc, // Subtext3
 			},
 
 			"Catppuccin-Latte": {
@@ -75,6 +76,7 @@ func New(name string) *Themes {
 				0xacb0be, 0xeff1f5, // Subtext0
 				0xccd0da, 0xeff1f5, // Subtext1
 				0xd20f39, 0xeff1f5, // Subtext2
+				0xacb0be, 0xccd0da, // Subtext3
 			},
 
 			"Catppuccin-Frappe": {
@@ -88,6 +90,7 @@ func New(name string) *Themes {
 				0x626880, 0x303446, // Subtext0
 				0x414559, 0x303446, // Subtext1
 				0xe78284, 0x303446, // Subtext2
+				0x626880, 0x414559, // Subtext3
 			},
 
 			"Catppuccin-Macchiato": {
@@ -101,6 +104,7 @@ func New(name string) *Themes {
 				0x5b6078, 0x24273a, // Subtext0
 				0x363a4f, 0x24273a, // Subtext1
 				0xed8796, 0x24273a, // Subtext2
+				0x5b6078, 0x363a4f, // Subtext3
 			},
 
 			"Catppuccin-Mocha": {
@@ -114,6 +118,7 @@ func New(name string) *Themes {
 				0x585b70, 0x1e1e2e, // Subtext0
 				0x313244, 0x1e1e2e, // Subtext1
 				0xf38ba8, 0x1e1e2e, // Subtext2
+				0x585b70, 0x313244, // Subtext3
 			},
 
 			"Solarized-Dark": {
@@ -127,6 +132,7 @@ func New(name string) *Themes {
 				0x586e75, 0x002b36, // Subtext0
 				0x073642, 0x002b36, // Subtext1
 				0xcb4b16, 0x002b36, // Subtext2
+				0x93a1a1, 0x073642, // Subtext3
 			},
 
 			"Solarized-Light": {
@@ -140,6 +146,7 @@ func New(name string) *Themes {
 				0x93a1a1, 0xfdf6e3, // Subtext0
 				0xeee8d5, 0xfdf6e3, // Subtext1
 				0xb58900, 0xfdf6e3, // Subtext2
+				0x586e75, 0xeee8d5, // Subtext3
 			},
 
 			"VSCode-Dark": {
@@ -153,6 +160,7 @@ func New(name string) *Themes {
 				0x626262, 0x282828, // Subtext0
 				0x313131, 0x282828, // Subtext1
 				0xd3967d, 0x282828, // Subtext2
+				0x626262, 0x313131, // Subtext3
 			},
 
 			"VSCode-Light": {
@@ -166,6 +174,7 @@ func New(name string) *Themes {
 				0xafafaf, 0xe7e7e7, // Subtext0
 				0xafafaf, 0xe7e7e7, // Subtext1
 				0xc72e0f, 0xe7e7e7, // Subtext2
+				0xafafaf, 0xdfdfdf, // Subtext3
 			},
 
 			"Monokai": {
@@ -179,6 +188,7 @@ func New(name string) *Themes {
 				0x595f6f, 0x222327, // Subtext0
 				0x2c2e34, 0x222327, // Subtext1
 				0xf39660, 0x222327, // Subtext2
+				0x7f8490, 0x2c2e34, // Subtext3
 			},
 
 			"Darcula": {
@@ -192,6 +202,7 @@ func New(name string) *Themes {
 				0x555555, 0x2b2b2b, // Subtext0
 				0x555555, 0x2b2b2b, // Subtext1
 				0xf43753, 0x2b2b2b, // Subtext2
+				0x555555, 0x393939, // Subtext3
 			},
 
 			"Nord": {
@@ -205,6 +216,7 @@ func New(name string) *Themes {
 				0x4c566a, 0x2e3440, // Subtext0
 				0x3b4252, 0x2e3440, // Subtext1
 				0x5e81ac, 0x2e3440, // Subtext2
+				0x4c566a, 0x3b4252, // Subtext3
 			},
 
 			"Matrix": {
@@ -218,6 +230,7 @@ func New(name string) *Themes {
 				0x003b00, 0x0d0208, // Subtext0
 				0x0d0208, 0x0d0208, // Subtext1
 				0x00ff41, 0x0d0208, // Subtext2
+				0x008f11, 0x0d0208, // Subtext3
 			},
 
 			"Monochrome": {
@@ -231,6 +244,7 @@ func New(name string) *Themes {
 				0xffffff, 0x000000, // Subtext0
 				0x000000, 0x000000, // Subtext1
 				0x000000, 0xffffff, // Subtext2
+				0x000000, 0x000000, // Subtext3
 			},
 		},
 		names: []string{
@@ -270,6 +284,7 @@ func New(name string) *Themes {
 				tt.Subtext0[0], tt.Subtext0[1],
 				tt.Subtext1[0], tt.Subtext1[1],
 				tt.Subtext2[0], tt.Subtext2[1],
+				tt.Subtext3[0], tt.Subtext3[1],
 			}
 		}
 	}
@@ -324,6 +339,7 @@ func (t *Themes) Load(name string) {
 	Subtext0 = newStyle(p[14], p[15])
 	Subtext1 = newStyle(p[16], p[17])
 	Subtext2 = newStyle(p[18], p[19])
+	Subtext3 = newStyle(p[20], p[21])
 }
 
 func newStyle(fg, bg int32) tcell.Style {

@@ -79,10 +79,13 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.lkey = k
 
 	case tcell.KeyTab:
-		if m&tcell.ModShift == 0 {
-			ui.nextTab(hs, h)
-		} else {
+		switch {
+		case ui.state.Mode().Prompt():
+			ui.prompt.Complete()
+		case m&tcell.ModShift != 0:
 			ui.prevTab(hs, h)
+		default:
+			ui.nextTab(hs, h)
 		}
 
 	case tcell.KeyF1:
@@ -150,7 +153,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyUp:
 		switch {
 		case ui.state.Mode().Prompt():
-			ui.prompt.SetValue(ui.history.PrevLine())
+			ui.prompt.SetInput(ui.history.PrevLine())
 		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
 			ui.view.ScrollStart()
 		case m&tcell.ModShift != 0:
@@ -162,7 +165,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyDown:
 		switch {
 		case ui.state.Mode().Prompt():
-			ui.prompt.SetValue(ui.history.NextLine())
+			ui.prompt.SetInput(ui.history.NextLine())
 		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
 			ui.view.ScrollEnd()
 		case m&tcell.ModShift != 0:
@@ -190,9 +193,12 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyRight:
 		switch {
 		case ui.state.Mode().Prompt():
-			if m&tcell.ModCtrl != 0 {
+			switch {
+			case !ui.prompt.CanMovedEnd():
+				ui.prompt.Complete()
+			case m&tcell.ModCtrl != 0:
 				ui.prompt.MoveEnd()
-			} else {
+			default:
 				ui.prompt.Move(+1)
 			}
 		case m&tcell.ModCtrl != 0:
@@ -344,7 +350,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyBackspace, tcell.KeyBackspace2:
 		switch {
-		case len(ui.prompt.GetValue()) > 0:
+		case len(ui.prompt.GetInput()) > 0:
 			ui.prompt.DelRune(widgets.Before)
 		case ui.state.Mode().Prompt():
 			ui.changeBack()

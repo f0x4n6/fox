@@ -68,7 +68,7 @@ func (v *View) textRender(p *panel) {
 			lineX += len(line.Nr) + 1
 		}
 
-		// text value
+		// text input
 		if len(line.Str) > 0 {
 			if chat && strings.HasPrefix(line.Str, ps1) {
 				color = themes.Subtext2
@@ -91,7 +91,7 @@ func (v *View) textRender(p *panel) {
 			partX += pg.N + 1
 		}
 
-		// part value
+		// part input
 		v.print(partX, partY, part.Str, themes.Subtext2)
 	}
 

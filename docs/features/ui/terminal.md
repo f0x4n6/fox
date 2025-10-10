@@ -16,6 +16,7 @@ The **lower area** of the terminal shows the current mode, any applied filters, 
 ## Features
 Advanced terminal features:
 
+- Input completion from history
 - [Bracketed](https://en.wikipedia.org/wiki/Bracketed-paste) copy and paste
 - 2-axis mouse wheel scrolling
 - Scroll past end ability
