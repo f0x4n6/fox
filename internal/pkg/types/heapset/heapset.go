@@ -73,9 +73,15 @@ func (hs *HeapSet) Heap() (int32, *heap.Heap) {
 }
 
 func (hs *HeapSet) Open(path string) {
+	idx := hs.Len()
+
 	for _, h := range hs.loader.Open(path) {
 		hs.atomicAdd(h)
 	}
+
+	atomic.StoreInt32(hs.index, idx)
+
+	hs.atomicGet(idx).Reload()
 }
 
 func (hs *HeapSet) OpenHelp() {
