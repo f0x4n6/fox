@@ -96,8 +96,6 @@ func New(hs *heapset.HeapSet, util types.Invoke) *UI {
 		overlay: widgets.NewOverlay(state),
 	}
 
-	state.SetFind(ui.history.FindLine)
-
 	root.SetCursorStyle(widgets.Cursor, themes.Cursor)
 	root.SetStyle(themes.Terminal)
 	root.Sync()

@@ -12,6 +12,7 @@ import (
 	"github.com/cuhsat/fox/internal/opt/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/sys"
+	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
@@ -83,6 +84,16 @@ func (ui *UI) changeMode(m mode.Mode) {
 	// force the cursor off
 	if ui.prompt.Locked() {
 		ui.state.Root.HideCursor()
+	}
+
+	// config completion
+	switch m {
+	case mode.Goto:
+		fallthrough
+	case mode.Grep:
+		ui.state.SetFind(ui.history.FindLine)
+	case mode.Open:
+		ui.state.SetFind(fs.Find)
 	}
 
 	if ui.state.Last().Static() || m.Static() {
