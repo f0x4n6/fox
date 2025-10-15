@@ -15,6 +15,24 @@ The following evidence bag formats are available:
 | `xml`     | [XML Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.xsd)   |
 | `sqlite3` | [SQL Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.sql)   |
 
+Example of an evidence bag in `text` format (including metadata):
+```
+ ___ ___  ___ ___ _  _ ___ ___ ___   _____  __  _   __  __ ___ _  _ ___ ___
+| __/ _ \| _ \ __| \| / __|_ _/ __| | __\ \/ / /_\ |  \/  |_ _| \| | __| _ \
+| _| (_) |   / _||  ' \__ \| | (__  | _| >  < / _ \| |\/| || ||  ' | _||   /
+|_| \___/|_|_\___|_|\_|___/___\___| |___/_/\_\_/ \_\_|  |_|___|_|\_|___|_|_\
+
+Forensic Examiner Evidence Bag (v1.2.3)
+==============================================================================
+File  /hello.txt > Hello (12 bytes)
+User  jd (John Doe)
+Time  2025-12-24T12:34:56Z / 2025-12-06T12:34:56Z
+Hash  d2a84f4b8b650937ec8f73cd8be2c74add5a911ba64df27458ed8229da804a26
+------------------------------------------------------------------------------
+1:0 Hello World
+==============================================================================
+```
+
 ## Evidence signing
 While saving, the evidence bag will be cryptographically signed using `SHA256` to a separate file with the `.sig` file extension. This is done to guarantee the juristic **Chain of Custody**.
 

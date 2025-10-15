@@ -13,9 +13,7 @@ copyright: 2025 Soli Deo Gloria
 markdown_extensions:
   - admonition
   - attr_list
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
 nav:
   - Home: index.md
 
@@ -93,14 +91,18 @@ nav:
 theme:
   name: material
   logo: fox.svg
+
   font:
     text: Roboto
     code: Roboto Mono
+
   icon:
     repo: fontawesome/brands/github
     admonition:
       tip: fontawesome/solid/lightbulb
+
   favicon: fox.ico
+
   features:
     - toc.follow
     - navigation.path
@@ -109,13 +111,14 @@ theme:
     - navigation.sections
     - search.highlight
     - search.suggest
+
   palette:
 
     # Palette toggle for automatic mode
-#    - media: "(prefers-color-scheme)"
-#      toggle:
-#        icon: material/toggle-switch-off-outline
-#        name: Switch to light mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
 
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
@@ -123,7 +126,7 @@ theme:
       primary: custom
       accent: custom
       toggle:
-        icon: material/toggle-switch
+        icon: material/toggle-switch-off
         name: Switch to dark mode
 
     # Palette toggle for dark mode
@@ -132,7 +135,7 @@ theme:
       primary: custom
       accent: custom
       toggle:
-        icon: material/toggle-switch-off-outline
+        icon: material/toggle-switch
         name: Switch to system preference
 
 extra:

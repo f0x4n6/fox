@@ -47,10 +47,10 @@ func (w *Writer) WriteMeta(meta evidence.Meta) {
 	}
 
 	w.write("%s\n", strings.Repeat("=", width))
-	w.write("File: %s %s (%d bytes)\n", meta.Path, sb.String(), meta.Size)
-	w.write("User: %s (%s)\n", meta.User.Username, meta.User.Name)
-	w.write("Time: %s / %s\n", evidence.Utc(meta.Bagged), evidence.Utc(meta.Modified))
-	w.write("Hash: %x\n", meta.Hash)
+	w.write("File  %s %s (%d bytes)\n", meta.Path, sb.String(), meta.Size)
+	w.write("User  %s (%s)\n", meta.User.Username, meta.User.Name)
+	w.write("Time  %s / %s\n", evidence.Utc(meta.Bagged), evidence.Utc(meta.Modified))
+	w.write("Hash  %x\n", meta.Hash)
 	w.write("%s\n", strings.Repeat("-", width))
 }
 
