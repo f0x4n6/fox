@@ -7,7 +7,7 @@ Type the line below into your shell to open the [Terminal UI](../features/ui/ter
 fox testdata/test.evtx
 ```
 
-As you can see, the [Windows Event Log](../files/logs/evtx.md) is opened and will automatically be converted to [JSON Lines](../files/text/json.md) for easier processing. In the next step, we will start searching for specific artifacts.
+As you can see, the [Windows Event Log](../files/logs/windows.md) is opened and will automatically be converted to [JSON Lines](../files/text/json.md) for easier processing. In the next step, we will start searching for specific artifacts.
 
 ![](../assets/img/tutorial/step_1.png "Open a file")
 

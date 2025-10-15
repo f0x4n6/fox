@@ -1,55 +1,112 @@
-:root > * {
+.light, .dark {
+    display: none;
+}
+
+[data-md-color-scheme="examiner-light"] {
     --md-primary-fg-color:        #000;
     --md-primary-fg-color--light: #000;
     --md-primary-fg-color--dark:  #000;
-}
 
-:root > * {
     --md-accent-fg-color:        #0f88cd;
     --md-accent-fg-color--light: #0f88cd;
     --md-accent-fg-color--dark:  #0f88cd;
-}
 
-:root > * {
     --md-header-bg-color:       #000;
     --md-header-bg-color--dark: #000;
+
+    --md-footer-bg-color:       #000;
+    --md-footer-bg-color--dark: #000;
+
+    --md-typeset-a-color: #0f88cd;
+
+    .light {
+        display: block !important;
+    }
+
+    .md-content a {
+        color: #000;
+    }
 }
 
-:root > * {
-  --md-footer-bg-color:       #000;
-  --md-footer-bg-color--dark: #000;
+[data-md-color-scheme="examiner-dark"] {
+    --md-default-fg-color:        #ccc;
+    --md-default-fg-color--light: #ccc;
+
+    --md-default-bg-color:        #000;
+    --md-default-bg-color--light: #333;
+
+    --md-primary-fg-color:        #fff;
+    --md-primary-fg-color--light: #fff;
+    --md-primary-fg-color--dark:  #ccc;
+
+    --md-accent-fg-color:        #0f88cd;
+    --md-accent-fg-color--light: #0f88cd;
+    --md-accent-fg-color--dark:  #0f88cd;
+
+    --md-header-bg-color:       #000;
+    --md-header-bg-color--dark: #000;
+
+    --md-footer-bg-color:       #000;
+    --md-footer-bg-color--dark: #000;
+
+    --md-code-fg-color: #ccc;
+    --md-code-bg-color: #333;
+
+    --md-typeset-color: #ccc;
+    --md-typeset-a-color: #0f88cd;
+    --md-typeset-kbd-color: #ccc;
+    --md-typeset-table-color: #333;
+
+    .dark {
+        display: block !important;
+    }
+
+    .md-content a {
+        color: #fff;
+    }
+}
+
+.md-header, .md-tabs {
+    background: #000 !important;
+}
+
+.md-button {
+    color: #fff !important;
+    display: block !important;
+    margin: 0 auto !important;
+    max-width: 10rem !important;
+    text-align: center !important;
+    text-decoration: none !important;
 }
 
 .md-content a {
-    text-decoration: underline #0f88cd;
-    text-underline-offset: 0.3em;
+    text-decoration: underline #0f88cd !important;
+    text-underline-offset: 0.25em !important;
 }
 
-/*
 .md-content blockquote {
     border-color: #0f88cd !important;
 }
 
-.md-content code {
-    background-color: #0f88cd1a;
+.md-typeset kbd {
+    color: #333 !important;
 }
-*/
 
-.md-button {
-    display: block !important;
-    margin: 0 auto !important;
-    max-width: 10rem;
-    text-align: center;
-    text-decoration: none !important;
+.md-typeset .md-button--primary {
+    color: #fff !important;
+    background: #0f88cd !important;
+    border-color: #0f88cd !important;
 }
 
 .md-typeset .tip {
     border-color: #0f88cd !important;
 }
+
 .md-typeset .tip > .admonition-title,
 .md-typeset .tip > summary {
     background-color: #0f88cd1a !important;
 }
+
 .md-typeset .tip > .admonition-title::before,
 .md-typeset .tip > summary::before {
     background-color: #0f88cd !important;

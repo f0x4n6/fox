@@ -1,5 +1,7 @@
 # Mouse bindings
 
+To turn off mouse support, use the `--no-mouse` flag.
+
 | Event               | Action               |
 |---------------------|----------------------|
 | <kbd>Wheel 1</kbd>  | Scroll vertical      |
