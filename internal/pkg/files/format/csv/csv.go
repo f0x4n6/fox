@@ -12,7 +12,8 @@ import (
 )
 
 func Detect(path string) bool {
-	return filepath.Ext(strings.ToLower(path)) == ".csv"
+	ext := filepath.Ext(strings.ToLower(path))
+	return ext == ".csv" || ext == ".tsv"
 }
 
 func Format(path string) string {

@@ -8,42 +8,34 @@ repo_url: https://github.com/cuhsat/fox
 
 remote_branch: docs
 
-copyright: Soli Deo Gloria
+copyright: 2025 Soli Deo Gloria
 
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 nav:
   - Home: index.md
 
-  - Basics:
-    - Install: basics/install.md
-    - Tutorial: basics/tutorial.md
+  - Getting started:
+    - Installation: start/install.md
+    - Tutorial: start/tutorial.md
+
     - Usage:
-        - fox: basics/usage/fox.md
-        - fox compare: basics/usage/compare.md
-        - fox counts: basics/usage/counts.md
-        - fox deflate: basics/usage/deflate.md
-        - fox entropy: basics/usage/entropy.md
-        - fox hash: basics/usage/hash.md
-        - fox strings: basics/usage/strings.md
-        - fox timeline: basics/usage/timeline.md
+      - fox: start/usage/fox.md
+      - fox compare: start/usage/compare.md
+      - fox counts: start/usage/counts.md
+      - fox deflate: start/usage/deflate.md
+      - fox entropy: start/usage/entropy.md
+      - fox hash: start/usage/hash.md
+      - fox strings: start/usage/strings.md
+      - fox timeline: start/usage/timeline.md
 
   - Features:
-    - Loader: features/loader.md
-    - Memory: features/memory.md
-
-    - Files:
-        - csv: features/files/csv.md
-        - evtx: features/files/evtx.md
-        - journal: features/files/journal.md
-        - json: features/files/json.md
-
-    - Utils:
-        - Deflate: features/utils/deflate.md
-        - Compare: features/utils/compare.md
-        - Counts: features/utils/counts.md
-        - Entropy: features/utils/entropy.md
-        - Hashes: features/utils/hashes.md
-        - Strings: features/utils/strings.md
-        - Timeline: features/utils/timeline.md
+    - Filesystem: features/filesystem.md
+    - Evidence: features/evidence.md
 
     - AI:
       - Assistant: features/ai/assistant.md
@@ -51,18 +43,52 @@ nav:
     - UI:
       - Terminal: features/ui/terminal.md
       - Unicode: features/ui/unicode.md
-      - Keymap:  features/ui/keymap.md
-      - Mode:
-        - Less: features/ui/mode/less.md
-        - Grep: features/ui/mode/grep.md
-        - Hex: features/ui/mode/hex.md
 
-    - Evidence: features/evidence.md
+    - Mode:
+      - Less: features/ui/less.md
+      - Grep: features/ui/grep.md
+      - Hex: features/ui/hex.md
 
-  - Plugins: plugins.md
-  - Themes: themes.md
-  - Building: building.md
-  - License: license.md
+  - Files:
+    - Loader: files/loader.md
+
+    - Text:
+      - CSV: files/text/csv.md
+      - JSON: files/text/json.md
+
+    - Logs:
+      - Linux: files/logs/linux.md
+      - Windows: files/logs/windows.md
+
+  - Utils:
+    - Deflate: utils/deflate.md
+    - Compare: utils/compare.md
+    - Counts: utils/counts.md
+    - Entropy: utils/entropy.md
+    - Hashes: utils/hashes.md
+    - Strings: utils/strings.md
+    - Timeline: utils/timeline.md
+
+  - Plugins:
+    - Configuration: plugins/config.md
+
+    - Ready-made:
+      - Logs: plugins/ready/logs.md
+      - Dissect: plugins/ready/dissect.md
+      - Eric Zimmerman: plugins/ready/eztools.md
+      - Reverse Engineering: plugins/ready/reverse.md
+
+  - Themes:
+    - Built-in: themes/builtin.md
+    - Custom: themes/custom.md
+
+  - Reference:
+    - Keyboard: reference/keyboard.md
+    - Mouse: reference/mouse.md
+
+  - Resources:
+    - Building: resources/building.md
+    - License: resources/license.md
 
 theme:
   name: material
@@ -72,13 +98,17 @@ theme:
     code: Roboto Mono
   icon:
     repo: fontawesome/brands/github
+    admonition:
+      tip: fontawesome/solid/lightbulb
   favicon: fox.ico
   features:
-    - header.autohide
+    - toc.follow
     - navigation.path
-    - navigation.indexes
-    - search.suggest
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
     - search.highlight
+    - search.suggest
   palette:
     primary: custom
     accent: custom
@@ -100,7 +130,7 @@ extra:
       name: GitHub
 
 extra_css:
-  - styles/fox.css
+  - assets/css/fox.css
 
 plugins:
   - search

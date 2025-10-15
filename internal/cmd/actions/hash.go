@@ -39,11 +39,11 @@ HashSum:
     Cryptographic hash algorithms:
       MD5, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512
 
-    Similarity hash algorithms:
-      SDHASH, SSDEEP, TLSH
-
     Performance hash algorithms:
       FNV-1, FNV-1A, XXH64, XXH3
+
+    Similarity hash algorithms:
+      SDHASH, SSDEEP, TLSH
 
     Checksum algorithms:
       CRC32-IEEE, CRC64-ECMA, CRC64-ISO

@@ -3,8 +3,8 @@
 #  https://ollama.com/library
 #
 [ai]
-model = ''
-embed = ''
+model = 'mistral'
+embed = 'nomic-embed-text'
 num_ctx = 4096
 seed = 8211
 temp = '0.2'

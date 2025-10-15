@@ -2,7 +2,7 @@
 
 The Swiss Army Knife for examining text files. Combining the power of many traditional tools like **grep**, **diff**, **hexdump** and **strings** with the abilities of modern Large Language Models, to leverage your forensic examination process. Standalone binaries are available for Windows, Linux and macOS.
 
-![](docs/images/terminal.png)
+![](docs/assets/img/terminal.png)
 
 ## Key Features
 * Read-only in-memory [filesystem](https://forensic-examiner.eu/features/memory) abstraction

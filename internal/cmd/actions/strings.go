@@ -38,14 +38,13 @@ Global:
       --no-line            don't print line numbers
 
 Strings:
-  -i, --ioc                detect built-in IoCs
+  -i, --ioc                classify built-in IoCs:
+						     ipv4, ipv6, mac, mail, url, uuid
+
   -e, --regexp=PATTERN     search for pattern
   -n, --min=NUMBER         minimum length (default: 3)
   -m, --max=NUMBER         maximum length (default: Unlimited)
   -a, --ascii              only carve ASCII strings
-
-    Built-in IoC patterns:
-      UUID, IPv4, IPv6, MAC, URL, Mail
 
 Example:
   $ fox strings -in=8 malware.exe
@@ -131,7 +130,7 @@ func init() {
 	Strings.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
 	Strings.Flags().BoolVarP(&flg.NoFile, "no-file", "", false, "don't print filenames")
 	Strings.Flags().BoolVarP(&flg.NoLine, "no-line", "", false, "don't print line numbers")
-	Strings.Flags().BoolVarP(&flg.Strings.Ioc, "ioc", "i", false, "detect built-in IoCs")
+	Strings.Flags().BoolVarP(&flg.Strings.Ioc, "ioc", "i", false, "classify built-in IoCs")
 	Strings.Flags().StringP("regex", "e", "", "search for specific pattern")
 	Strings.Flags().IntVarP(&flg.Strings.Min, "min", "n", 3, "minimum length")
 	Strings.Flags().IntVarP(&flg.Strings.Max, "max", "m", math.MaxInt, "maximum length")

@@ -1,10 +1,10 @@
-# Evidence
-By pressing <kbd>Ctrl</kbd> + <kbd>S</kbd> all filtered lines of the current file will be saved into an **Evidence Bag** and cryptographically signed. The bag can be (re)opened by pressing <kbd>Ctrl</kbd> + <kbd>B</kbd>.
+# Evidence handling
+File contents, including [AI Assistant](ai/assistant.md) or [Plugin](../plugins/config.md) output, can be saved as digital evidence along with metadata into an **Evidence Bag**. Please refer to the specific schema for details about the applied data and file format. Timestamps will be normalized to **Coordinated Universal Time (UTC)**.
 
-> All timestamps will be normalized to UTC.
+Using the [Terminal UI](ui/terminal.md), all filtered lines of the current file will be saved into an evidence bag by pressing <kbd>Ctrl</kbd> + <kbd>S</kbd>. The evidence bag then can be viewed by pressing <kbd>Ctrl</kbd> + <kbd>B</kbd>.
 
-## Evidence Bag
-Available evidence bag formats:
+## Evidence bag
+The following evidence bag formats are available:
 
 | Type      | Details                                                                         |
 |-----------|---------------------------------------------------------------------------------|
@@ -15,29 +15,31 @@ Available evidence bag formats:
 | `xml`     | [XML Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.xsd)   |
 | `sqlite3` | [SQL Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.sql)   |
 
-## Evidence Signing
-The evidence bag will always be signed using `SHA256` to guarantee the **Chain of Custody**.
+## Evidence signing
+While saving, the evidence bag will be cryptographically signed using `SHA256` to a separate file with the `.sig` file extension. This is done to guarantee the juristic **Chain of Custody**.
 
-> To use `HMAC-SHA256` signing, specific a **Key Phrase** using the `--key` flag.
+> To use `HMAC-SHA256` for signing, specific a key phrase using the `--key` flag.
 
-## Evidence Streaming
-All evidence can additionally be streamed to a server using the `--url` flag.
+## Evidence streaming
+All evidence can additionally be streamed to a HTTP server in various formats using the `--url` flag. This is done immediately after the time of saving the evidence to the specified bag. 
 
-### Raw
-If no schema was specified, the raw data will be streamed alongside with custom `x-evidence-*` HTTP-headers:
+### Raw text
+If no schema was specified, the raw data will be streamed as `text/plain` to the given server alongside with the file metadata as custom `x-evidence-*` HTTP headers.
 
 ```
 Hello World
 ```
 
-### ECS Schema
-Evidence can be streamed to a URL using the [Elastic Common Schema](https://www.elastic.co/docs/reference/ecs).
+### ECS schema
+The evidence can also be streamed as `application/json` to a given URL using the [Elastic Common Schema](https://www.elastic.co/docs/reference/ecs) version `9.1.0`.
 
-> To use a local running **Logstash** instance, set the `-L` flag.
+!!! tip "Tip"
+
+    Use the `-L` flag as a shortcut to specify a local running **Logstash** server.
 
 ```json
 {
-  "@timestamp": "2025-09-07T15:45:00.190311Z",
+  "@timestamp": "2025-12-24T12:34:56.789000Z",
   "message": "Hello World\n",
   "labels": {
     "case": "demo-case",
@@ -51,9 +53,9 @@ Evidence can be streamed to a URL using the [Elastic Common Schema](https://www.
     "version": "9.1.0"
   },
   "file": {
-    "mtime": "2025-09-07T15:45:00.190311Z",
+    "mtime": "2025-12-06T12:34:56.789000Z",
     "path": "/hello.txt",
-    "size": 6,
+    "size": 12,
     "hash": {
       "sha256": "d2a84f4b8b650937ec8f73cd8be2c74add5a911ba64df27458ed8229da804a26"
     }
@@ -65,14 +67,16 @@ Evidence can be streamed to a URL using the [Elastic Common Schema](https://www.
 }
 ```
 
-### HEC Schema
-Evidence can be streamed to a [Splunk HTTP Event Collector](https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTinput); an **Authorization Token** is required for this.
+### HEC schema
+The evidence can also be streamed as `application/json` to a [Splunk HTTP Event Collector](https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTinput), an **Authorization Token** is required for this.
 
-> To use a local running **Splunk** instance, set the `-S` flag.
+!!! tip "Tip"
+
+    Use the `-S` flag as a shortcut to specify a local running **Splunk** server.
 
 ```json
 {
-  "time": 1757260053699,
+  "time": 1766576096000,
   "source": "Forensic Examiner",
   "sourcetype": "_json",
   "index": "demo-case",
@@ -80,8 +84,8 @@ Evidence can be streamed to a [Splunk HTTP Event Collector](https://docs.splunk.
     "user": "jd (John Doe)",
     "path": "/hello.txt",
     "hash": "d2a84f4b8b650937ec8f73cd8be2c74add5a911ba64df27458ed8229da804a26",
-    "time": 1757260053699,
-    "size": 6,
+    "time": 1765020896000,
+    "size": 12,
     "lines": [
       "Hello World\n"
     ]

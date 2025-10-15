@@ -8,7 +8,11 @@
 * Remap some key bindings
 
 ## 3. Features
+* Add Tab Tab Cycling
 * Add custom render layout, like text, hex, csv, log
+* Add macOS Brew cask
+  * https://goreleaser.com/customization/homebrew_casks/
+  * https://docs.brew.sh/Cask-Cookbook
 * Add additional documentation
   * Add `bash` and `zsh` autocompletion files
     * https://applejag.eu/blog/go-spf13-cobra-custom-flag-types/

@@ -13,12 +13,11 @@ import (
 	"strings"
 
 	"github.com/cespare/xxhash"
+	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/eciavatta/sdhash"
 	"github.com/glaslos/ssdeep"
 	"github.com/glaslos/tlsh"
 	"github.com/zeebo/xxh3"
-
-	"github.com/cuhsat/fox/internal/pkg/types"
 )
 
 type Hash map[string][]byte
@@ -51,12 +50,6 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 		imp = sha3.New384()
 	case types.SHA3512:
 		imp = sha3.New512()
-	case types.SDHASH:
-		imp = new(SDHash)
-	case types.SSDEEP:
-		imp = ssdeep.New()
-	case types.TLSH:
-		imp = tlsh.New()
 	case types.FNV1:
 		imp = fnv.New64()
 	case types.FNV1A:
@@ -65,6 +58,12 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 		imp = xxhash.New()
 	case types.XXH3:
 		imp = xxh3.New()
+	case types.SDHASH:
+		imp = new(SDHash)
+	case types.SSDEEP:
+		imp = ssdeep.New()
+	case types.TLSH:
+		imp = tlsh.New()
 	case types.CRC32IEEE:
 		imp = crc32.NewIEEE()
 	case types.CRC64ISO:

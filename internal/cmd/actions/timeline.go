@@ -20,7 +20,7 @@ Usage:
   fox timeline [FLAG ...] PATH ...
 
 Alias:
-  super, tl
+  time, tl
 
 Positional arguments:
   Path(s) to open
@@ -29,7 +29,7 @@ Global:
   -p, --print              print directly to console
 
 Timeline:
-  -c, --cef                use Common Event Format
+  -c, --cef                use the Common Event Format
 
 Example:
   $ fox timeline -c ./**/*.evtx
@@ -42,7 +42,7 @@ var Timeline = &cobra.Command{
 	Short:   "display super timeline",
 	Long:    "display super timeline",
 	Args:    cobra.ArbitraryArgs,
-	Aliases: []string{"super", "tl"},
+	Aliases: []string{"time", "tl"},
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			fmt.Print(TimelineUsage)
@@ -67,5 +67,5 @@ func init() {
 
 	Timeline.SetHelpTemplate(TimelineUsage)
 	Timeline.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
-	Timeline.Flags().BoolVarP(&flg.Timeline.Cef, "cef", "c", false, "use Common Event Format")
+	Timeline.Flags().BoolVarP(&flg.Timeline.Cef, "cef", "c", false, "use the Common Event Format")
 }

@@ -1,20 +1,22 @@
-# Terminal
-The terminal user interface is [compatible](https://github.com/gdamore/tcell) with many different common terminals, across all supported operating systems, like [iTerm2](https://iterm2.com/) or [Windows Terminal](https://github.com/microsoft/terminal).
+# Terminal UI
+The terminal user interface is [compatible](https://github.com/gdamore/tcell) with many different common terminal applications, across all supported operating systems, like [iTerm2](https://iterm2.com/) or the new [Windows Terminal](https://github.com/microsoft/terminal).
 
-> Use <kbd>Ctrl</kbd> + <kbd>Z</kbd> to suspend to shell while in the **UI**. Then type `exit` to resume the **UI**.
+!!! tip "Tip"
 
-The **upper area** of the terminal shows the currently displayed file, any executed plugin and the current index and count of opened files.
+    Use <kbd>Ctrl</kbd> + <kbd>Z</kbd> to suspend to shell while in the Terminal UI. Then type `exit` to resume the software.
 
-The **lower area** of the terminal shows the current mode, any applied filters, the line count and the current UI state:
+The **upper area** of the terminal shows the currently displayed file, any executed plugin and the current index and count of open files.
 
-- `N` - show navigation
-- `W` - wrap text
-- `T` - tail file
+The **lower area** of the terminal shows the current mode, any applied filters, the line count and the current state of the UI.
 
-![](../../images/terminal.png)
+| State | Meaning         |
+|-------|-----------------|
+| `N`   | Show navigation |
+| `W`   | Wrap text       |
+| `T`   | Tail file       |
 
 ## Features
-Advanced terminal features:
+Advanced terminal features are:
 
 - Input completion from history
 - [Bracketed](https://en.wikipedia.org/wiki/Bracketed-paste) copy and paste
@@ -36,7 +38,7 @@ All user input will be saved in a timestamped history file located under `~/.con
 ```
 
 ## Config
-All **AI** and **UI** settings will be saved in a configuration file located under `~/.config/fox/foxrc`.
+All AI and UI settings will be saved in a configuration file located under `~/.config/fox/foxrc`.
 
 > To prevent the config file of being written, use the `--readonly` flag.
 
@@ -58,3 +60,6 @@ n = true
 t = true
 w = true
 ```
+
+## Example
+![](../../assets/img/terminal.png)

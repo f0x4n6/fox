@@ -90,18 +90,17 @@ Evidence bag:
   -N, --case=NAME          evidence bag case name (default: YYYY-MM-DD)
   -f, --file=FILE          evidence bag file name (default: evidence)
       --mode=MODE          evidence bag file mode (default: plain):
-
                              none, plain, text, json, jsonl, xml, sqlite
 
   -k, --key=PHRASE         key phrase to sign evidence bag via HMAC-SHA256
 
-Evidence url:
+Evidence URL:
   -u, --url=SERVER         forward evidence to server address
   -a, --auth=TOKEN         forward evidence using auth token
       --ecs                use ECS schema for evidence
       --hec                use HEC schema for evidence
 
-Disable:
+Turn off:
   -R, --readonly           don't write any new files
   -r, --raw                don't process files at all
       --no-convert         don't convert automatically
