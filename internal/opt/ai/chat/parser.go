@@ -45,7 +45,7 @@ func (c *Chat) parse(ctx context.Context, query string) bool {
 
 func (c *Chat) stop(ctx context.Context) {
 	ctx.Done()
-	c.write("Stopped\n")
+	c.stderr("Stopped\n")
 }
 
 func (c *Chat) setModel(ctx context.Context, param string) error {
@@ -79,14 +79,14 @@ func (c *Chat) getModel(ctx context.Context, param string) error {
 		}
 
 		for _, m := range res.Models {
-			c.write(fmt.Sprintln(m.Name))
+			c.stderr(fmt.Sprintln(m.Name))
 		}
 
 	case "model":
-		c.write(fmt.Sprintln(c.state.Model()))
+		c.stderr(fmt.Sprintln(c.state.Model()))
 
 	case "embed":
-		c.write(fmt.Sprintln(c.state.Embed()))
+		c.stderr(fmt.Sprintln(c.state.Embed()))
 
 	default:
 		return fmt.Errorf("unknown target")
@@ -110,7 +110,7 @@ func (c *Chat) delModel(ctx context.Context, param string) error {
 		c.state.ChangeEmbed("")
 	}
 
-	c.write(fmt.Sprintf("Deleted model %s\n\n", param))
+	c.stderr(fmt.Sprintf("Deleted model %s\n\n", param))
 
 	return nil
 }
@@ -123,12 +123,12 @@ func (c *Chat) download(ctx context.Context, model string) error {
 		p := uint32((float32(res.Completed) / float32(res.Total)) * 100)
 
 		if c.busy.Load() && (p > c.down.Load() && p < 100) {
-			c.write(fmt.Sprintf("Downloading %s %2d%%\n", model, p))
+			c.stderr(fmt.Sprintf("Downloading %s %2d%%\n", model, p))
 			c.down.Store(p)
 		}
 
 		if p == 100 && c.busy.Load() {
-			c.write(fmt.Sprintf("Using model %s\n", model))
+			c.stderr(fmt.Sprintf("Using model %s\n", model))
 			c.busy.Store(false)
 		}
 

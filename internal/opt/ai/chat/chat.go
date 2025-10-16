@@ -17,6 +17,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/internal/pkg/user/config"
 )
 
 const banner = "How may I help you today?"
@@ -49,7 +50,7 @@ func New(state *opt.State, heap *heap.Heap) *Chat {
 		resp: make(chan string, 64),
 	}
 
-	a.write(fmt.Sprintln(banner))
+	a.stderr(fmt.Sprintln(banner))
 
 	a.busy.Store(false)
 
@@ -62,7 +63,7 @@ func (c *Chat) Query(query string, echo bool) {
 	var ctx context.Context
 
 	if echo {
-		c.write(fmt.Sprintf("\n%c %s\n", c.state.Icon.Ps1, query))
+		c.stderr(fmt.Sprintf("\n%c %s\n", c.state.Icon.Ps1, query))
 	}
 
 	if c.done != nil {
@@ -120,8 +121,7 @@ func (c *Chat) process(ctx context.Context, query string) {
 
 func (c *Chat) listen() {
 	var sb strings.Builder
-
-	flg, end := flags.Get(), true
+	var end = true
 
 	for s := range c.resp {
 		// response start
@@ -131,16 +131,16 @@ func (c *Chat) listen() {
 
 		s = strings.Replace(s, "  ", "", 1)
 
+		end = s == "\r\n"
+
 		// response chunk
-		if !flg.Print {
-			c.write(s)
+		if end {
+			c.stdout(c.debug())
 		} else {
-			_, _ = fmt.Print(s)
+			c.stdout(s)
 		}
 
 		// response end
-		end = s == "\r\n"
-
 		sb.WriteString(s)
 
 		if end {
@@ -150,6 +150,29 @@ func (c *Chat) listen() {
 	}
 }
 
-func (c *Chat) write(s string) {
+func (c *Chat) stdout(s string) {
+	if flags.Get().Print {
+		_, _ = fmt.Print(s)
+	} else {
+		c.stderr(s)
+	}
+}
+
+func (c *Chat) stderr(s string) {
 	_, _ = c.File.WriteString(s)
+}
+
+func (c *Chat) debug() string {
+	cfg := config.Get()
+
+	return fmt.Sprintf(
+		"\n%c Generated with %s:%d:%d:%.1f:%d:%.1f\n",
+		c.state.Icon.HSep,
+		c.state.Model(),
+		cfg.GetInt("ai.num_ctx"),
+		cfg.GetInt("ai.seed"),
+		cfg.GetFloat64("ai.temp"),
+		cfg.GetInt("ai.top_k"),
+		cfg.GetFloat64("ai.top_p"),
+	)
 }
