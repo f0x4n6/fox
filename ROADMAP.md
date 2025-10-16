@@ -8,7 +8,7 @@
 * Remap some key bindings
 
 ## 3. Features
-* Add Tab Tab Cycling
+* Add tab tab cycling
 * Add custom render layout, like text, hex, csv, log
 * Add macOS Brew cask
   * https://goreleaser.com/customization/homebrew_casks/
@@ -33,7 +33,7 @@
 * Watch configs for changes?
   * `viper.WatchConfig()`
   * `viper.OnConfigChange(func(e fsnotify.Event)`
-* Add search to HEX mode?
+* Add search to Hex mode?
 * Add `readline` config support?
   * https://github.com/chzyer/readline
 * Add `find` command ability?

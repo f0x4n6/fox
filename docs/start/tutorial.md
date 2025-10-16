@@ -12,7 +12,7 @@ As you can see, the [Windows Event Log](../files/logs/windows.md) is opened and 
 ![](../assets/img/tutorial/step_1.png "Open a file")
 
 ## 2. Search for artifacts
-Start typing `winlogon` to automatically switch to [GREP](../features/ui/grep.md) mode. Then press <kbd>Enter</kbd> to filter the file only for lines, that contain this exact expression:
+Start typing `winlogon` to automatically switch to [Grep](../features/ui/grep.md) mode. Then press <kbd>Enter</kbd> to filter the file only for lines, that contain this exact expression:
 
 ```
 winlogon
@@ -49,5 +49,3 @@ If the models are not loaded into memory already, then this could take a few sec
 Press <kbd>Tab</kbd> to switch back from the assistant to the original file. Then press <kbd>Ctrl</kbd>+<kbd>S</kbd> to save all the formerly filtered lines into the [Evidence Bag](../features/evidence.md#evidence-bag). Press <kbd>Esc</kbd> twice, to exit the Forensic Examiner. This concludes this tutorial.
 
 ![](../assets/img/tutorial/step_4.png "Save the evidence")
-
-**Addendum**: A curious mind could also open the `evidence.txt` file.
