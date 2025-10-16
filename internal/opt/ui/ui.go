@@ -74,7 +74,7 @@ func New(hs *heapset.HeapSet, util types.Invoke) *UI {
 
 	root.EnablePaste()
 
-	if !flags.Get().Opt.NoMouse {
+	if !flags.Get().Optional.NoMouse {
 		root.EnableMouse(tcell.MouseDragEvents)
 	}
 

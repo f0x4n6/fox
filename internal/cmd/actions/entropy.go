@@ -49,8 +49,8 @@ var Entropy = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
 
-		flg.Opt.NoConvert = true
-		flg.Opt.NoPlugins = true
+		flg.Optional.NoConvert = true
+		flg.Optional.NoPlugins = true
 
 		if flg.Entropy.Min < 0 {
 			sys.Exit("min must be 0 or greater")

@@ -28,7 +28,7 @@ const (
 )
 
 func (ui *UI) handleMouse(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventMouse) {
-	if flags.Get().Opt.NoMouse {
+	if flags.Get().Optional.NoMouse {
 		return
 	}
 
@@ -80,8 +80,6 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyTab:
 		switch {
-		case ui.state.Mode().Prompt():
-			ui.prompt.Complete()
 		case m&tcell.ModShift != 0:
 			ui.prevTab(hs, h)
 		default:
@@ -225,13 +223,13 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.changeTheme()
 
 	case tcell.KeyCtrlSpace:
+		fallthrough
+
+	case tcell.KeyCtrlG:
 		ui.changeMode(mode.Goto)
 
 	case tcell.KeyCtrlO:
 		ui.changeMode(mode.Open)
-
-	case tcell.KeyCtrlG:
-		ui.changeMode(mode.Goto)
 
 	case tcell.KeyCtrlL:
 		ui.changeMode(mode.Less)

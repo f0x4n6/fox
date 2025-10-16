@@ -25,25 +25,25 @@
 
 ## Workbench
 
-| Key                            | Action                                              |
-|--------------------------------|-----------------------------------------------------|
-| <kbd>Ctrl</kbd> + <kbd>^</kbd> | Cycle through [themes](../themes/builtin.md)        |
+| Key                            | Action                                        |
+|--------------------------------|-----------------------------------------------|
+| <kbd>Ctrl</kbd> + <kbd>^</kbd> | Cycle through [themes](../themes/builtin.md)  |
 | <kbd>Ctrl</kbd> + <kbd>L</kbd> | Switch to [Less](../features/ui/less.md) mode |
 | <kbd>Ctrl</kbd> + <kbd>F</kbd> | Switch to [Grep](../features/ui/grep.md) mode |
 | <kbd>Ctrl</kbd> + <kbd>X</kbd> | Switch to [Hex](../features/ui/hex.md) mode   |
-| <kbd>Ctrl</kbd> + <kbd>N</kbd> | Toggle navigation                                   |
-| <kbd>Ctrl</kbd> + <kbd>W</kbd> | Toggle text wrap                                    |
-| <kbd>Ctrl</kbd> + <kbd>P</kbd> | Toggle head pinned                                  |
-| <kbd>Ctrl</kbd> + <kbd>T</kbd> | Toggle tail follow                                  |
-| <kbd>Ctrl</kbd> + <kbd>K</kbd> | Increase context                                    |
-| <kbd>Ctrl</kbd> + <kbd>J</kbd> | Decrease context                                    |
-| <kbd>Ctrl</kbd> + <kbd>Z</kbd> | Suspend to shell                                    |
+| <kbd>Ctrl</kbd> + <kbd>N</kbd> | Toggle navigation                             |
+| <kbd>Ctrl</kbd> + <kbd>W</kbd> | Toggle text wrap                              |
+| <kbd>Ctrl</kbd> + <kbd>P</kbd> | Toggle head pinned                            |
+| <kbd>Ctrl</kbd> + <kbd>T</kbd> | Toggle tail follow                            |
+| <kbd>Ctrl</kbd> + <kbd>K</kbd> | Increase context                              |
+| <kbd>Ctrl</kbd> + <kbd>J</kbd> | Decrease context                              |
+| <kbd>Ctrl</kbd> + <kbd>Z</kbd> | Suspend to shell                              |
 
 ## Evidence
 
-| Key                            | Action                              |
-|--------------------------------|-------------------------------------|
-| <kbd>Ctrl</kbd> + <kbd>C</kbd> | Copy to clipboard                   |
+| Key                            | Action                                       |
+|--------------------------------|----------------------------------------------|
+| <kbd>Ctrl</kbd> + <kbd>C</kbd> | Copy to clipboard                            |
 | <kbd>Ctrl</kbd> + <kbd>S</kbd> | Save [evidence](../features/evidence.md) bag |
 | <kbd>Ctrl</kbd> + <kbd>B</kbd> | Open [evidence](../features/evidence.md) bag |
 

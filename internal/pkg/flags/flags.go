@@ -7,17 +7,18 @@ import (
 )
 
 type Flags struct {
+	Bag bool
+	Hex bool
+
 	Print  bool
 	NoFile bool
 	NoLine bool
-
-	Hex bool
 
 	Limits  Limits
 	Filters Filters
 
 	// evidence bag
-	Bag struct {
+	Evidence struct {
 		Case string
 		File string
 		Mode BagMode
@@ -26,16 +27,6 @@ type Flags struct {
 		Auth string
 		Ecs  bool
 		Hec  bool
-	}
-
-	// optional flags
-	Opt struct {
-		Raw       bool
-		Readonly  bool
-		NoConvert bool
-		NoDeflate bool
-		NoPlugins bool
-		NoMouse   bool
 	}
 
 	// ai flags
@@ -57,6 +48,16 @@ type Flags struct {
 		Space  int
 		Legacy bool
 		Mode   mode.Mode
+	}
+
+	// optional flags
+	Optional struct {
+		Raw       bool
+		Readonly  bool
+		NoConvert bool
+		NoDeflate bool
+		NoPlugins bool
+		NoMouse   bool
 	}
 
 	// alias flags
@@ -108,9 +109,7 @@ type Flags struct {
 	}
 }
 
-var (
-	flg *Flags = nil // singleton
-)
+var flg *Flags = nil // singleton
 
 func Get() *Flags {
 	if flg == nil {

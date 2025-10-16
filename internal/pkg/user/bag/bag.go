@@ -43,7 +43,7 @@ type Bag struct {
 func New() *Bag {
 	var ws []evidence.Writer
 
-	flg := flags.Get().Bag
+	flg := flags.Get().Evidence
 
 	path := flg.File
 

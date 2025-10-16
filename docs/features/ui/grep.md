@@ -19,7 +19,7 @@ Available mode specific keys:
 | Key                                | Action                         |
 |------------------------------------|--------------------------------|
 | <kbd>Esc</kbd>                     | Switch to [Less](less.md) mode |
-| <kbd>Tab</kbd>                     | Complete suggestion            |
+| <kbd>Right</kbd>                   | Complete suggestion            |
 | <kbd>Enter</kbd>                   | Append filter                  |
 | <kbd>Backspace</kbd>               | Remove filter                  |
 | <kbd>Up</kbd>                      | Prev value in history          |

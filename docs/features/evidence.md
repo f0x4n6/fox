@@ -39,7 +39,7 @@ While saving, the evidence bag will be cryptographically signed using `SHA256` t
 > To use `HMAC-SHA256` for signing, specific a key phrase using the `--key` flag.
 
 ## Evidence streaming
-All evidence can additionally be streamed to a HTTP server in various formats using the `--url` flag. This is done immediately after the time of saving the evidence to the specified bag. 
+All evidence can additionally be streamed to an HTTP server in various formats using the `--url` flag. This is done immediately after the time of saving the evidence to the specified bag. 
 
 ### Raw text
 If no schema was specified, the raw data will be streamed as `text/plain` to the given server alongside with the file metadata as custom `x-evidence-*` HTTP headers.

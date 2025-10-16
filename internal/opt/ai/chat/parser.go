@@ -12,6 +12,24 @@ import (
 
 const syntax = `^(stop|list|(get\s+(model|embed))|(set\s+(model|embed)\s+.+)|(del\s+.+))$`
 
+var words = struct {
+	model string
+	embed string
+	stop  string
+	list  string
+	get   string
+	set   string
+	del   string
+}{
+	model: "model",
+	embed: "embed",
+	stop:  "stop",
+	list:  "list",
+	get:   "get",
+	set:   "set",
+	del:   "del",
+}
+
 func (c *Chat) parse(ctx context.Context, query string) bool {
 	if !regexp.MustCompile(syntax).MatchString(query) {
 		return false // no command
@@ -22,15 +40,15 @@ func (c *Chat) parse(ctx context.Context, query string) bool {
 	cmd, param, _ := strings.Cut(query, " ")
 
 	switch strings.ToLower(cmd) {
-	case "stop":
+	case words.stop:
 		c.stop(ctx)
-	case "list":
+	case words.list:
 		err = c.getModel(ctx, "")
-	case "get":
+	case words.get:
 		err = c.getModel(ctx, param)
-	case "set":
+	case words.set:
 		err = c.setModel(ctx, param)
-	case "del":
+	case words.del:
 		err = c.delModel(ctx, param)
 	default:
 		err = fmt.Errorf("unknown command")
@@ -58,9 +76,9 @@ func (c *Chat) setModel(ctx context.Context, param string) error {
 	}
 
 	switch strings.ToLower(v) {
-	case "model":
+	case words.model:
 		c.state.ChangeModel(model)
-	case "embed":
+	case words.embed:
 		c.state.ChangeEmbed(model)
 	default:
 		return fmt.Errorf("unknown target")
@@ -82,10 +100,10 @@ func (c *Chat) getModel(ctx context.Context, param string) error {
 			c.stderr(fmt.Sprintln(m.Name))
 		}
 
-	case "model":
+	case words.model:
 		c.stderr(fmt.Sprintln(c.state.Model()))
 
-	case "embed":
+	case words.embed:
 		c.stderr(fmt.Sprintln(c.state.Embed()))
 
 	default:

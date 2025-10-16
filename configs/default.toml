@@ -3,8 +3,8 @@
 #  https://ollama.com/library
 #
 [ai]
-model = 'mistral'
-embed = 'nomic-embed-text'
+model = ''
+embed = ''
 num_ctx = 4096
 seed = 8211
 temp = '0.2'
@@ -35,5 +35,5 @@ space = 2
 
 [ui.state]
 n = true
-t = true
-w = true
+t = false
+w = false

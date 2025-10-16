@@ -63,8 +63,8 @@ var Hash = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
 
-		flg.Opt.NoConvert = true
-		flg.Opt.NoPlugins = true
+		flg.Optional.NoConvert = true
+		flg.Optional.NoPlugins = true
 
 		// default
 		if len(flg.Hash.Algos.Value) == 0 {

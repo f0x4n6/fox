@@ -23,6 +23,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 	"github.com/cuhsat/fox/internal/pkg/types/mode"
 	"github.com/cuhsat/fox/internal/pkg/types/page"
+	"github.com/cuhsat/fox/internal/pkg/user/bag"
 	"github.com/cuhsat/fox/internal/pkg/user/config"
 )
 
@@ -46,9 +47,12 @@ Actions:
   timeline                 display super timeline
 
 Print:
-  -p, --print              print directly to console
+  -p, --print              print only to console
       --no-file            don't print filenames
       --no-line            don't print line numbers
+
+Seize:
+  -b, --bag                save into evidence bag
 
 Modes:
   -x, --hex                show file in canonical hex
@@ -157,51 +161,51 @@ var Fox = &cobra.Command{
 			flg.Filters.After = flg.Filters.Context
 		}
 
-		if flg.Opt.Raw {
+		if flg.Optional.Raw {
 			flg.NoFile = true
 			flg.NoLine = true
-			flg.Opt.NoConvert = true
-			flg.Opt.NoDeflate = true
-			flg.Opt.NoPlugins = true
+			flg.Optional.NoConvert = true
+			flg.Optional.NoDeflate = true
+			flg.Optional.NoPlugins = true
 		}
 
-		if flg.Opt.Readonly {
-			flg.Opt.NoPlugins = true
-			flg.Bag.Mode = flags.BagModeNone
+		if flg.Optional.Readonly {
+			flg.Optional.NoPlugins = true
+			flg.Evidence.Mode = flags.BagModeNone
 		}
 
-		if len(flg.Bag.Case) == 0 {
-			flg.Bag.Case = time.Now().Format("2006-01-02")
+		if len(flg.Evidence.Case) == 0 {
+			flg.Evidence.Case = time.Now().Format("2006-01-02")
 		}
 
 		if flg.Alias.Text {
-			flg.Bag.Mode = flags.BagModeText
+			flg.Evidence.Mode = flags.BagModeText
 		}
 
 		if flg.Alias.Json {
-			flg.Bag.Mode = flags.BagModeJson
+			flg.Evidence.Mode = flags.BagModeJson
 		}
 
 		if flg.Alias.Jsonl {
-			flg.Bag.Mode = flags.BagModeJsonl
+			flg.Evidence.Mode = flags.BagModeJsonl
 		}
 
 		if flg.Alias.Xml {
-			flg.Bag.Mode = flags.BagModeXml
+			flg.Evidence.Mode = flags.BagModeXml
 		}
 
 		if flg.Alias.Sqlite {
-			flg.Bag.Mode = flags.BagModeSqlite
+			flg.Evidence.Mode = flags.BagModeSqlite
 		}
 
 		if flg.Alias.Logstash {
-			flg.Bag.Url = flags.BagUrlLogstash
-			flg.Bag.Ecs = true
+			flg.Evidence.Url = flags.BagUrlLogstash
+			flg.Evidence.Ecs = true
 		}
 
 		if flg.Alias.Splunk {
-			flg.Bag.Url = flags.BagUrlSplunk
-			flg.Bag.Hec = true
+			flg.Evidence.Url = flags.BagUrlSplunk
+			flg.Evidence.Hec = true
 		}
 
 		// explicit set UI mode
@@ -225,7 +229,9 @@ var Fox = &cobra.Command{
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		if !flags.Get().Print {
+		flg := flags.Get()
+
+		if !flg.Bag && !flg.Print {
 			ui.Start(args, types.None)
 		} else if len(args) == 0 {
 			fmt.Print(Usage)
@@ -240,13 +246,15 @@ var Fox = &cobra.Command{
 func init() {
 	flg := flags.Get()
 
-	Fox.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
+	Fox.Flags().BoolVarP(&flg.Print, "print", "p", false, "print only to console")
 	Fox.Flags().BoolVarP(&flg.NoFile, "no-file", "", false, "don't print filenames")
 	Fox.Flags().BoolVarP(&flg.NoLine, "no-line", "", false, "don't print line numbers")
 
-	Fox.PersistentFlags().StringVarP(&flg.Deflate.Pass, "pass", "P", "", "password for decryption")
+	Fox.Flags().BoolVarP(&flg.Bag, "bag", "b", false, "save into evidence bag")
 
 	Fox.Flags().BoolVarP(&flg.Hex, "hex", "x", false, "show file in canonical hex")
+
+	Fox.PersistentFlags().StringVarP(&flg.Deflate.Pass, "pass", "P", "", "password for decryption")
 
 	Fox.Flags().BoolVarP(&flg.Limits.IsHead, "head", "h", false, "limit head of file by ...")
 	Fox.Flags().BoolVarP(&flg.Limits.IsTail, "tail", "t", false, "limit tail of file by ...")
@@ -275,23 +283,23 @@ func init() {
 	Fox.Flags().IntVarP(&flg.UI.Space, "space", "", 2, "sets the used indentation space")
 	Fox.Flags().BoolVarP(&flg.UI.Legacy, "legacy", "", false, "don't use any unicode decorations")
 
-	Fox.Flags().StringVarP(&flg.Bag.Case, "case", "N", "", "evidence bag case name")
-	Fox.Flags().StringVarP(&flg.Bag.File, "file", "f", flags.BagFile, "evidence bag file name")
-	Fox.Flags().VarP(&flg.Bag.Mode, "mode", "", "evidence bag file mode")
-	Fox.Flags().StringVarP(&flg.Bag.Key, "key", "k", "", "key phrase to sign evidence bag via HMAC-SHA256")
-	Fox.Flags().StringVarP(&flg.Bag.Url, "url", "u", "", "forward evidence to server address")
-	Fox.Flags().StringVarP(&flg.Bag.Auth, "auth", "a", "", "forward evidence using auth token")
-	Fox.Flags().BoolVarP(&flg.Bag.Ecs, "ecs", "", false, "use ECS schema for evidence")
-	Fox.Flags().BoolVarP(&flg.Bag.Hec, "hec", "", false, "use HEC schema for evidence")
+	Fox.Flags().StringVarP(&flg.Evidence.Case, "case", "N", "", "evidence bag case name")
+	Fox.Flags().StringVarP(&flg.Evidence.File, "file", "f", flags.BagFile, "evidence bag file name")
+	Fox.Flags().VarP(&flg.Evidence.Mode, "mode", "", "evidence bag file mode")
+	Fox.Flags().StringVarP(&flg.Evidence.Key, "key", "k", "", "key phrase to sign evidence bag via HMAC-SHA256")
+	Fox.Flags().StringVarP(&flg.Evidence.Url, "url", "u", "", "forward evidence to server address")
+	Fox.Flags().StringVarP(&flg.Evidence.Auth, "auth", "a", "", "forward evidence using auth token")
+	Fox.Flags().BoolVarP(&flg.Evidence.Ecs, "ecs", "", false, "use ECS schema for evidence")
+	Fox.Flags().BoolVarP(&flg.Evidence.Hec, "hec", "", false, "use HEC schema for evidence")
 
 	Fox.Flags().Lookup("mode").NoOptDefVal = string(flags.BagModeText)
 
-	Fox.Flags().BoolVarP(&flg.Opt.Raw, "raw", "r", false, "don't process files at all")
-	Fox.Flags().BoolVarP(&flg.Opt.Readonly, "readonly", "R", false, "don't write any new files")
-	Fox.Flags().BoolVarP(&flg.Opt.NoConvert, "no-convert", "", false, "don't convert automatically")
-	Fox.Flags().BoolVarP(&flg.Opt.NoDeflate, "no-deflate", "", false, "don't deflate automatically")
-	Fox.Flags().BoolVarP(&flg.Opt.NoPlugins, "no-plugins", "", false, "don't run any plugins")
-	Fox.Flags().BoolVarP(&flg.Opt.NoMouse, "no-mouse", "", false, "don't use the mouse")
+	Fox.Flags().BoolVarP(&flg.Optional.Raw, "raw", "r", false, "don't process files at all")
+	Fox.Flags().BoolVarP(&flg.Optional.Readonly, "readonly", "R", false, "don't write any new files")
+	Fox.Flags().BoolVarP(&flg.Optional.NoConvert, "no-convert", "", false, "don't convert automatically")
+	Fox.Flags().BoolVarP(&flg.Optional.NoDeflate, "no-deflate", "", false, "don't deflate automatically")
+	Fox.Flags().BoolVarP(&flg.Optional.NoPlugins, "no-plugins", "", false, "don't run any plugins")
+	Fox.Flags().BoolVarP(&flg.Optional.NoMouse, "no-mouse", "", false, "don't use the mouse")
 
 	Fox.Flags().BoolVarP(&flg.Alias.Logstash, "logstash", "L", false, "short for: --ecs --url=http://localhost:8080")
 	Fox.Flags().BoolVarP(&flg.Alias.Splunk, "splunk", "S", false, "short for: --hec --url=http://localhost:8088/...")
@@ -331,9 +339,14 @@ func init() {
 func run(args []string) {
 	var ctx = opt.NewState(nil)
 	var flg = flags.Get()
+	var eb *bag.Bag
 
 	if len(flg.AI.Query) > 0 && !ai.Check() {
 		sys.Exit("Assistant is not available")
+	}
+
+	if flg.Bag {
+		eb = bag.New()
 	}
 
 	hs := heapset.New(args)
@@ -347,7 +360,9 @@ func run(args []string) {
 				fmt.Println(text.Block(h.String(), page.TermW))
 			}
 
-			if len(flg.AI.Query) > 0 {
+			if flg.Bag {
+				eb.Put(h)
+			} else if len(flg.AI.Query) > 0 {
 				c := chat.New(ctx, h)
 				defer c.Close()
 

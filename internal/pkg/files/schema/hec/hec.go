@@ -46,7 +46,7 @@ func (hec *Hec) String() string {
 }
 
 func (hec *Hec) Headers() map[string]string {
-	token := strings.ToLower(flags.Get().Bag.Auth)
+	token := strings.ToLower(flags.Get().Evidence.Auth)
 
 	return map[string]string{
 		"Content-Type":  "application/json",

@@ -19,9 +19,12 @@ fox [ACTION] [FLAG ...] [PATH ...]
 Path(s) to open or `-` for **STDIN**
 
 ### Print
-- `-p`, `--print` — print directly to console
+- `-p`, `--print` — print only to console
 - `--no-file` — don't print filenames
 - `--no-line` — don't print line numbers
+
+### Seize
+- `-b`, `--bag` — save into evidence bag
 
 ### Modes
 - `-x`, `--hex` — show file in canonical hex

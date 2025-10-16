@@ -61,8 +61,8 @@ var Strings = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
 
-		flg.Opt.NoConvert = true
-		flg.Opt.NoPlugins = true
+		flg.Optional.NoConvert = true
+		flg.Optional.NoPlugins = true
 
 		re, err := cmd.Flags().GetString("regex")
 

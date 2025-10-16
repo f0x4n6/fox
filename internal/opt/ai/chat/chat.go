@@ -38,7 +38,7 @@ type Chat struct {
 }
 
 func New(state *opt.State, heap *heap.Heap) *Chat {
-	a := &Chat{
+	c := &Chat{
 		File: fs.Create(path.Join(heap.Path, "chat")),
 
 		state: state,
@@ -50,13 +50,13 @@ func New(state *opt.State, heap *heap.Heap) *Chat {
 		resp: make(chan string, 64),
 	}
 
-	a.stderr(fmt.Sprintln(banner))
+	c.stderr(fmt.Sprintln(banner))
 
-	a.busy.Store(false)
+	c.busy.Store(false)
 
-	go a.listen()
+	go c.listen()
 
-	return a
+	return c
 }
 
 func (c *Chat) Query(query string, echo bool) {
@@ -135,7 +135,7 @@ func (c *Chat) listen() {
 
 		// response chunk
 		if end {
-			c.stdout(c.debug())
+			c.stdout(c.source())
 		} else {
 			c.stdout(s)
 		}
@@ -162,7 +162,7 @@ func (c *Chat) stderr(s string) {
 	_, _ = c.File.WriteString(s)
 }
 
-func (c *Chat) debug() string {
+func (c *Chat) source() string {
 	cfg := config.Get()
 
 	return fmt.Sprintf(

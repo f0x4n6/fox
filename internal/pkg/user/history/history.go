@@ -28,7 +28,7 @@ func New() *History {
 		lines: make([]string, 0),
 	}
 
-	if flags.Get().Opt.Readonly {
+	if flags.Get().Optional.Readonly {
 		return &h
 	}
 

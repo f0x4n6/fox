@@ -219,7 +219,7 @@ func (s *State) Save() {
 	cfg.Set("ui.state.w", s.IsWrap())
 	cfg.Set("ui.state.t", s.IsFollow())
 
-	if !flags.Get().Opt.Readonly {
+	if !flags.Get().Optional.Readonly {
 		config.Save()
 	}
 }

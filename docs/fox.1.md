@@ -51,6 +51,10 @@ timeline
 Options
 -------
 
+**-b, --bag**
+
+:   Seize into evidence bag.
+
 **-p, --print**
 
 :   Print directly to console.

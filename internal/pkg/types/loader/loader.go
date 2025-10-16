@@ -128,7 +128,7 @@ func (l *Loader) loadDir(path string) {
 func (l *Loader) loadFile(path string) {
 	base := path
 
-	if !flags.Get().Opt.NoDeflate {
+	if !flags.Get().Optional.NoDeflate {
 		path = l.deflate(path, base)
 
 		if len(path) == 0 {
@@ -259,7 +259,7 @@ func (l *Loader) deflate(path, base string) string {
 }
 
 func (l *Loader) process(path, base string) string {
-	if !flags.Get().Opt.NoPlugins {
+	if !flags.Get().Optional.NoPlugins {
 		// check for plugin
 		for _, p := range l.plugins {
 			if p.Match(path) {
@@ -276,7 +276,7 @@ func (l *Loader) process(path, base string) string {
 		}
 	}
 
-	if !flags.Get().Opt.NoConvert {
+	if !flags.Get().Optional.NoConvert {
 		// check for parser
 		if evtx.Detect(path) {
 			path = evtx.Parse(path)

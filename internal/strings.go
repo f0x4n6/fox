@@ -7,8 +7,6 @@ import (
 const (
 	Product = "Forensic Examiner"
 	Website = "forensic-examiner.eu"
-	Author  = "Christian Uhsat"
-	Email   = "christian@uhsat.de"
 )
 
 var (

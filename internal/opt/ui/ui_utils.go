@@ -63,12 +63,6 @@ func (ui *UI) changeTab(hs *heapset.HeapSet, h *heap.Heap, d Direction) {
 }
 
 func (ui *UI) changeMode(m mode.Mode) {
-	// check for AI support
-	if m == mode.Chat && !ai.Check() {
-		ui.overlay.SendError("Assistant is not available")
-		return
-	}
-
 	if !ui.state.SwitchMode(m) {
 		return
 	}
@@ -88,12 +82,10 @@ func (ui *UI) changeMode(m mode.Mode) {
 
 	// config completion
 	switch m {
-	case mode.Goto:
-		fallthrough
-	case mode.Grep:
-		ui.state.SetFind(ui.history.FindLine)
 	case mode.Open:
 		ui.state.SetFind(fs.Find)
+	default:
+		ui.state.SetFind(ui.history.FindLine)
 	}
 
 	if ui.state.Last().Static() || m.Static() {
@@ -102,6 +94,10 @@ func (ui *UI) changeMode(m mode.Mode) {
 }
 
 func (ui *UI) changeBack() {
+	if ui.state.Mode() == mode.Chat {
+		return // never change chat mode
+	}
+
 	if ui.state.Last().Prompt() {
 		ui.changeMode(mode.Default)
 	} else {
@@ -145,7 +141,7 @@ func (ui *UI) runPlugin(hs *heapset.HeapSet, h *heap.Heap, s string) {
 		return // hotkey not configured
 	}
 
-	if flags.Get().Opt.NoPlugins {
+	if flags.Get().Optional.NoPlugins {
 		ui.overlay.SendError("Plugins deactivated")
 		return
 	}
@@ -170,7 +166,12 @@ func (ui *UI) runAssistant(hs *heapset.HeapSet, h *heap.Heap) {
 	var c *chat.Chat
 
 	if h.Type == types.Chat || h.Type == types.Ignore {
-		return
+		return // heap not applicable
+	}
+
+	if !ai.Check() {
+		ui.overlay.SendError("Assistant is not available")
+		return // server not reachable
 	}
 
 	title := format(h.String(), "assistant")
@@ -184,6 +185,6 @@ func (ui *UI) runAssistant(hs *heapset.HeapSet, h *heap.Heap) {
 
 	path := c.File.Name()
 
-	hs.OpenChat(path, path, title)
 	ui.changeMode(mode.Chat)
+	hs.OpenChat(path, path, title)
 }
