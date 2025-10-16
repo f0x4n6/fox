@@ -33,4 +33,5 @@ $ fox testdata/test.evtx -pe="winlogon" -q="analyse this"
 It APPEARS that the event occurred on January 3, 2018 at 06:29:01 and involved the winlogon.exe process (param1) for the user IEUSER-S9CSARBA (param2).
 The event ID is 1074 (EventID:Value). The event was an upgrade operation (Operating System: Upgrade, param3), which resulted in error code 0x80020003 (param4).
 The system initiated a restart (param5) as a response. The event originated from the User32 process (Provider:EventSourceName).
+— Generated with mistral:4096:8211:0.2:10:0.5
 ```

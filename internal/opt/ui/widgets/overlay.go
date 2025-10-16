@@ -70,7 +70,3 @@ func (o *Overlay) Listen() {
 		o.state.ForceRender()
 	}
 }
-
-func (o *Overlay) Close() {
-	close(o.msgs)
-}

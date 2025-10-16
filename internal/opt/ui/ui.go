@@ -117,7 +117,6 @@ func (ui *UI) Close() {
 		plugins.Close()
 	}
 
-	ui.overlay.Close()
 	ui.root.Fini()
 	ui.state.Save()
 

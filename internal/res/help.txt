@@ -38,12 +38,12 @@ Keymap:
   F7                   Show file(s) timeline
   F8 - F24             Execute plugin
 
-Keymap LESS:
+Keymap (LESS):
   Enter                Scroll one line down
   Space                Scroll one page down
   Any other key        Switch to GREP mode
 
-Keymap GREP:
+Keymap (GREP):
   Esc                  Switch to LESS mode
   Enter                Append filter
   Backspace            Remove filter
@@ -51,12 +51,13 @@ Keymap GREP:
   Down                 Next value in history
   Left                 Move cursor left
   Right                Move cursor right
+  Right at end         Complete suggestion
   Ctrl + Left          Move cursor to start
   Ctrl + Right         Move cursor to end
   Ctrl + V             Paste from clipboard
   Any other key        Define RegEx pattern
 
-Keymap HEX:
+Keymap (HEX):
   Enter                Scroll one line down
   Space                Scroll one page down
 

@@ -231,7 +231,7 @@ var Fox = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
 
-		if !flg.Bag && !flg.Print {
+		if !flg.Print && !flg.Bag {
 			ui.Start(args, types.None)
 		} else if len(args) == 0 {
 			fmt.Print(Usage)
@@ -339,14 +339,14 @@ func init() {
 func run(args []string) {
 	var ctx = opt.NewState(nil)
 	var flg = flags.Get()
-	var eb *bag.Bag
+	var b *bag.Bag
 
 	if len(flg.AI.Query) > 0 && !ai.Check() {
 		sys.Exit("Assistant is not available")
 	}
 
 	if flg.Bag {
-		eb = bag.New()
+		b = bag.New()
 	}
 
 	hs := heapset.New(args)
@@ -361,7 +361,7 @@ func run(args []string) {
 			}
 
 			if flg.Bag {
-				eb.Put(h)
+				b.Put(h)
 			} else if len(flg.AI.Query) > 0 {
 				c := chat.New(ctx, h)
 				defer c.Close()

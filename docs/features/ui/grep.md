@@ -5,8 +5,8 @@ All line-based files can be filtered with **Regular Expressions** by switching t
 
     Use <kbd>Ctrl</kbd> + <kbd>F</kbd> to switch to Grep mode while in the Terminal UI, or type any letter or number while in Less mode.
 
-## Dynamic Context Window
-This mode offers also a **Dynamic Context Window** for filtered lines. This context window can be changed on-the-fly for all open files alike:
+## Context window
+This mode offers also a dynamic **Context Window** for filtered lines. This context window can be changed on-the-fly for all open files alike:
 
 | Key                            | Action                  |
 |--------------------------------|-------------------------|
@@ -19,13 +19,13 @@ Available mode specific keys:
 | Key                                | Action                         |
 |------------------------------------|--------------------------------|
 | <kbd>Esc</kbd>                     | Switch to [Less](less.md) mode |
-| <kbd>Right</kbd>                   | Complete suggestion            |
 | <kbd>Enter</kbd>                   | Append filter                  |
 | <kbd>Backspace</kbd>               | Remove filter                  |
 | <kbd>Up</kbd>                      | Prev value in history          |
 | <kbd>Down</kbd>                    | Next value in history          |
 | <kbd>Left</kbd>                    | Move cursor left               |
 | <kbd>Right</kbd>                   | Move cursor right              |
+| <kbd>Right</kbd> at end            | Complete suggestion            |
 | <kbd>Ctrl</kbd> + <kbd>Left</kbd>  | Move cursor to start           |
 | <kbd>Ctrl</kbd> + <kbd>Right</kbd> | Move cursor to end             |
 | <kbd>Ctrl</kbd> + <kbd>V</kbd>     | Paste from clipboard           |

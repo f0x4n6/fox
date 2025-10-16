@@ -172,7 +172,7 @@ func (c *Chat) source() string {
 		cfg.GetInt("ai.num_ctx"),
 		cfg.GetInt("ai.seed"),
 		cfg.GetFloat64("ai.temp"),
-		cfg.GetInt("ai.top_k"),
-		cfg.GetFloat64("ai.top_p"),
+		cfg.GetInt("ai.topk"),
+		cfg.GetFloat64("ai.topp"),
 	)
 }
