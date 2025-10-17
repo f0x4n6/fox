@@ -1,7 +1,7 @@
 site_name: Forensic Examiner
 site_description: The Swiss Army Knife for examining text files.
 site_author: Christian Uhsat
-site_url: https://forensic-examiner.eu
+site_url: https://forensic-examiner.eu/
 
 repo_name: github.com/cuhsat/fox
 repo_url: https://github.com/cuhsat/fox
