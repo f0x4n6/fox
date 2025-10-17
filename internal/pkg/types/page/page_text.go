@@ -123,7 +123,11 @@ func Text(ctx *Context) (page TextPage) {
 			}
 
 			for _, f := range fs {
-				for _, i := range f.Regex.FindAllStringIndex(s, -1) {
+				if f.Pattern.Regex == nil {
+					continue // skip picked lines
+				}
+
+				for _, i := range f.Pattern.Regex.FindAllStringIndex(s, -1) {
 					page.Parts <- TextPart{Part{
 						text.Len(s[:i[0]]),
 						y + sep,

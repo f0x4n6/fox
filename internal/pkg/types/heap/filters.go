@@ -3,9 +3,15 @@ package heap
 import (
 	"log"
 	"regexp"
+	"strconv"
 
 	"github.com/cuhsat/fox/internal/pkg/types/smap"
 )
+
+type Pattern struct {
+	Value string         // pattern value
+	Regex *regexp.Regexp // pattern type
+}
 
 type Context struct {
 	B    int        // context before
@@ -14,10 +20,9 @@ type Context struct {
 }
 
 type Filter struct {
-	Pattern string         // filter pattern
-	Context Context        // filter context
-	Regex   *regexp.Regexp // filter regex
-	fmap    *smap.SMap     // filter string map
+	Pattern *Pattern   // filter pattern
+	Context *Context   // filter context
+	fmap    *smap.SMap // filter string map
 }
 
 func (c *Context) Size() int {
@@ -30,6 +35,41 @@ func (f *Filter) Len() int {
 	} else {
 		return len(*f.fmap)
 	}
+}
+
+func (h *Heap) Select(line string, b, a int) {
+	nr, err := strconv.Atoi(line)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	fmap := h.FMap()
+	last := h.LastFilter()
+
+	// use only the base of the context for filtering
+	if last.Context.base != nil {
+		fmap = last.Context.base
+	}
+
+	fmap = fmap.Pick(nr)
+
+	ptn := &Pattern{line, nil}
+	ctx := &Context{b, a, fmap}
+
+	// add global context
+	if b+a > 0 {
+		fmap = h.addContext(fmap, ctx)
+	}
+
+	h.Lock()
+
+	h.filters = append(h.filters, &Filter{
+		ptn, ctx, fmap,
+	})
+
+	h.Unlock()
 }
 
 func (h *Heap) AddFilter(pattern string, b, a int) {
@@ -50,9 +90,10 @@ func (h *Heap) AddFilter(pattern string, b, a int) {
 
 	fmap = fmap.Grep(re)
 
-	// add global context
-	ctx := Context{b, a, fmap}
+	ptn := &Pattern{pattern, re}
+	ctx := &Context{b, a, fmap}
 
+	// add global context
 	if b+a > 0 {
 		fmap = h.addContext(fmap, ctx)
 	}
@@ -60,7 +101,7 @@ func (h *Heap) AddFilter(pattern string, b, a int) {
 	h.Lock()
 
 	h.filters = append(h.filters, &Filter{
-		pattern, ctx, re, fmap,
+		ptn, ctx, fmap,
 	})
 
 	h.Unlock()
@@ -91,11 +132,11 @@ func (h *Heap) Filters() []*Filter {
 	return fs
 }
 
-func (h *Heap) Patterns() []string {
+func (h *Heap) Patterns() []*Pattern {
 	h.RLock()
 	defer h.RUnlock()
 
-	var ps []string
+	var ps []*Pattern
 
 	for _, f := range h.filters[1:] {
 		ps = append(ps, f.Pattern)
@@ -126,7 +167,7 @@ func (h *Heap) ModContext(delta int) bool {
 	m := len(*h.SMap())
 
 	// modify current context
-	ctx := Context{
+	ctx := &Context{
 		min(max(last.Context.B+delta, 0), m),
 		min(max(last.Context.A+delta, 0), m),
 		last.Context.base,
@@ -143,7 +184,7 @@ func (h *Heap) ModContext(delta int) bool {
 	return true
 }
 
-func (h *Heap) addContext(s *smap.SMap, ctx Context) *smap.SMap {
+func (h *Heap) addContext(s *smap.SMap, ctx *Context) *smap.SMap {
 	base := h.SMap()
 	fmap := make(smap.SMap, 0, len(*base))
 

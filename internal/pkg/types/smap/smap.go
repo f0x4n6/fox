@@ -131,6 +131,16 @@ func (s *SMap) Grep(re *regexp.Regexp) *SMap {
 	}, len(*s))
 }
 
+func (s *SMap) Pick(nr int) *SMap {
+	return apply(func(ch chan<- String, c *chunk) {
+		for _, s := range (*s)[c.min:c.max] {
+			if s.Nr == nr {
+				ch <- s
+			}
+		}
+	}, len(*s))
+}
+
 func (s *SMap) Find(nr int) (int, bool) {
 	if s == nil {
 		return 0, false

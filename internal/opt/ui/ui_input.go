@@ -241,6 +241,9 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.changeMode(mode.Hex)
 
 	case tcell.KeyCtrlP:
+		ui.changeMode(mode.Pick)
+
+	case tcell.KeyCtrlY:
 		ui.state.TogglePinned()
 
 	case tcell.KeyCtrlT:
@@ -318,6 +321,11 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		case mode.Grep:
 			ui.view.Reset()
 			h.AddFilter(l, 0, 0)
+			ui.changeMode(mode.Less)
+
+		case mode.Pick:
+			ui.view.Reset()
+			h.Select(l, 0, 0)
 			ui.changeMode(mode.Less)
 
 		case mode.Goto:

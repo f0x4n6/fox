@@ -11,6 +11,7 @@ const (
 const (
 	Less = Mode("Less")
 	Grep = Mode("Grep")
+	Pick = Mode("Pick")
 	Goto = Mode("Goto")
 	Open = Mode("Open")
 	Chat = Mode("Chat")
@@ -25,7 +26,7 @@ func (m Mode) String() string {
 
 func (m Mode) Filter() bool {
 	switch m {
-	case Less, Grep:
+	case Less, Grep, Pick:
 		return true
 	default:
 		return false

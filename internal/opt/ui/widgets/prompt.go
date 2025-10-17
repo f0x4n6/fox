@@ -6,11 +6,13 @@ import (
 	"sync/atomic"
 	"unicode/utf8"
 
+	"github.com/gdamore/tcell/v2"
+
 	"github.com/cuhsat/fox/internal/opt"
 	"github.com/cuhsat/fox/internal/opt/ui/themes"
 	"github.com/cuhsat/fox/internal/pkg/text"
+	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
-	"github.com/gdamore/tcell/v2"
 )
 
 type Position int
@@ -49,13 +51,13 @@ func NewPrompt(state *opt.State) *Prompt {
 
 func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	var hl, hc int
-	var fs []string
+	var fs []*heap.Pattern
 
 	if hs != nil {
-		_, heap := hs.Heap()
-		hl = heap.LastFilter().Len()
-		hc = heap.LastFilter().Context.Size()
-		fs = heap.Patterns()
+		_, h := hs.Heap()
+		hl = h.LastFilter().Len()
+		hc = h.LastFilter().Context.Size()
+		fs = h.Patterns()
 	}
 
 	lb := len(fs)
@@ -64,7 +66,7 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 
 	m := p.fmtMode()
 	f := p.fmtFilters(fs, la < lb)
-	i := p.fmtInput(fs)
+	i := p.fmtInput(len(fs))
 
 	s := p.fmtStatus(hl, hc)
 
@@ -286,7 +288,7 @@ func (p *Prompt) fmtMode() string {
 	return fmt.Sprintf(" %s ", p.state.Mode())
 }
 
-func (p *Prompt) fitFilters(fs []string) []string {
+func (p *Prompt) fitFilters(fs []*heap.Pattern) []*heap.Pattern {
 	w, _ := p.state.Root.Size()
 
 	for {
@@ -300,7 +302,7 @@ func (p *Prompt) fitFilters(fs []string) []string {
 	}
 }
 
-func (p *Prompt) fmtFilters(fs []string, fit bool) string {
+func (p *Prompt) fmtFilters(fs []*heap.Pattern, fit bool) string {
 	var sb strings.Builder
 
 	if p.state.Mode().Filter() {
@@ -309,10 +311,16 @@ func (p *Prompt) fmtFilters(fs []string, fit bool) string {
 				sb.WriteRune(' ')
 				sb.WriteRune(p.state.Icon.Abr)
 			}
+
 			sb.WriteRune(' ')
-			sb.WriteString(f)
+			sb.WriteString(f.Value)
 			sb.WriteRune(' ')
-			sb.WriteRune(p.state.Icon.Grep)
+
+			if f.Regex != nil {
+				sb.WriteRune(p.state.Icon.Grep)
+			} else {
+				sb.WriteRune(p.state.Icon.Pick)
+			}
 		}
 
 		// add space after filters
@@ -324,12 +332,12 @@ func (p *Prompt) fmtFilters(fs []string, fit bool) string {
 	return sb.String()
 }
 
-func (p *Prompt) fmtInput(fs []string) string {
+func (p *Prompt) fmtInput(fl int) string {
 	var sb strings.Builder
 
 	if v, ok := p.input.Load().(string); ok {
 		// add space before input in all modes
-		if (!p.state.Mode().Filter() || len(fs) == 0) && len(v) > 0 {
+		if (!p.state.Mode().Filter() || fl == 0) && len(v) > 0 {
 			sb.WriteRune(' ')
 		}
 

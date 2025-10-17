@@ -16,9 +16,10 @@ Keymap:
   Ctrl + L             Switch to LESS mode
   Ctrl + F             Switch to GREP mode
   Ctrl + X             Switch to HEX mode
+  Ctrl + P             Pick specific lines
   Ctrl + N             Toggle navigation
   Ctrl + W             Toggle text wrap
-  Ctrl + P             Toggle head pinned
+  Ctrl + Y             Toggle head pinned
   Ctrl + T             Toggle tail follow
   Ctrl + K             Increase context
   Ctrl + J             Decrease context

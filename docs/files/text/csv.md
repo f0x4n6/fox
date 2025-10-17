@@ -3,7 +3,7 @@ Comma-separated value files will automatically be detected by either a `.csv` or
 
 !!! tip "Tip"
 
-    Use <kbd>Ctrl</kbd> + <kbd>P</kbd> to pin the first line while in the [Terminal UI](../../features/ui/terminal.md).
+    Use <kbd>Ctrl</kbd> + <kbd>Y</kbd> to pin the first line while in the [Terminal UI](../../features/ui/terminal.md).
 
 ## Delimiters
 Detected delimiters are:

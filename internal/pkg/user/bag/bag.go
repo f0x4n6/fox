@@ -134,6 +134,12 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 		log.Println(err)
 	}
 
+	var ptn []string
+
+	for _, p := range h.Patterns() {
+		ptn = append(ptn, p.Value)
+	}
+
 	for _, w := range bag.ws {
 		w.Begin()
 
@@ -143,7 +149,7 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 			Path:     abs,
 			Size:     h.Len(),
 			Hash:     sum,
-			Filters:  h.Patterns(),
+			Filters:  ptn,
 			Bagged:   now(),
 			Modified: mod(h),
 		})
