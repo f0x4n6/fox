@@ -87,7 +87,12 @@ jobs:
             mkdocs-material-
       -
         name: Setup packages
-        run: pip install mkdocs-material
+        run: pip install mkdocs-material mike
+      -
+        name: Setup deployment
+        run: |
+          git config --global user.name "Documentation"
+          git config --global user.email "docs@forensic-examiner.eu"
       -
         name: Deploy site
-        run: mkdocs gh-deploy --force
+        run: mike deploy --push --update-aliases ${{ github.event.release.tag_name }} latest
