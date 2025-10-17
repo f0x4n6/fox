@@ -13,290 +13,266 @@ import (
 )
 
 func BenchmarkMap(b *testing.B) {
-	b.Run("Benchmark Map", func(b *testing.B) {
-		f, m, err := testdata("test.txt")
+	f, m, err := fixture("test.txt")
 
-		if err != nil {
-			b.Fatal(err)
-		}
+	if err != nil {
+		b.Fatal(err)
+	}
 
-		defer func(f *os.File) {
-			_ = f.Close()
-		}(f)
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
 
-		defer func(m *mmap.MMap) {
-			_ = m.Unmap()
-		}(m)
+	defer func(m *mmap.MMap) {
+		_ = m.Unmap()
+	}(m)
 
-		b.ResetTimer()
+	b.ResetTimer()
 
-		for b.Loop() {
-			Map(m)
-		}
-	})
+	for b.Loop() {
+		Map(m)
+	}
 }
 
 func BenchmarkRender(b *testing.B) {
-	b.Run("Benchmark Render", func(b *testing.B) {
-		f, m, err := testdata("test.txt")
+	f, m, err := fixture("test.txt")
 
-		if err != nil {
-			b.Fatal(err)
-		}
+	if err != nil {
+		b.Fatal(err)
+	}
 
-		defer func(f *os.File) {
-			_ = f.Close()
-		}(f)
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
 
-		defer func(m *mmap.MMap) {
-			_ = m.Unmap()
-		}(m)
+	defer func(m *mmap.MMap) {
+		_ = m.Unmap()
+	}(m)
 
-		s := Map(m)
+	s := Map(m)
 
-		b.ResetTimer()
+	b.ResetTimer()
 
-		for b.Loop() {
-			s.Render(2)
-		}
-	})
+	for b.Loop() {
+		s.Render(2)
+	}
 }
 
 func BenchmarkFormat(b *testing.B) {
-	b.Run("Benchmark Format", func(b *testing.B) {
-		f, m, err := testdata("test.json")
+	f, m, err := fixture("test.json")
 
-		if err != nil {
-			b.Fatal(err)
-		}
+	if err != nil {
+		b.Fatal(err)
+	}
 
-		defer func(f *os.File) {
-			_ = f.Close()
-		}(f)
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
 
-		defer func(m *mmap.MMap) {
-			_ = m.Unmap()
-		}(m)
+	defer func(m *mmap.MMap) {
+		_ = m.Unmap()
+	}(m)
 
-		s := Map(m)
+	s := Map(m)
 
-		b.ResetTimer()
+	b.ResetTimer()
 
-		for b.Loop() {
-			s.Format(2)
-		}
-	})
+	for b.Loop() {
+		s.Format(2)
+	}
 }
 
 func BenchmarkWrap(b *testing.B) {
-	b.Run("Benchmark Wrap", func(b *testing.B) {
-		f, m, err := testdata("test.txt")
+	f, m, err := fixture("test.txt")
 
-		if err != nil {
-			b.Fatal(err)
-		}
+	if err != nil {
+		b.Fatal(err)
+	}
 
-		defer func(f *os.File) {
-			_ = f.Close()
-		}(f)
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
 
-		defer func(m *mmap.MMap) {
-			_ = m.Unmap()
-		}(m)
+	defer func(m *mmap.MMap) {
+		_ = m.Unmap()
+	}(m)
 
-		s := Map(m)
+	s := Map(m)
 
-		b.ResetTimer()
+	b.ResetTimer()
 
-		for b.Loop() {
-			s.Wrap(2, 80)
-		}
-	})
+	for b.Loop() {
+		s.Wrap(2, 80)
+	}
 }
 
 func BenchmarkGrep(b *testing.B) {
-	b.Run("Benchmark Grep", func(b *testing.B) {
-		f, m, err := testdata("test.txt")
+	f, m, err := fixture("test.txt")
 
-		if err != nil {
-			b.Fatal(err)
-		}
+	if err != nil {
+		b.Fatal(err)
+	}
 
-		defer func(f *os.File) {
-			_ = f.Close()
-		}(f)
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
 
-		defer func(m *mmap.MMap) {
-			_ = m.Unmap()
-		}(m)
+	defer func(m *mmap.MMap) {
+		_ = m.Unmap()
+	}(m)
 
-		s := Map(m)
+	s := Map(m)
 
-		re := regexp.MustCompile(".*")
+	re := regexp.MustCompile(".*")
 
-		b.ResetTimer()
+	b.ResetTimer()
 
-		for b.Loop() {
-			s.Grep(re)
-		}
-	})
+	for b.Loop() {
+		s.Grep(re)
+	}
 }
 
 func BenchmarkPick(b *testing.B) {
-	b.Run("Benchmark Pick", func(b *testing.B) {
-		f, m, err := testdata("test.txt")
+	f, m, err := fixture("test.txt")
 
-		if err != nil {
-			b.Fatal(err)
-		}
+	if err != nil {
+		b.Fatal(err)
+	}
 
-		defer func(f *os.File) {
-			_ = f.Close()
-		}(f)
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
 
-		defer func(m *mmap.MMap) {
-			_ = m.Unmap()
-		}(m)
+	defer func(m *mmap.MMap) {
+		_ = m.Unmap()
+	}(m)
 
-		s := Map(m)
+	s := Map(m)
 
-		b.ResetTimer()
+	b.ResetTimer()
 
-		for b.Loop() {
-			s.Pick([]int{1, 12, 123, 1234, 12345})
-		}
-	})
+	for b.Loop() {
+		s.Pick([]int{1, 12, 123, 1234, 12345})
+	}
 }
 
 func TestMap(t *testing.T) {
-	t.Run("Test Map", func(t *testing.T) {
-		f, m, err := testdata("test.txt")
+	f, m, err := fixture("test.txt")
 
-		if err != nil {
-			t.Fatal(err)
-		}
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		w, h := Map(m).Size()
+	w, h := Map(m).Size()
 
-		_ = m.Unmap()
-		_ = f.Close()
+	_ = m.Unmap()
+	_ = f.Close()
 
-		if w != 545 || h != 31107 {
-			t.Fatal("wrong size")
-		}
-	})
+	if w != 545 || h != 31107 {
+		t.Fatal("wrong size")
+	}
 }
 
 func TestRender(t *testing.T) {
-	t.Run("Test Render", func(t *testing.T) {
-		b := []byte("\ttest\n")
-		v := "  test\n"
+	b := []byte("\ttest\n")
+	v := "  test\n"
 
-		s := Map((*mmap.MMap)(&b)).Render(2)
+	s := Map((*mmap.MMap)(&b)).Render(2)
 
-		w, h := s.Size()
+	w, h := s.Size()
 
-		if w != 6 || h != 1 {
-			t.Fatal("wrong length")
-		}
+	if w != 6 || h != 1 {
+		t.Fatal("wrong length")
+	}
 
-		if s.String() != v {
-			t.Fatal("wrong string")
-		}
-	})
+	if s.String() != v {
+		t.Fatal("wrong string")
+	}
 }
 
 func TestFormat(t *testing.T) {
-	t.Run("Test Format", func(t *testing.T) {
-		b := []byte(`[{"test":123}]`)
-		v := "[\n  {\n    \"test\": 123\n  }\n]\n"
+	b := []byte(`[{"test":123}]`)
+	v := "[\n  {\n    \"test\": 123\n  }\n]\n"
 
-		s := Map((*mmap.MMap)(&b)).Format(2)
+	s := Map((*mmap.MMap)(&b)).Format(2)
 
-		w, h := s.Size()
+	w, h := s.Size()
 
-		if w != 15 || h != 5 {
-			t.Fatal("wrong length")
-		}
+	if w != 15 || h != 5 {
+		t.Fatal("wrong length")
+	}
 
-		if s.String() != v {
-			t.Fatal("wrong string")
-		}
-	})
+	if s.String() != v {
+		t.Fatal("wrong string")
+	}
 }
 
 func TestWrap(t *testing.T) {
-	t.Run("Test Wrap", func(t *testing.T) {
-		b := []byte(`testtest`)
-		v := "test\ntest\n"
+	b := []byte(`testtest`)
+	v := "test\ntest\n"
 
-		s := Map((*mmap.MMap)(&b)).Wrap(2, 4)
+	s := Map((*mmap.MMap)(&b)).Wrap(2, 4)
 
-		w, h := s.Size()
+	w, h := s.Size()
 
-		if w != 4 || h != 2 {
-			t.Fatal("wrong length")
-		}
+	if w != 4 || h != 2 {
+		t.Fatal("wrong length")
+	}
 
-		if s.String() != v {
-			t.Fatal("wrong string")
-		}
-	})
+	if s.String() != v {
+		t.Fatal("wrong string")
+	}
 }
 
 func TestGrep(t *testing.T) {
-	t.Run("Test Grep", func(t *testing.T) {
-		f, m, err := testdata("test.ioc")
-		v := "test@example.org\nhttps://example.org\n"
+	f, m, err := fixture("test.ioc")
+	v := "test@example.org\nhttps://example.org\n"
 
-		if err != nil {
-			t.Fatal(err)
-		}
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		re := regexp.MustCompile("example")
+	re := regexp.MustCompile("example")
 
-		s := Map(m).Grep(re)
+	s := Map(m).Grep(re)
 
-		_ = m.Unmap()
-		_ = f.Close()
+	_ = m.Unmap()
+	_ = f.Close()
 
-		if len(*s) != 2 {
-			t.Fatal("wrong length")
-		}
+	if len(*s) != 2 {
+		t.Fatal("wrong length")
+	}
 
-		if s.String() != v {
-			t.Fatal("wrong string")
-		}
-	})
+	if s.String() != v {
+		t.Fatal("wrong string")
+	}
 }
 
 func TestPick(t *testing.T) {
-	t.Run("Test Pick", func(t *testing.T) {
-		f, m, err := testdata("test.txt")
-		v := []int{1, 12, 123, 1234, 12345}
+	f, m, err := fixture("test.txt")
+	v := []int{1, 12, 123, 1234, 12345}
 
-		if err != nil {
-			t.Fatal(err)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s := Map(m).Pick(v)
+
+	_ = m.Unmap()
+	_ = f.Close()
+
+	if len(*s) != 5 {
+		t.Fatal("wrong length")
+	}
+
+	for _, str := range *s {
+		if !slices.Contains(v, str.Nr) {
+			t.Fatal("wrong number")
 		}
-
-		s := Map(m).Pick(v)
-
-		_ = m.Unmap()
-		_ = f.Close()
-
-		if len(*s) != 5 {
-			t.Fatal("wrong length")
-		}
-
-		for _, str := range *s {
-			if !slices.Contains(v, str.Nr) {
-				t.Fatal("wrong number")
-			}
-		}
-	})
+	}
 }
 
-func testdata(name string) (*os.File, *mmap.MMap, error) {
+func fixture(name string) (*os.File, *mmap.MMap, error) {
 	_, c, _, ok := runtime.Caller(0)
 
 	if !ok {

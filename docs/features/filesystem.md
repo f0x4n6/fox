@@ -1,4 +1,4 @@
-# Forensic Filesystem
+# Forensic filesystem
 
 A multi-layered filesystem abstraction is created in-memory upon start. The **Safety Layer** is a readonly wrapper around the real filesystem, while an **Artifacts Layer** is constructed on its top, which holds extracted forensic artifacts of the original files, like converted [event logs](../files/logs/windows.md) or [plugin](../plugins/config.md) outputs.
 
