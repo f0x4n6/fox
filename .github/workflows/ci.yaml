@@ -87,7 +87,7 @@ jobs:
             mkdocs-material-
       -
         name: Setup packages
-        run: pip install mkdocs-material mike
+        run: pip install mkdocs-material
       -
         name: Deploy site
-        run: mike deploy --push --update-aliases ${{ github.event.release.tag_name }} latest
+        run: mkdocs gh-deploy --force

@@ -142,12 +142,6 @@ extra:
   homepage: https://forensic-examiner.eu
   generator: false
 
-  version:
-    provider: mike
-    alias: true
-    default:
-      - latest
-
   social:
     - icon: fontawesome/solid/envelope
       link: mailto:christian@uhsat.de
@@ -165,7 +159,6 @@ extra_css:
   - assets/css/fox.css
 
 plugins:
-  - mike
   - search
   - privacy
   - offline
