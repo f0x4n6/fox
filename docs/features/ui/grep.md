@@ -5,6 +5,19 @@ All line-based files can be filtered with **Regular Expressions** by switching t
 
     Use <kbd>Ctrl</kbd> + <kbd>F</kbd> to switch to Grep mode while in the Terminal UI, or type any letter or number while in Less mode.
 
+## Lines and ranges
+Specific lines and line range can be picked using the syntax defined below.
+
+!!! tip "Tip"
+
+    Use <kbd>Ctrl</kbd> + <kbd>P</kbd> to switch to Pick mode while in the Terminal UI.
+
+| Syntax | Meaning               |
+|--------|-----------------------|
+| `1`    | Pick line `1`         |
+| `1,2`  | Pick lines `1` & `2`  |
+| `1-3`  | Pick lines `1` to `3` |
+
 ## Context window
 This mode offers also a dynamic **Context Window** for filtered lines. This context window can be changed on-the-fly for all open files alike:
 
@@ -25,7 +38,7 @@ Available mode specific keys:
 | <kbd>Down</kbd>                    | Next value in history          |
 | <kbd>Left</kbd>                    | Move cursor left               |
 | <kbd>Right</kbd>                   | Move cursor right              |
-| <kbd>Right</kbd> at end            | Complete suggestion            |
+| <kbd>Right</kbd> at the end        | Complete suggestion            |
 | <kbd>Ctrl</kbd> + <kbd>Left</kbd>  | Move cursor to start           |
 | <kbd>Ctrl</kbd> + <kbd>Right</kbd> | Move cursor to end             |
 | <kbd>Ctrl</kbd> + <kbd>V</kbd>     | Paste from clipboard           |

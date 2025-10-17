@@ -131,10 +131,10 @@ func (s *SMap) Grep(re *regexp.Regexp) *SMap {
 	}, len(*s))
 }
 
-func (s *SMap) Pick(nr int) *SMap {
+func (s *SMap) Pick(nrs []int) *SMap {
 	return apply(func(ch chan<- String, c *chunk) {
 		for _, s := range (*s)[c.min:c.max] {
-			if s.Nr == nr {
+			if slices.Contains(nrs, s.Nr) {
 				ch <- s
 			}
 		}

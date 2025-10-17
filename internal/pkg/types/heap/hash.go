@@ -13,11 +13,12 @@ import (
 	"strings"
 
 	"github.com/cespare/xxhash"
-	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/eciavatta/sdhash"
 	"github.com/glaslos/ssdeep"
 	"github.com/glaslos/tlsh"
 	"github.com/zeebo/xxh3"
+
+	"github.com/cuhsat/fox/internal/pkg/types"
 )
 
 type Hash map[string][]byte

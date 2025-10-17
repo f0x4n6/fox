@@ -2,12 +2,12 @@ package widgets
 
 import (
 	"math"
-	"strconv"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/cuhsat/fox/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/page"
 )
@@ -138,15 +138,13 @@ func (v *View) textGoto(s string) {
 
 	switch s[0] {
 	case '+':
-		i, _ := strconv.Atoi(s[1:])
-		nr = (*v.fmap)[v.delta.Y].Nr + i
+		nr = (*v.fmap)[v.delta.Y].Nr + text.Int(s[1:])
 
 	case '-':
-		i, _ := strconv.Atoi(s[1:])
-		nr = (*v.fmap)[v.delta.Y].Nr - i
+		nr = (*v.fmap)[v.delta.Y].Nr - text.Int(s[1:])
 
 	default:
-		nr, _ = strconv.Atoi(s)
+		nr = text.Int(s)
 	}
 
 	if y, ok := v.fmap.Find(nr); ok {

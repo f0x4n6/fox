@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"slices"
 	"testing"
 
 	"github.com/edsrzf/mmap-go"
@@ -141,8 +142,34 @@ func BenchmarkGrep(b *testing.B) {
 	})
 }
 
+func BenchmarkPick(b *testing.B) {
+	b.Run("Benchmark Pick", func(b *testing.B) {
+		f, m, err := testdata("test.txt")
+
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		defer func(f *os.File) {
+			_ = f.Close()
+		}(f)
+
+		defer func(m *mmap.MMap) {
+			_ = m.Unmap()
+		}(m)
+
+		s := Map(m)
+
+		b.ResetTimer()
+
+		for b.Loop() {
+			s.Pick([]int{1, 12, 123, 1234, 12345})
+		}
+	})
+}
+
 func TestMap(t *testing.T) {
-	t.Run("Test Grep", func(t *testing.T) {
+	t.Run("Test Map", func(t *testing.T) {
 		f, m, err := testdata("test.txt")
 
 		if err != nil {
@@ -218,7 +245,7 @@ func TestWrap(t *testing.T) {
 }
 
 func TestGrep(t *testing.T) {
-	t.Run("Test Map", func(t *testing.T) {
+	t.Run("Test Grep", func(t *testing.T) {
 		f, m, err := testdata("test.ioc")
 		v := "test@example.org\nhttps://example.org\n"
 
@@ -239,6 +266,32 @@ func TestGrep(t *testing.T) {
 
 		if s.String() != v {
 			t.Fatal("wrong string")
+		}
+	})
+}
+
+func TestPick(t *testing.T) {
+	t.Run("Test Pick", func(t *testing.T) {
+		f, m, err := testdata("test.txt")
+		v := []int{1, 12, 123, 1234, 12345}
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		s := Map(m).Pick(v)
+
+		_ = m.Unmap()
+		_ = f.Close()
+
+		if len(*s) != 5 {
+			t.Fatal("wrong length")
+		}
+
+		for _, str := range *s {
+			if !slices.Contains(v, str.Nr) {
+				t.Fatal("wrong number")
+			}
 		}
 	})
 }

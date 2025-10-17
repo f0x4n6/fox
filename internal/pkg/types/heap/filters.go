@@ -3,8 +3,9 @@ package heap
 import (
 	"log"
 	"regexp"
-	"strconv"
+	"strings"
 
+	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types/smap"
 )
 
@@ -37,14 +38,7 @@ func (f *Filter) Len() int {
 	}
 }
 
-func (h *Heap) Select(line string, b, a int) {
-	nr, err := strconv.Atoi(line)
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
+func (h *Heap) Select(lines string, b, a int) {
 	fmap := h.FMap()
 	last := h.LastFilter()
 
@@ -53,9 +47,9 @@ func (h *Heap) Select(line string, b, a int) {
 		fmap = last.Context.base
 	}
 
-	fmap = fmap.Pick(nr)
+	fmap = fmap.Pick(h.parseLines(lines))
 
-	ptn := &Pattern{line, nil}
+	ptn := &Pattern{lines, nil}
 	ctx := &Context{b, a, fmap}
 
 	// add global context
@@ -204,4 +198,27 @@ func (h *Heap) addContext(s *smap.SMap, ctx *Context) *smap.SMap {
 	}
 
 	return &fmap
+}
+
+func (h *Heap) parseLines(lines string) (nrs []int) {
+	for _, l := range strings.Split(lines, ",") {
+		n := strings.Split(l, "-")
+
+		if len(n) > 1 {
+			a := text.Int(n[0])
+			b := text.Int(n[1])
+
+			if a > 0 && b > 0 && a <= b {
+				for i := a; i <= b; i++ {
+					nrs = append(nrs, i)
+				}
+			}
+		} else {
+			if nr := text.Int(l); nr > 0 {
+				nrs = append(nrs, nr)
+			}
+		}
+	}
+
+	return
 }

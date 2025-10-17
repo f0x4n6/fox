@@ -52,7 +52,7 @@ Keymap (GREP):
   Down                 Next value in history
   Left                 Move cursor left
   Right                Move cursor right
-  Right at end         Complete suggestion
+  Right the at end     Complete suggestion
   Ctrl + Left          Move cursor to start
   Ctrl + Right         Move cursor to end
   Ctrl + V             Paste from clipboard

@@ -3,6 +3,7 @@ package text
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 
 	"github.com/mattn/go-runewidth"
@@ -32,6 +33,14 @@ var defaultIcons = Icon{
 
 type Icon struct {
 	None, HSep, VSep, Size, Pick, Grep, Ps1, Abr rune
+}
+
+func Int(s string) int {
+	if n, err := strconv.Atoi(s); err != nil {
+		return -1
+	} else {
+		return n
+	}
 }
 
 func Dec(n int) int {
