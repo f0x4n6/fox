@@ -7,7 +7,6 @@ before:
     - go mod download
     - go run main.go completion zsh > fox.zsh
     - go run main.go completion bash > fox.bash
-    - go run main.go completion powershell > fox.ps1
     - pandoc -s -t man docs/fox.1.md -o fox.1
 
 builds:
@@ -36,7 +35,6 @@ archives:
       - README.md
       - LICENSE.md
       - fox.1
-      - fox.ps1
       - fox.zsh
       - fox.bash
 

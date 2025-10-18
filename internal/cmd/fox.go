@@ -321,6 +321,8 @@ func init() {
 	Fox.SetHelpTemplate(Usage)
 	Fox.SetVersionTemplate(fmt.Sprintf("%s %s\n", fox.Product, fox.Version))
 
+	Fox.CompletionOptions.HiddenDefaultCmd = true
+
 	Fox.AddCommand(actions.Compare)
 	Fox.AddCommand(actions.Counts)
 	Fox.AddCommand(actions.Deflate)
