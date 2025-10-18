@@ -5,11 +5,12 @@ before:
     - go generate ./...
     - go mod tidy
     - go mod download
-    - mkdir -p shell
+    - go run main.go completion zsh > fox.zsh
+    - go run main.go completion bash > fox.bash
+    - go run main.go completion powershell > fox.ps1
     - pandoc -s -t man docs/fox.1.md -o fox.1
-    - go run main.go completion zsh > shell/fox.zsh
-    - go run main.go completion bash > shell/fox.bash
-    - go run main.go completion powershell > shell/fox.ps1
+    - pwd
+    - ls -lha
 
 builds:
   - env:
@@ -34,7 +35,10 @@ archives:
       - goos: windows
         formats: [zip]
     files:
-      - shell/*
+      - fox.1
+      - fox.ps1
+      - fox.zsh
+      - fox.bash
       - README.md
       - LICENSE.md
 
@@ -88,11 +92,11 @@ nfpms:
         dst: /usr/share/man/man1/fox.1
         file_info:
           mode: 0644
-      - src: shell/fox.bash
+      - src: ./fox.bash
         dst: /etc/bash_completion.d/fox
         file_info:
           mode: 0644
-      - src: shell/fox.zsh
+      - src: ./fox.zsh
         dst: /usr/local/share/zsh/site-functions/_fox
         file_info:
           mode: 0644
