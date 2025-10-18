@@ -7,6 +7,7 @@ before:
     - go mod download
     - go run main.go completion zsh > fox.zsh
     - go run main.go completion bash > fox.bash
+    - go run main.go completion powershell > fox.ps1
     - pandoc -s -t man docs/fox.1.md -o fox.1
 
 builds:
@@ -32,11 +33,12 @@ archives:
       - goos: windows
         formats: [zip]
     files:
-      - README.md
-      - LICENSE.md
       - fox.1
+      - fox.ps1
       - fox.zsh
       - fox.bash
+      - README.md
+      - LICENSE.md
 
 changelog:
   sort: asc
@@ -89,10 +91,10 @@ nfpms:
         file_info:
           mode: 0644
       - src: ./fox.bash
-        dst: /etc/bash_completion.d/fox.bash
+        dst: /etc/bash_completion.d/fox
         file_info:
           mode: 0644
       - src: ./fox.zsh
-        dst: /usr/local/share/zsh/site-functions/fox
+        dst: /usr/local/share/zsh/site-functions/_fox
         file_info:
           mode: 0644
