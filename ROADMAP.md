@@ -13,11 +13,6 @@
 * Add macOS Brew cask
   * https://goreleaser.com/customization/homebrew_casks/
   * https://docs.brew.sh/Cask-Cookbook
-* Add additional documentation
-  * Add `bash` and `zsh` autocompletion files
-    * https://applejag.eu/blog/go-spf13-cobra-custom-flag-types/
-    * https://cobra.dev/docs/how-to-guides/shell-completion/
-    * https://github.com/spf13/cobra/blob/v1.8.0/site/content/completions/_index.md#completions-for-flags
 * Add *Yara* rules scan
 
 ## 4. Optimizations
