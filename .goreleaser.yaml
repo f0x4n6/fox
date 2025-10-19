@@ -5,9 +5,6 @@ before:
     - go generate ./...
     - go mod tidy
     - go mod download
-    - cp docs/fox.ps1 ..
-    - cp docs/fox.zsh ..
-    - cp docs/fox.bash ..
     - pandoc -s -t man docs/fox.1.md -o fox.1
 
 builds:

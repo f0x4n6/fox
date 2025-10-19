@@ -44,6 +44,13 @@ jobs:
           go build -o fox main.go
           go build -o fox -tags minimal main.go
       -
+        name: Run setup
+        run: |
+          chmod +x fox
+          ./fox completion powershell > fox.ps1
+          ./fox completion bash > fox.bash
+          ./fox completion zsh > fox.zsh
+      -
         name: Run clean
         run: rm fox
       -
