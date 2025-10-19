@@ -99,7 +99,7 @@ nfpms:
 
 msi:
   - replace: false
-  - extra_files:
-    - fox.ps1
-    - README.md
-    - LICENSE.md
+    extra_files:
+      - fox.ps1
+      - README.md
+      - LICENSE.md
