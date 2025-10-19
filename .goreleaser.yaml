@@ -70,6 +70,7 @@ nfpms:
       The Swiss Army Knife for examining text files.
     license: GPL-3.0
     formats:
+      - archlinux
       - apk
       - deb
       - rpm
