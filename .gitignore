@@ -32,11 +32,6 @@ go.work.sum
 # Manpage
 *.1
 
-# Completions
-*.ps1
-*.zsh
-*.bash
-
 # MacOS crap
 .DS_Store
 
