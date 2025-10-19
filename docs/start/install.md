@@ -27,6 +27,11 @@ Linux packages are available for:
 # sudo apk add --allow-untrusted fox*.apk
 ```
 
+### Arch Linux
+```console
+# sudo pacman -U fox*.pkg.tar.zst
+```
+
 ### Debian Linux
 ```console
 # sudo dpkg -i fox*.deb
