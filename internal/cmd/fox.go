@@ -96,7 +96,8 @@ Evidence bag:
       --mode=MODE          evidence bag file mode (default: plain):
                              none, plain, text, json, jsonl, xml, sqlite
 
-  -k, --key=PHRASE         key phrase to sign evidence bag via HMAC-SHA256
+Evidence sign:
+  -s, --sign=PHRASE        key phrase to sign evidence bag via HMAC-SHA256
 
 Evidence URL:
   -u, --url=SERVER         forward evidence to server address
@@ -118,7 +119,7 @@ Aliases:
   -T, --text               short for: --mode=text
   -j, --json               short for: --mode=json
   -J, --jsonl              short for: --mode=jsonl
-  -s, --sqlite             short for: --mode=sqlite
+  -Q, --sqlite             short for: --mode=sqlite
   -X, --xml                short for: --mode=xml
 
 Standard:
@@ -126,7 +127,7 @@ Standard:
       --version            prints the version
 
 Example: search for occurrences in all logs
-  $ fox -pe "John Doe" ./**/*.log
+  $ fox -be "login" ./**/*.log
 
 Example: export the disk MBR in hex format
   $ fox -pxhc=512 image.dd > mbr
@@ -286,7 +287,7 @@ func init() {
 	Fox.Flags().StringVarP(&flg.Evidence.Case, "case", "N", "", "evidence bag case name")
 	Fox.Flags().StringVarP(&flg.Evidence.File, "file", "f", flags.BagFile, "evidence bag file name")
 	Fox.Flags().VarP(&flg.Evidence.Mode, "mode", "", "evidence bag file mode")
-	Fox.Flags().StringVarP(&flg.Evidence.Key, "key", "k", "", "key phrase to sign evidence bag via HMAC-SHA256")
+	Fox.Flags().StringVarP(&flg.Evidence.Sign, "sign", "s", "", "key phrase to sign evidence bag via HMAC-SHA256")
 	Fox.Flags().StringVarP(&flg.Evidence.Url, "url", "u", "", "forward evidence to server address")
 	Fox.Flags().StringVarP(&flg.Evidence.Auth, "auth", "a", "", "forward evidence using auth token")
 	Fox.Flags().BoolVarP(&flg.Evidence.Ecs, "ecs", "", false, "use ECS schema for evidence")
@@ -306,7 +307,7 @@ func init() {
 	Fox.Flags().BoolVarP(&flg.Alias.Text, "text", "T", false, "short for: --mode=text")
 	Fox.Flags().BoolVarP(&flg.Alias.Json, "json", "j", false, "short for: --mode=json")
 	Fox.Flags().BoolVarP(&flg.Alias.Jsonl, "jsonl", "J", false, "short for: --mode=jsonl")
-	Fox.Flags().BoolVarP(&flg.Alias.Sqlite, "sqlite", "s", false, "short for: --mode=sqlite")
+	Fox.Flags().BoolVarP(&flg.Alias.Sqlite, "sqlite", "Q", false, "short for: --mode=sqlite")
 	Fox.Flags().BoolVarP(&flg.Alias.Xml, "xml", "X", false, "short for: --mode=xml")
 
 	Fox.PersistentFlags().BoolP("version", "", false, "prints the version")
@@ -330,8 +331,6 @@ func init() {
 	Fox.AddCommand(actions.Hash)
 	Fox.AddCommand(actions.Strings)
 	Fox.AddCommand(actions.Timeline)
-
-	Fox.Flags()
 
 	config.Load(Fox.Flags())
 

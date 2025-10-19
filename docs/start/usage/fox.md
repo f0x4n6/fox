@@ -66,10 +66,12 @@ Path(s) to open or `-` for **STDIN**
 - `-N`, `--case=NAME` — evidence bag case name (*default:* `YYYY-MM-DD`)
 - `-f`, `--file=FILE` — evidence bag file name (*default:* `evidence`)
 - `--mode=MODE` — evidence bag file mode (*default:* `plain`)
-- `-k, --key=PHRASE` — key phrase to sign evidence bag via **HMAC-SHA256**
 
 Available evidence bag modes:
 > none, plain, text, json, jsonl, xml, sqlite
+
+### Evidence sign
+- `-s, --sign=PHRASE` — key phrase to sign evidence bag via **HMAC-SHA256**
 
 ### Evidence URL
 - `-u`, `--url=SERVER` — forward evidence to server address
@@ -91,7 +93,7 @@ Available evidence bag modes:
 - `-T`, `--text` — short for: `--mode=text`
 - `-j`, `--json` — short for: `--mode=json`
 - `-J`, `--jsonl` — short for: `--mode=jsonl`
-- `-s`, `--sqlite` — short for: `--mode=sqlite`
+- `-Q`, `--sqlite` — short for: `--mode=sqlite`
 - `-X`, `--xml` — short for: `--mode=xml`
 
 ### Standard
@@ -101,7 +103,7 @@ Available evidence bag modes:
 ## Examples
 Search for occurrences in all logs:
 ```console
-$ fox -pe "John Doe" ./**/*.log
+$ fox -be "login" ./**/*.log
 ```
 
 Export the disk MBR in hex format:

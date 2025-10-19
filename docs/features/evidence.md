@@ -36,7 +36,7 @@ Hash  d2a84f4b8b650937ec8f73cd8be2c74add5a911ba64df27458ed8229da804a26
 ## Evidence signing
 While saving, the evidence bag will be cryptographically signed using `SHA256` to a separate file with the `.sig` file extension. This is done to guarantee the juristic **Chain of Custody**.
 
-> To use `HMAC-SHA256` for signing, specific a key phrase using the `--key` flag.
+> To use `HMAC-SHA256` for signing, specific a key phrase using the `--sign` flag.
 
 ## Evidence streaming
 All evidence can additionally be streamed to an HTTP server in various formats using the `--url` flag. This is done immediately after the time of saving the evidence to the specified bag. 

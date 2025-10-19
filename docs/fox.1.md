@@ -192,7 +192,7 @@ Options Evidence
 
     Modes are **none**, **plain**, **text**, **json**, **jsonl**, **xml**, **sqlite**.
 
-**-k, --key**=_phrase_
+**-s, --sign**=_phrase_
 
 :   Key _phrase_ to sign evidence bag via _HMAC-SHA256_.
 
@@ -270,7 +270,7 @@ Aliases
 
 :   Short for **--mode=jsonl**.
 
-**-s, --sqlite**
+**-Q, --sqlite**
 
 :   Short for **--mode=sqlite**.
 
@@ -309,7 +309,7 @@ ENVIRONMENT
 EXAMPLES
 ========
 
-% fox -pe "John Doe" ./**/*.log
+% fox -be "login" ./**/*.log
 
 :   Search for occurrences in all logs.
 

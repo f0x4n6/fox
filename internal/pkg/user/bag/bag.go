@@ -92,7 +92,7 @@ func New() *Bag {
 		Path: path,
 		Mode: flg.Mode,
 		name: flg.Case,
-		key:  flg.Key,
+		key:  flg.Sign,
 		url:  flg.Url,
 		file: nil,
 		ws:   ws,

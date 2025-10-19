@@ -22,7 +22,7 @@ type Flags struct {
 		Case string
 		File string
 		Mode BagMode
-		Key  string
+		Sign string
 		Url  string
 		Auth string
 		Ecs  bool
