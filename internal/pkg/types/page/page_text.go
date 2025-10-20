@@ -9,21 +9,15 @@ import (
 
 type TextPage struct {
 	Page
-	Y int
-	N int
-
-	Lines chan TextLine
-	Parts chan TextPart
-
-	FMap *smap.SMap
+	Y     int
+	N     int
+	FMap  *smap.SMap
+	Lines chan *TextLine
 }
 
 type TextLine struct {
 	Line
-}
-
-type TextPart struct {
-	Part
+	Parts []Part
 }
 
 type entry struct {
@@ -36,9 +30,14 @@ func (tl TextLine) String() string {
 	return tl.Str
 }
 
-func Text(ctx *Context) (page TextPage) {
-	page.N = text.Dec(ctx.Heap.Count())
+func Text(ctx *Context) (page *TextPage) {
+	page = new(TextPage)
 
+	page.Lines = make(chan *TextLine, Size)
+	page.N = text.Dec(ctx.Heap.Count())
+	page.Y = ctx.Y
+
+	// recalculate render area
 	if ctx.Navi {
 		ctx.W -= 2 + page.N
 		ctx.H -= 1
@@ -46,6 +45,7 @@ func Text(ctx *Context) (page TextPage) {
 
 	key := ctx.Hash()
 
+	// cache transformed smap to improve performance
 	if val, ok := ctx.Heap.Cache.Load(key); ok {
 		page.FMap = val.(entry).s
 		page.W = val.(entry).w
@@ -63,7 +63,6 @@ func Text(ctx *Context) (page TextPage) {
 
 		page.W, page.H = page.FMap.Size()
 
-		// cache smap to improve performance
 		ctx.Heap.Cache.Store(key, entry{
 			page.FMap,
 			page.W,
@@ -71,8 +70,7 @@ func Text(ctx *Context) (page TextPage) {
 		})
 	}
 
-	page.Y = ctx.Y
-
+	// restore last position
 	if ctx.Nr > 0 {
 		lastY := max(len(*page.FMap)-1, 0)
 
@@ -81,66 +79,78 @@ func Text(ctx *Context) (page TextPage) {
 		page.Y = min(page.Y, lastY)
 	}
 
-	page.Lines = make(chan TextLine, Size)
-	page.Parts = make(chan TextPart, Size)
-
-	go func() {
-		defer close(page.Lines)
-		defer close(page.Parts)
-
-		fs := ctx.Heap.Filters()
-
-		sep, grp, num := 0, 0, 1
-
-		// pinned head
-		if ctx.Pinned {
-			n := fmt.Sprintf("%0*d", page.N, 1)
-			s := (*ctx.Heap.SMap())[0].Str
-			s = text.Trim(s, min(ctx.X, text.Len(s)), ctx.W)
-
-			page.Lines <- TextLine{Line{n, 0, s}}
-		}
-
-		for y, str := range (*page.FMap)[page.Y:] {
-			if y >= ctx.H {
-				return
-			}
-
-			// insert context separator
-			if ctx.Context && grp != str.Grp && num > 1 {
-				page.Lines <- TextLine{Line{"--", str.Grp, ""}}
-				num = 1
-				sep++
-			}
-
-			n := fmt.Sprintf("%0*d", page.N, str.Nr)
-			s := text.Trim(str.Str, min(ctx.X, text.Len(str.Str)), ctx.W)
-
-			page.Lines <- TextLine{Line{n, str.Grp, s}}
-
-			if ctx.Pinned {
-				y++
-			}
-
-			for _, f := range fs {
-				if f.Pattern.Regex == nil {
-					continue // skip picked lines
-				}
-
-				for _, i := range f.Pattern.Regex.FindAllStringIndex(s, -1) {
-					page.Parts <- TextPart{Part{
-						text.Len(s[:i[0]]),
-						y + sep,
-						str.Grp,
-						s[i[0]:i[1]],
-					}}
-				}
-			}
-
-			grp = str.Grp
-			num++
-		}
-	}()
+	go textStream(ctx, page)
 
 	return
+}
+
+func textLine(nr, str string, grp int) *TextLine {
+	return &TextLine{
+		Line{nr, grp, str},
+		make([]Part, 0),
+	}
+}
+
+func textStream(ctx *Context, page *TextPage) {
+	defer close(page.Lines)
+
+	numSep, numGrp, lastGrp := 0, 1, 0
+
+	// pin first line
+	if ctx.Pinned {
+		nr := fmt.Sprintf("%0*d ", page.N, 0)
+		str := (*ctx.Heap.SMap())[0].Str
+		str = text.Trim(str, min(ctx.X, text.Len(str)), ctx.W)
+
+		page.Lines <- textLine(nr, str, 0)
+	}
+
+	// stream lines
+	for y, str := range (*page.FMap)[page.Y:] {
+		if y >= ctx.H {
+			return // page filled
+		}
+
+		// insert context separator
+		if ctx.Context && lastGrp != str.Grp && numGrp > 1 {
+			page.Lines <- textLine(Sep, "", str.Grp)
+			numGrp = 1
+			numSep++
+		}
+
+		off := min(ctx.X, text.Len(str.Str))
+
+		// build line
+		line := textLine(
+			fmt.Sprintf("%0*d ", page.N, str.Nr),
+			text.Trim(str.Str, off, ctx.W),
+			str.Grp,
+		)
+
+		if ctx.Pinned {
+			y++ // skip first line
+		}
+
+		// build parts
+		for _, f := range ctx.Heap.Filters() {
+			if f.Pattern.Regex == nil {
+				continue // skip picked lines
+			}
+
+			// find parts
+			for _, i := range f.Pattern.Regex.FindAllStringIndex(str.Str, -1) {
+				line.Parts = append(line.Parts, Part{
+					text.Len(str.Str[:i[0]]) - off,
+					y + numSep,
+					str.Grp,
+					str.Str[i[0]:i[1]],
+				})
+			}
+		}
+
+		page.Lines <- line
+
+		lastGrp = str.Grp
+		numGrp++
+	}
 }

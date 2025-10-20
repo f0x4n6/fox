@@ -22,8 +22,10 @@ func (hl HexLine) String() string {
 	return fmt.Sprintf("%s %s|%-16s|", hl.Nr, hl.Hex, hl.Str)
 }
 
-func Hex(ctx *Context) (page HexPage) {
+func Hex(ctx *Context) (page *HexPage) {
 	var tail int
+
+	page = new(HexPage)
 
 	mmap := *ctx.Heap.MMap()
 
@@ -41,47 +43,46 @@ func Hex(ctx *Context) (page HexPage) {
 
 	page.Lines = make(chan HexLine, Size)
 
-	go func() {
-		defer close(page.Lines)
-
-		mmap = mmap[ctx.Y*16:]
-
-		for i := 0; i < len(mmap); i += 16 {
-			if i/16 >= ctx.H {
-				return
-			}
-
-			nr := fmt.Sprintf("%08x ", tail+i+(ctx.Y*16))
-
-			l := HexLine{
-				Line: Line{Nr: nr, Str: ""},
-				Hex:  "",
-			}
-
-			for j := range 16 {
-				if i+j >= len(mmap) {
-					break
-				}
-
-				b := mmap[i+j]
-
-				l.Hex = fmt.Sprintf("%s%02x", l.Hex, b)
-				l.Str = fmt.Sprintf("%s%c", l.Str, b)
-
-				// make a hex gap every 8 bytes
-				if (j+1)%8 == 0 {
-					l.Hex += "  "
-				} else {
-					l.Hex += " "
-				}
-			}
-
-			l.Hex = fmt.Sprintf("%-*s", 50, l.Hex)
-			l.Str = text.ToASCII(l.Str)
-
-			page.Lines <- l
-		}
-	}()
+	// stream lines
+	go hexStream(ctx, page, tail, mmap[ctx.Y*16:])
 
 	return
+}
+
+func hexStream(ctx *Context, page *HexPage, t int, b []byte) {
+	defer close(page.Lines)
+
+	for i := 0; i < len(b); i += 16 {
+		if i/16 >= ctx.H {
+			return // page filled
+		}
+
+		nr := fmt.Sprintf("%08x ", t+i+(ctx.Y*16))
+
+		line := HexLine{
+			Line: Line{Nr: nr, Str: ""},
+			Hex:  "",
+		}
+
+		for j := range 16 {
+			if i+j >= len(b) {
+				break
+			}
+
+			line.Hex = fmt.Sprintf("%s%02x", line.Hex, b[i+j])
+			line.Str = fmt.Sprintf("%s%c", line.Str, b[i+j])
+
+			// make a hex gap every 8 bytes
+			if (j+1)%8 == 0 {
+				line.Hex += "  "
+			} else {
+				line.Hex += " "
+			}
+		}
+
+		line.Hex = fmt.Sprintf("%-*s", 50, line.Hex)
+		line.Str = text.ToASCII(line.Str)
+
+		page.Lines <- line
+	}
 }

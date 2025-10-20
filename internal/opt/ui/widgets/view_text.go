@@ -13,6 +13,8 @@ import (
 )
 
 func (v *View) textRender(p *panel) {
+	var color tcell.Style
+
 	pg := page.Text(&page.Context{
 		Heap:    v.heap,
 		Context: v.heap.HasContext(),
@@ -42,35 +44,31 @@ func (v *View) textRender(p *panel) {
 	// reset
 	v.nr = 0
 
-	i := 0
+	ps1, off, i := string(v.state.Icon.Ps1), 0, 0
 
-	chat := v.heap.Type == types.Chat
-	ps1 := string(v.state.Icon.Ps1)
+	isChat := v.heap.Type == types.Chat
+	isNavi := v.state.IsNavi()
+
+	if isNavi {
+		off = pg.N + 1 // left offset
+	}
 
 	// render lines
-	var color tcell.Style
-
 	for line := range pg.Lines {
-		lineX := p.X
+		lineX := p.X + off
 		lineY := p.Y + i
 
 		i++
 
-		// context separators
-		if line.Nr == "--" {
+		// render context separators
+		if line.Nr == page.Sep {
 			v.print(lineX, lineY, strings.Repeat("―", p.W), themes.Subtext1)
 			continue
 		}
 
-		// line number
-		if v.state.IsNavi() {
-			v.print(lineX, lineY, line.Nr, themes.Subtext0)
-			lineX += len(line.Nr) + 1
-		}
-
-		// text input
+		// render line text
 		if len(line.Str) > 0 {
-			if chat && strings.HasPrefix(line.Str, ps1) {
+			if isChat && strings.HasPrefix(line.Str, ps1) {
 				color = themes.Subtext2
 			} else if i == 1 && v.state.IsPinned() {
 				color = themes.Subtext0
@@ -80,23 +78,23 @@ func (v *View) textRender(p *panel) {
 
 			v.print(lineX, lineY, line.Str, color)
 		}
-	}
 
-	// render parts on top
-	for part := range pg.Parts {
-		partX := p.X + part.X
-		partY := p.Y + part.Y
+		// render line parts
+		for _, part := range line.Parts {
+			partX := p.X + part.X + off
+			partY := p.Y + part.Y
 
-		if v.state.IsNavi() {
-			partX += pg.N + 1
+			v.print(partX, partY, part.Str, themes.Subtext2)
 		}
 
-		// part input
-		v.print(partX, partY, part.Str, themes.Subtext2)
+		// render line number
+		if isNavi {
+			v.print(p.X, lineY, line.Nr, themes.Subtext0)
+		}
 	}
 
 	// render scrollbars
-	if v.state.IsNavi() {
+	if isNavi {
 		w := p.W - 1
 		h := p.H - 1
 		x := p.X

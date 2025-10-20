@@ -1,13 +1,14 @@
 # Roadmap
 
 ## 1. Bug Fixes
-* Fix partial highlighting
-* Add new image README as GIF 
+* ~~Done~~
 
 ## 2. Refactorings
 * Remap some key bindings
 
 ## 3. Features
+* Add new image README as GIF
+* Add more global flags to actions
 * Add tab tab cycling
 * Add custom render layout, like text, hex, csv, log
 * Add macOS Brew cask
@@ -16,6 +17,7 @@
 * Add *Yara* rules scan
 
 ## 4. Optimizations
+* Check replacement with Kong / Koanf / Coral
 * Add debug output (`-v` flag)
 * SMap speed
   * https://dev.to/moseeh_52/efficient-file-reading-in-go-mastering-bufionewscanner-vs-osreadfile-4h05

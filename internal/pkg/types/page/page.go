@@ -8,6 +8,10 @@ import (
 )
 
 const (
+	Sep = "--"
+)
+
+const (
 	Size = 1024
 )
 
