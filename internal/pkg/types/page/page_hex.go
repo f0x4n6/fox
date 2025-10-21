@@ -32,7 +32,7 @@ func Hex(ctx *Context) (page *HexPage) {
 	limit := flags.Get().Limits
 
 	if limit.IsTail && limit.Bytes > 0 {
-		tail = max(int(ctx.Heap.Len())-limit.Bytes, 0)
+		tail = max(int(ctx.Heap.Size())-limit.Bytes, 0)
 	}
 
 	page.W, page.H = ctx.W, len(mmap)/16

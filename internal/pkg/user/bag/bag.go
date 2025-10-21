@@ -147,7 +147,7 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 			User:     usr,
 			Name:     bag.name,
 			Path:     abs,
-			Size:     h.Len(),
+			Size:     h.Size(),
 			Hash:     sum,
 			Filters:  ptn,
 			Bagged:   now(),

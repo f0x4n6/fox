@@ -29,10 +29,14 @@ Positional arguments:
 
 Global:
   -p, --print              print directly to console
+  -h, --head               limit head of file by ...
+  -t, --tail               limit tail of file by ...
+  -n, --lines[=NUMBER]     number of lines (default: 10)
+  -c, --bytes[=NUMBER]     number of bytes (default: 16)
 
 Entropy:
-  -n, --min[=DECIMAL]      minimum score (default: 0.8)
-  -m, --max[=DECIMAL]      maximum score (default: 0.8)
+      --min[=DECIMAL]      minimum score (default: 0.8)
+      --max[=DECIMAL]      maximum score (default: 0.8)
 
 Example:
   $ fox entropy -n ./**/*
@@ -94,8 +98,12 @@ func init() {
 
 	Entropy.SetHelpTemplate(EntropyUsage)
 	Entropy.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
-	Entropy.Flags().Float64VarP(&flg.Entropy.Min, "min", "n", 0.0, "minimum score")
-	Entropy.Flags().Float64VarP(&flg.Entropy.Max, "max", "m", 1.0, "maximum score")
+	Entropy.Flags().BoolVarP(&flg.Limits.IsHead, "head", "h", false, "limit head of file by ...")
+	Entropy.Flags().BoolVarP(&flg.Limits.IsTail, "tail", "t", false, "limit tail of file by ...")
+	Entropy.Flags().IntVarP(&flg.Limits.Lines, "lines", "n", 0, "number of lines (default: 10)")
+	Entropy.Flags().IntVarP(&flg.Limits.Bytes, "bytes", "c", 0, "number of bytes (default: 16)")
+	Entropy.Flags().Float64Var(&flg.Entropy.Min, "min", 0.0, "minimum score")
+	Entropy.Flags().Float64Var(&flg.Entropy.Max, "max", 1.0, "maximum score")
 	Entropy.Flags().Lookup("min").NoOptDefVal = "0.8"
 	Entropy.Flags().Lookup("max").NoOptDefVal = "0.8"
 }

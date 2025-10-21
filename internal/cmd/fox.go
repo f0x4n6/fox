@@ -375,7 +375,7 @@ func run(args []string) {
 					fmt.Println(l)
 				}
 			} else {
-				if buf.Heap.Len() == 0 {
+				if buf.Heap.Size() == 0 {
 					return true // ignore empty files
 				}
 

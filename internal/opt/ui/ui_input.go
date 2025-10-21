@@ -59,7 +59,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	pageH := rootH - 2 // minus title and status
 
 	if ui.state.IsNavi() {
-		pageW -= text.Dec(h.Count()) + 1
+		pageW -= text.Dec(h.Length()) + 1
 	}
 
 	if ev.Key() != tcell.KeyEscape {

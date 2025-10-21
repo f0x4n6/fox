@@ -8,7 +8,6 @@
 
 ## 3. Features
 * Add new image README as GIF
-* Add more global flags to actions
 * Add tab tab cycling
 * Add custom render layout, like text, hex, csv, log
 * Add macOS Brew cask

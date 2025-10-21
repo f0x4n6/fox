@@ -28,6 +28,10 @@ Positional arguments:
 
 Global:
   -p, --print              print directly to console
+  -h, --head               limit head of file by ...
+  -t, --tail               limit tail of file by ...
+  -n, --lines[=NUMBER]     number of lines (default: 10)
+  -c, --bytes[=NUMBER]     number of bytes (default: 16)
 
 Example:
   $ fox counts ./**/*.txt
@@ -58,7 +62,7 @@ var Counts = &cobra.Command{
 			defer hs.ThrowAway()
 
 			hs.Range(func(_ int, h *heap.Heap) bool {
-				fmt.Printf("%8dL %8dB  %s\n", h.Count(), h.Len(), h.String())
+				fmt.Printf("%8dL %8dB  %s\n", h.Length(), len(*h.MMap()), h.String())
 				return true
 			})
 		}
@@ -70,4 +74,8 @@ func init() {
 
 	Counts.SetHelpTemplate(CountsUsage)
 	Counts.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
+	Counts.Flags().BoolVarP(&flg.Limits.IsHead, "head", "h", false, "limit head of file by ...")
+	Counts.Flags().BoolVarP(&flg.Limits.IsTail, "tail", "t", false, "limit tail of file by ...")
+	Counts.Flags().IntVarP(&flg.Limits.Lines, "lines", "n", 0, "number of lines (default: 10)")
+	Counts.Flags().IntVarP(&flg.Limits.Bytes, "bytes", "c", 0, "number of bytes (default: 16)")
 }

@@ -14,12 +14,16 @@ Path(s) to open
 
 ### Global
 - `-p`, `--print` — print directly to console
+- `-h`, `--head` — limit head of file by *...*
+- `-t`, `--tail` — limit tail of file by *...*
+- `-n`, `--lines[=NUMBER]` — number of lines (*default:* `10`)
+- `-c`, `--bytes[=NUMBER]` — number of bytes (*default:* `16`)
 
 ### Entropy
-- `-n`, `--min[=DECIMAL]` — minimum score (*default:* `0.8`)
-- `-m`, `--max[=DECIMAL]` — maximum score (*default:* `0.8`)
+- `--min[=DECIMAL]` — minimum score (*default:* `0.8`)
+- `--max[=DECIMAL]` — maximum score (*default:* `0.8`)
 
 ## Example
 ```console
-$ fox entropy -n ./**/*
+$ fox entropy --min ./**/*
 ```

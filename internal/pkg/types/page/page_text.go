@@ -34,7 +34,7 @@ func Text(ctx *Context) (page *TextPage) {
 	page = new(TextPage)
 
 	page.Lines = make(chan *TextLine, Size)
-	page.N = text.Dec(ctx.Heap.Count())
+	page.N = text.Dec(ctx.Heap.Length())
 	page.Y = ctx.Y
 
 	// recalculate render area

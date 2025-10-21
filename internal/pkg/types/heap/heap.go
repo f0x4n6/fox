@@ -64,20 +64,20 @@ func (h *Heap) FMap() *smap.SMap {
 	return h.LastFilter().fmap
 }
 
-func (h *Heap) Len() int64 {
+func (h *Heap) Size() int64 {
 	h.RLock()
 	defer h.RUnlock()
 	return h.size
 }
 
-func (h *Heap) Count() int {
+func (h *Heap) Bytes() []byte {
+	return []byte(h.FMap().String())
+}
+
+func (h *Heap) Length() int {
 	h.RLock()
 	defer h.RUnlock()
 	return len(*h.smap)
-}
-
-func (h *Heap) Bytes() []byte {
-	return []byte(h.FMap().String())
 }
 
 func (h *Heap) String() string {

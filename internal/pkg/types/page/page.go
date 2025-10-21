@@ -77,7 +77,7 @@ func (ctx *Context) Hash() string {
 		ctx.Heap.LastFilter().Context.B,
 		ctx.Heap.LastFilter().Context.A,
 		ctx.Heap.LastFilter().Len(),
-		ctx.Heap.Len(),
+		ctx.Heap.Size(),
 		ctx.Context,
 		ctx.Navi,
 		ctx.Wrap,

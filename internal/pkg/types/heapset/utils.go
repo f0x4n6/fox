@@ -78,7 +78,7 @@ func (hs *HeapSet) Compare(git bool) *HeapSet {
 
 func (hs *HeapSet) Counts() *HeapSet {
 	hs.reduce("counts", func(h *heap.Heap) string {
-		return fmt.Sprintf("%8dL %8dB  %s\n", h.Count(), h.Len(), h.String())
+		return fmt.Sprintf("%8dL %8dB  %s\n", h.Length(), len(*h.MMap()), h.String())
 	})
 
 	return hs

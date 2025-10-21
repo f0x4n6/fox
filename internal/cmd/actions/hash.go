@@ -32,6 +32,10 @@ Positional arguments:
 
 Global:
   -p, --print              print directly to console
+  -h, --head               limit head of file by ...
+  -t, --tail               limit tail of file by ...
+  -n, --lines[=NUMBER]     number of lines (default: 10)
+  -c, --bytes[=NUMBER]     number of bytes (default: 16)
 
 HashSum:
   -t, --type=ALGORITHM     hash algorithm (default: SHA256)
@@ -114,5 +118,9 @@ func init() {
 
 	Hash.SetHelpTemplate(HashUsage)
 	Hash.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
+	Hash.Flags().BoolVarP(&flg.Limits.IsHead, "head", "h", false, "limit head of file by ...")
+	Hash.Flags().BoolVarP(&flg.Limits.IsTail, "tail", "t", false, "limit tail of file by ...")
+	Hash.Flags().IntVarP(&flg.Limits.Lines, "lines", "n", 0, "number of lines (default: 10)")
+	Hash.Flags().IntVarP(&flg.Limits.Bytes, "bytes", "c", 0, "number of bytes (default: 16)")
 	Hash.Flags().VarP(&flg.Hash.Algos, "type", "t", "hash algorithm")
 }

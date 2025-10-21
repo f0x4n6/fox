@@ -19,7 +19,7 @@ func (h *Heap) Entropy(n, m float64) float64 {
 		a[b]++
 	}
 
-	l := float64(h.Len())
+	l := float64(len(*h.MMap()))
 
 	for i := range 256 {
 		if a[i] != 0 {
