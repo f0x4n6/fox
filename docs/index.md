@@ -2,12 +2,12 @@
   .md-typeset h1 {
     display: none;
   }
-  @media screen and (min-width: 1440px) {
+  @media screen and (min-width: 1200px) {
     .md-nav {
       display: none;
     }
   }
-  @media screen and (max-width: 1440px) {
+  @media screen and (max-width: 1200px) {
     .md-nav__title,
     .md-nav__source {
       background-color: #000 !important
