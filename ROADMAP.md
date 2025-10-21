@@ -4,7 +4,7 @@
 * ~~Done~~
 
 ## 2. Refactorings
-* Remap some key bindings
+* ~~Done~~
 
 ## 3. Features
 * Add new image README as GIF

@@ -270,7 +270,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyCtrlV:
 		ui.root.GetClipboard()
 
-	case tcell.KeyCtrlA:
+	case tcell.KeyCtrlE:
 		if !ui.state.Mode().Static() && hs.Merge() {
 			ui.overlay.SendInfo("Merged all open files")
 		}

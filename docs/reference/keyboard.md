@@ -6,7 +6,7 @@
 |--------------------------------|--------------|
 | <kbd>Esc</kbd> <kbd>Esc</kbd>  | Exit         |
 | <kbd>Ctrl</kbd> + <kbd>O</kbd> | Open file(s) |
-| <kbd>Ctrl</kbd> + <kbd>A</kbd> | Merge files  |
+| <kbd>Ctrl</kbd> + <kbd>E</kbd> | Merge files  |
 | <kbd>Ctrl</kbd> + <kbd>Q</kbd> | Close file   |
 
 ## Navigation
