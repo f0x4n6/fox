@@ -25,14 +25,11 @@ Alias:
 Positional arguments:
   Path(s) to open
 
-Global:
-  -p, --print              print directly to console
-
-Timeline:
-  -c, --cef                use the Common Event Format
+Additional flags:
+      --cef                use the Common Event Format
 
 Example:
-  $ fox timeline -c ./**/*.evtx
+  $ fox timeline --cef ./**/*.evtx
 
 Type "fox help" for more help...
 `
@@ -66,6 +63,5 @@ func init() {
 	flg := flags.Get()
 
 	Timeline.SetHelpTemplate(TimelineUsage)
-	Timeline.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
-	Timeline.Flags().BoolVarP(&flg.Timeline.Cef, "cef", "c", false, "use the Common Event Format")
+	Timeline.Flags().BoolVar(&flg.Timeline.Cef, "cef", false, "use the Common Event Format")
 }

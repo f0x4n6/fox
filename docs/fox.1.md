@@ -51,13 +51,13 @@ timeline
 Options
 -------
 
-**-b, --bag**
-
-:   Seize into evidence bag.
-
 **-p, --print**
 
 :   Print directly to console.
+
+**-x, --hex**
+
+:   Print file in canonical hex.
 
 **--help**
 
@@ -66,13 +66,6 @@ Options
 **--version**
 
 :   Prints the current version number.
-
-Options Modes
--------------
-
-**-x, --hex**
-
-:   Show file in canonical hex.
 
 Options Deflate
 ---------------
@@ -177,6 +170,10 @@ Options UI
 
 Options Evidence
 ----------------
+
+**-b, --bag**
+
+:   Save into evidence bag.
 
 **-N, --case**=_name_
 

@@ -12,11 +12,8 @@ fox hash [FLAG ...] PATH ...
 ### Arguments
 Path(s) to open
 
-### Global
-- `-p`, `--print` — print directly to console
-
-### Hash
-- `-t`, `--type=ALGORITHM` — hash algorithm (*default:* `SHA256`)
+### Additional flags
+- `--type=ALGORITHM` — hash algorithm (*default:* `SHA256`)
 
 Cryptographic hash algorithms:
 > MD5, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512
@@ -32,5 +29,5 @@ Checksum algorithms:
 
 ## Example
 ```console
-$ fox hash -t=md5 -t=sha1 artifacts.zip
+$ fox hash --type=md5 --type=sha1 artifacts.zip
 ```

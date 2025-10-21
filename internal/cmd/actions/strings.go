@@ -32,22 +32,15 @@ Alias:
 Positional arguments:
   Path(s) to open
 
-Global:
-  -p, --print              print directly to console
-      --no-file            don't print filenames
-      --no-line            don't print line numbers
-
-Strings:
-  -i, --ioc                classify built-in IoCs:
+Additional flags:
+      --min=NUMBER         minimum length (default: 3)
+      --max=NUMBER         maximum length (default: Unlimited)
+      --ascii              carve only ASCII strings
+      --class              run built-in classification:
 						     ipv4, ipv6, mac, mail, url, uuid
 
-  -e, --regexp=PATTERN     search for pattern
-  -n, --min=NUMBER         minimum length (default: 3)
-  -m, --max=NUMBER         maximum length (default: Unlimited)
-  -a, --ascii              only carve ASCII strings
-
 Example:
-  $ fox strings -in=8 malware.exe
+  $ fox strings --class malware.exe
 
 Type "fox help" for more help...
 `
@@ -107,7 +100,7 @@ var Strings = &cobra.Command{
 					for s := range h.Strings(
 						flg.Strings.Min,
 						flg.Strings.Max,
-						flg.Strings.Ioc,
+						flg.Strings.Class,
 						flg.Strings.Re,
 					) {
 						if !flg.NoLine {
@@ -127,12 +120,8 @@ func init() {
 	flg := flags.Get()
 
 	Strings.SetHelpTemplate(StringsUsage)
-	Strings.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
-	Strings.Flags().BoolVarP(&flg.NoFile, "no-file", "", false, "don't print filenames")
-	Strings.Flags().BoolVarP(&flg.NoLine, "no-line", "", false, "don't print line numbers")
-	Strings.Flags().BoolVarP(&flg.Strings.Ioc, "ioc", "i", false, "classify built-in IoCs")
-	Strings.Flags().StringP("regex", "e", "", "search for specific pattern")
-	Strings.Flags().IntVarP(&flg.Strings.Min, "min", "n", 3, "minimum length")
-	Strings.Flags().IntVarP(&flg.Strings.Max, "max", "m", math.MaxInt, "maximum length")
-	Strings.Flags().BoolVarP(&flg.Strings.Ascii, "ascii", "a", false, "only carve ASCII strings")
+	Strings.Flags().IntVar(&flg.Strings.Min, "min", 3, "minimum length")
+	Strings.Flags().IntVar(&flg.Strings.Max, "max", math.MaxInt, "maximum length")
+	Strings.Flags().BoolVar(&flg.Strings.Ascii, "ascii", false, "carve only ASCII strings")
+	Strings.Flags().BoolVar(&flg.Strings.Class, "class", false, "run built-in classification")
 }

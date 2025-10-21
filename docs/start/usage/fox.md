@@ -18,16 +18,14 @@ fox [ACTION] [FLAG ...] [PATH ...]
 ### Arguments
 Path(s) to open or `-` for **STDIN**
 
+### Local
+- `-b`, `--bag` — save into evidence bag
+- `-x`, `--hex` — show file in canonical hex
+
 ### Print
 - `-p`, `--print` — print only to console
 - `--no-file` — don't print filenames
 - `--no-line` — don't print line numbers
-
-### Seize
-- `-b`, `--bag` — save into evidence bag
-
-### Modes
-- `-x`, `--hex` — show file in canonical hex
 
 ### Deflate
 - `-P`, `--pass=PASSWORD` — password for decryption (only **RAR**, **ZIP**)

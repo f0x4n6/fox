@@ -30,15 +30,8 @@ Alias:
 Positional arguments:
   Path(s) to open
 
-Global:
-  -p, --print              print directly to console
-  -h, --head               limit head of file by ...
-  -t, --tail               limit tail of file by ...
-  -n, --lines[=NUMBER]     number of lines (default: 10)
-  -c, --bytes[=NUMBER]     number of bytes (default: 16)
-
-HashSum:
-  -t, --type=ALGORITHM     hash algorithm (default: SHA256)
+Additional flags:
+      --type=ALGORITHM     hash algorithm (default: SHA256)
 
     Cryptographic hash algorithms:
       MD5, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512
@@ -53,7 +46,7 @@ HashSum:
       CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
 Example:
-  $ fox hash -t=md5 -t=sha1 artifacts.zip
+  $ fox hash --type=md5 --type=sha1 artifacts.zip
 
 Type "fox help" for more help...
 `
@@ -117,10 +110,5 @@ func init() {
 	flg := flags.Get()
 
 	Hash.SetHelpTemplate(HashUsage)
-	Hash.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
-	Hash.Flags().BoolVarP(&flg.Limits.IsHead, "head", "h", false, "limit head of file by ...")
-	Hash.Flags().BoolVarP(&flg.Limits.IsTail, "tail", "t", false, "limit tail of file by ...")
-	Hash.Flags().IntVarP(&flg.Limits.Lines, "lines", "n", 0, "number of lines (default: 10)")
-	Hash.Flags().IntVarP(&flg.Limits.Bytes, "bytes", "c", 0, "number of bytes (default: 16)")
-	Hash.Flags().VarP(&flg.Hash.Algos, "type", "t", "hash algorithm")
+	Hash.Flags().Var(&flg.Hash.Algos, "type", "hash algorithm")
 }

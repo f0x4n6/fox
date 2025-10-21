@@ -42,6 +42,6 @@ Built-in checksums *(for file verification)*:
 
 ## Example
 ```console
-$ fox hashes -pt=md5 testdata/test.bin
+$ fox hashes -p --type=md5 testdata/test.bin
 534a6a08a693b374803b6eda2bf8baab  testdata/test.bin
 ```

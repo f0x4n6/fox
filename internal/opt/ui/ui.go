@@ -214,7 +214,7 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 		hs.Strings(
 			flg.Strings.Min,
 			flg.Strings.Max,
-			flg.Strings.Ioc,
+			flg.Strings.Class,
 			flg.Strings.Re,
 		).CloseOther()
 

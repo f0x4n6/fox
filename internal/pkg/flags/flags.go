@@ -96,11 +96,11 @@ type Flags struct {
 
 	// strings command
 	Strings struct {
-		Ioc   bool
 		Re    *regexp.Regexp
 		Min   int
 		Max   int
 		Ascii bool
+		Class bool
 	}
 
 	// timeline command

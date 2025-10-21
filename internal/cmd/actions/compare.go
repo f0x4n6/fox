@@ -27,12 +27,7 @@ Alias:
 Positional arguments:
   Files to open
 
-Global:
-  -p, --print              print directly to console
-      --no-file            don't print filenames
-      --no-line            don't print line numbers
-
-Compare:
+Additional flags:
   -g, --git                use the unified git diff format
 
 Example:
@@ -85,8 +80,5 @@ func init() {
 	flg := flags.Get()
 
 	Compare.SetHelpTemplate(CompareUsage)
-	Compare.Flags().BoolVarP(&flg.Print, "print", "p", false, "print directly to console")
-	Compare.Flags().BoolVarP(&flg.NoFile, "no-file", "", false, "don't print filenames")
-	Compare.Flags().BoolVarP(&flg.NoLine, "no-line", "", false, "don't print line numbers")
 	Compare.Flags().BoolVarP(&flg.Compare.Git, "git", "g", false, "use the unified git diff format")
 }

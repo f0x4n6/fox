@@ -3,8 +3,8 @@ Two files can easily be compared line-by-line using the [`fox compare`](../start
 
 ## Example
 ```console
-$ fox compare -p testdata/test.ioc testdata/test.diff
-testdata/test.ioc
+$ fox compare -p testdata/test.cls testdata/test.diff
+testdata/test.class
 testdata/test.diff
 - 1 Hello World
 + 1 Hello Earth

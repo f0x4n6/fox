@@ -46,16 +46,14 @@ Actions:
   strings                  display ASCII and Unicode strings
   timeline                 display super timeline
 
+Local:
+  -b, --bag                save into evidence bag
+  -x, --hex                show file in canonical hex
+
 Print:
   -p, --print              print only to console
       --no-file            don't print filenames
       --no-line            don't print line numbers
-
-Seize:
-  -b, --bag                save into evidence bag
-
-Modes:
-  -x, --hex                show file in canonical hex
 
 Deflate:
   -P, --pass=PASSWORD      password for decryption (only RAR, ZIP)
@@ -84,7 +82,7 @@ AI options:
       --topk=NUMBER        option for model top_k (default: 10)
       --seed=NUMBER        option for random seed (default: 8211)
 
-UI flags:
+UI options:
       --state={N|W|T|-}    sets the used UI state flags
       --theme=THEME        sets the used UI theme
       --space=NUMBER       sets the used indentation space (default: 2)
@@ -247,71 +245,70 @@ var Fox = &cobra.Command{
 func init() {
 	flg := flags.Get()
 
-	Fox.Flags().BoolVarP(&flg.Print, "print", "p", false, "print only to console")
-	Fox.Flags().BoolVarP(&flg.NoFile, "no-file", "", false, "don't print filenames")
-	Fox.Flags().BoolVarP(&flg.NoLine, "no-line", "", false, "don't print line numbers")
-
 	Fox.Flags().BoolVarP(&flg.Bag, "bag", "b", false, "save into evidence bag")
-
 	Fox.Flags().BoolVarP(&flg.Hex, "hex", "x", false, "show file in canonical hex")
 
-	Fox.PersistentFlags().StringVarP(&flg.Deflate.Pass, "pass", "P", "", "password for decryption")
+	Fox.PersistentFlags().BoolVarP(&flg.Print, "print", "p", false, "print only to console")
+	Fox.PersistentFlags().BoolVar(&flg.NoFile, "no-file", false, "don't print filenames")
+	Fox.PersistentFlags().BoolVar(&flg.NoLine, "no-line", false, "don't print line numbers")
 
-	Fox.Flags().BoolVarP(&flg.Limits.IsHead, "head", "h", false, "limit head of file by ...")
-	Fox.Flags().BoolVarP(&flg.Limits.IsTail, "tail", "t", false, "limit tail of file by ...")
-	Fox.Flags().IntVarP(&flg.Limits.Lines, "lines", "n", 0, "number of lines (default: 10)")
-	Fox.Flags().IntVarP(&flg.Limits.Bytes, "bytes", "c", 0, "number of bytes (default: 16)")
+	Fox.PersistentFlags().StringVar(&flg.Deflate.Pass, "pass", "P", "password for decryption")
 
-	Fox.Flags().Lookup("lines").NoOptDefVal = "10"
-	Fox.Flags().Lookup("bytes").NoOptDefVal = "16"
+	Fox.PersistentFlags().BoolVarP(&flg.Limits.IsHead, "head", "h", false, "limit head of file by ...")
+	Fox.PersistentFlags().BoolVarP(&flg.Limits.IsTail, "tail", "t", false, "limit tail of file by ...")
+	Fox.PersistentFlags().IntVarP(&flg.Limits.Lines, "lines", "n", 0, "number of lines (default: 10)")
+	Fox.PersistentFlags().IntVarP(&flg.Limits.Bytes, "bytes", "c", 0, "number of bytes (default: 16)")
 
-	Fox.Flags().VarP(&flg.Filters, "regexp", "e", "filter for lines that match pattern")
-	Fox.Flags().IntVarP(&flg.Filters.Context, "context", "C", 0, "number of lines surrounding context of match")
-	Fox.Flags().IntVarP(&flg.Filters.Before, "before", "B", 0, "number of lines leading context before match")
-	Fox.Flags().IntVarP(&flg.Filters.After, "after", "A", 0, "number of lines trailing context after match")
+	Fox.PersistentFlags().Lookup("lines").NoOptDefVal = "10"
+	Fox.PersistentFlags().Lookup("bytes").NoOptDefVal = "16"
 
-	Fox.Flags().StringVarP(&flg.AI.Query, "query", "q", "", "query for the assistant to process")
-	Fox.Flags().StringVarP(&flg.AI.Model, "model", "m", "", "model for the assistant to use")
-	Fox.Flags().StringVarP(&flg.AI.Embed, "embed", "", "", "embedding model used for RAG")
-	Fox.Flags().IntVarP(&flg.AI.NumCtx, "num-ctx", "", 4096, "context window length")
-	Fox.Flags().Float64VarP(&flg.AI.Temp, "temp", "", 0.2, "option for temperature")
-	Fox.Flags().Float64VarP(&flg.AI.TopP, "topp", "", 0.5, "option for model top_p")
-	Fox.Flags().IntVarP(&flg.AI.TopK, "topk", "", 10, "option for model top_k")
-	Fox.Flags().IntVarP(&flg.AI.Seed, "seed", "", 8211, "option for random seed")
+	Fox.PersistentFlags().VarP(&flg.Filters, "regexp", "e", "filter for lines that match pattern")
+	Fox.PersistentFlags().IntVarP(&flg.Filters.Context, "context", "C", 0, "number of lines surrounding context of match")
+	Fox.PersistentFlags().IntVarP(&flg.Filters.Before, "before", "B", 0, "number of lines leading context before match")
+	Fox.PersistentFlags().IntVarP(&flg.Filters.After, "after", "A", 0, "number of lines trailing context after match")
 
-	Fox.Flags().StringVarP(&flg.UI.State, "state", "", "", "sets the used UI state flags")
-	Fox.Flags().StringVarP(&flg.UI.Theme, "theme", "", themes.Default, "sets the used UI theme")
-	Fox.Flags().IntVarP(&flg.UI.Space, "space", "", 2, "sets the used indentation space")
-	Fox.Flags().BoolVarP(&flg.UI.Legacy, "legacy", "", false, "don't use any unicode decorations")
+	Fox.PersistentFlags().StringVarP(&flg.AI.Query, "query", "q", "", "query for the assistant to process")
+	Fox.PersistentFlags().StringVarP(&flg.AI.Model, "model", "m", "", "model for the assistant to use")
+	Fox.PersistentFlags().StringVar(&flg.AI.Embed, "embed", "", "embedding model used for RAG")
+	Fox.PersistentFlags().IntVar(&flg.AI.NumCtx, "num-ctx", 4096, "context window length")
+	Fox.PersistentFlags().Float64Var(&flg.AI.Temp, "temp", 0.2, "option for temperature")
+	Fox.PersistentFlags().Float64Var(&flg.AI.TopP, "topp", 0.5, "option for model top_p")
+	Fox.PersistentFlags().IntVar(&flg.AI.TopK, "topk", 10, "option for model top_k")
+	Fox.PersistentFlags().IntVar(&flg.AI.Seed, "seed", 8211, "option for random seed")
 
-	Fox.Flags().StringVarP(&flg.Evidence.Case, "case", "N", "", "evidence bag case name")
-	Fox.Flags().StringVarP(&flg.Evidence.File, "file", "f", flags.BagFile, "evidence bag file name")
-	Fox.Flags().VarP(&flg.Evidence.Mode, "mode", "", "evidence bag file mode")
-	Fox.Flags().StringVarP(&flg.Evidence.Sign, "sign", "s", "", "key phrase to sign evidence bag via HMAC-SHA256")
-	Fox.Flags().StringVarP(&flg.Evidence.Url, "url", "u", "", "forward evidence to server address")
-	Fox.Flags().StringVarP(&flg.Evidence.Auth, "auth", "a", "", "forward evidence using auth token")
-	Fox.Flags().BoolVarP(&flg.Evidence.Ecs, "ecs", "", false, "use ECS schema for evidence")
-	Fox.Flags().BoolVarP(&flg.Evidence.Hec, "hec", "", false, "use HEC schema for evidence")
+	Fox.PersistentFlags().StringVar(&flg.UI.State, "state", "", "sets the used UI state flags")
+	Fox.PersistentFlags().StringVar(&flg.UI.Theme, "theme", themes.Default, "sets the used UI theme")
+	Fox.PersistentFlags().IntVar(&flg.UI.Space, "space", 2, "sets the used indentation space")
+	Fox.PersistentFlags().BoolVar(&flg.UI.Legacy, "legacy", false, "don't use any unicode decorations")
 
-	Fox.Flags().Lookup("mode").NoOptDefVal = string(flags.BagModeText)
+	Fox.PersistentFlags().StringVarP(&flg.Evidence.Case, "case", "N", "", "evidence bag case name")
+	Fox.PersistentFlags().StringVarP(&flg.Evidence.File, "file", "f", flags.BagFile, "evidence bag file name")
+	Fox.PersistentFlags().Var(&flg.Evidence.Mode, "mode", "evidence bag file mode")
+	Fox.PersistentFlags().StringVarP(&flg.Evidence.Sign, "sign", "s", "", "key phrase to sign evidence bag via HMAC-SHA256")
+	Fox.PersistentFlags().StringVarP(&flg.Evidence.Url, "url", "u", "", "forward evidence to server address")
+	Fox.PersistentFlags().StringVarP(&flg.Evidence.Auth, "auth", "a", "", "forward evidence using auth token")
+	Fox.PersistentFlags().BoolVar(&flg.Evidence.Ecs, "ecs", false, "use ECS schema for evidence")
+	Fox.PersistentFlags().BoolVar(&flg.Evidence.Hec, "hec", false, "use HEC schema for evidence")
 
-	Fox.Flags().BoolVarP(&flg.Optional.Raw, "raw", "r", false, "don't process files at all")
-	Fox.Flags().BoolVarP(&flg.Optional.Readonly, "readonly", "R", false, "don't write any new files")
-	Fox.Flags().BoolVarP(&flg.Optional.NoConvert, "no-convert", "", false, "don't convert automatically")
-	Fox.Flags().BoolVarP(&flg.Optional.NoDeflate, "no-deflate", "", false, "don't deflate automatically")
-	Fox.Flags().BoolVarP(&flg.Optional.NoPlugins, "no-plugins", "", false, "don't run any plugins")
-	Fox.Flags().BoolVarP(&flg.Optional.NoMouse, "no-mouse", "", false, "don't use the mouse")
+	Fox.PersistentFlags().Lookup("mode").NoOptDefVal = string(flags.BagModeText)
 
-	Fox.Flags().BoolVarP(&flg.Alias.Logstash, "logstash", "L", false, "short for: --ecs --url=http://localhost:8080")
-	Fox.Flags().BoolVarP(&flg.Alias.Splunk, "splunk", "S", false, "short for: --hec --url=http://localhost:8088/...")
-	Fox.Flags().BoolVarP(&flg.Alias.Text, "text", "T", false, "short for: --mode=text")
-	Fox.Flags().BoolVarP(&flg.Alias.Json, "json", "j", false, "short for: --mode=json")
-	Fox.Flags().BoolVarP(&flg.Alias.Jsonl, "jsonl", "J", false, "short for: --mode=jsonl")
-	Fox.Flags().BoolVarP(&flg.Alias.Sqlite, "sqlite", "Q", false, "short for: --mode=sqlite")
-	Fox.Flags().BoolVarP(&flg.Alias.Xml, "xml", "X", false, "short for: --mode=xml")
+	Fox.PersistentFlags().BoolVarP(&flg.Optional.Raw, "raw", "r", false, "don't process files at all")
+	Fox.PersistentFlags().BoolVarP(&flg.Optional.Readonly, "readonly", "R", false, "don't write any new files")
+	Fox.PersistentFlags().BoolVar(&flg.Optional.NoConvert, "no-convert", false, "don't convert automatically")
+	Fox.PersistentFlags().BoolVar(&flg.Optional.NoDeflate, "no-deflate", false, "don't deflate automatically")
+	Fox.PersistentFlags().BoolVar(&flg.Optional.NoPlugins, "no-plugins", false, "don't run any plugins")
+	Fox.PersistentFlags().BoolVar(&flg.Optional.NoMouse, "no-mouse", false, "don't use the mouse")
 
-	Fox.PersistentFlags().BoolP("version", "", false, "prints the version")
-	Fox.PersistentFlags().BoolP("help", "", false, "prints this message")
+	Fox.PersistentFlags().BoolVarP(&flg.Alias.Logstash, "logstash", "L", false, "short for: --ecs --url=http://localhost:8080")
+	Fox.PersistentFlags().BoolVarP(&flg.Alias.Splunk, "splunk", "S", false, "short for: --hec --url=http://localhost:8088/...")
+	Fox.PersistentFlags().BoolVarP(&flg.Alias.Text, "text", "T", false, "short for: --mode=text")
+	Fox.PersistentFlags().BoolVarP(&flg.Alias.Json, "json", "j", false, "short for: --mode=json")
+	Fox.PersistentFlags().BoolVarP(&flg.Alias.Jsonl, "jsonl", "J", false, "short for: --mode=jsonl")
+	Fox.PersistentFlags().BoolVarP(&flg.Alias.Sqlite, "sqlite", "Q", false, "short for: --mode=sqlite")
+	Fox.PersistentFlags().BoolVarP(&flg.Alias.Xml, "xml", "X", false, "short for: --mode=xml")
+
+	Fox.PersistentFlags().Bool("version", false, "prints the version")
+	Fox.PersistentFlags().Bool("help", false, "prints this message")
 
 	Fox.MarkFlagsRequiredTogether("hec", "auth")
 

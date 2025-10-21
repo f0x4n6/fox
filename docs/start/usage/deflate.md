@@ -12,13 +12,9 @@ fox deflate [FLAG ...] PATH...
 ### Arguments
 Path(s) to open
 
-### Global
-- `--no-file` — don't print filenames
-
-### Deflate
+### Additional flags
 - `-l`, `--list` — don't deflate, only list files
-- `-d`, `--dir[=PATH]` — deflate into directory (*default:* `.`)
-- `-P`, `--pass=PASSWORD` — password for decryption (only **RAR**, **ZIP**)
+- `-o`, `--out[=PATH]` — output into directory (*default:* `.`)
 
 ## Example
 ```console

@@ -14,13 +14,10 @@ fox timeline [FLAG ...] PATH ...
 ### Arguments
 Path(s) to open
 
-### Global
-- `-p`, `--print` — print directly to console
-
-### Timeline
-- `-c`, `--cef` — use the Common Event Format
+### Additional flags
+- `--cef` — use the Common Event Format
 
 ## Example
 ```console
-$ fox timeline ./**/*.evtx
+$ fox timeline --cef ./**/*.evtx
 ```

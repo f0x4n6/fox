@@ -28,13 +28,9 @@ Alias:
 Positional arguments:
   Path(s) to open
 
-Global:
-      --no-file            don't print filenames
-
-Deflate:
+Additional flags:
   -l, --list               don't deflate, only list files
-  -d, --dir[=PATH]         deflate into directory (default: .)
-  -P, --pass=PASSWORD      password for decryption (only RAR, ZIP)
+  -o, --out[=PATH]         output into directory (default: .)
 
 Example:
   $ fox deflate --pass=infected ioc.zip
@@ -53,6 +49,10 @@ var Deflate = &cobra.Command{
 
 		flg.Optional.NoConvert = true
 		flg.Optional.NoPlugins = true
+
+		if flg.Optional.Readonly && !flg.Deflate.List {
+			sys.Exit("deflate does write files")
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
@@ -131,9 +131,8 @@ func init() {
 	flg := flags.Get()
 
 	Deflate.SetHelpTemplate(DeflateUsage)
-	Deflate.Flags().BoolVarP(&flg.NoFile, "no-file", "", false, "don't print filenames")
 	Deflate.Flags().BoolVarP(&flg.Deflate.List, "list", "l", false, "don't deflate, only list files")
-	Deflate.Flags().StringVarP(&flg.Deflate.Path, "dir", "d", "", "deflate into directory")
-	Deflate.Flags().Lookup("dir").NoOptDefVal = "."
-	_ = Deflate.MarkFlagDirname("dir")
+	Deflate.Flags().StringVarP(&flg.Deflate.Path, "out", "o", "", "output into directory")
+	Deflate.Flags().Lookup("out").NoOptDefVal = "."
+	_ = Deflate.MarkFlagDirname("out")
 }

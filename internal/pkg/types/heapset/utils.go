@@ -119,11 +119,11 @@ func (hs *HeapSet) HashSum(algos ...string) *HeapSet {
 	return hs
 }
 
-func (hs *HeapSet) Strings(n, m int, i bool, re *regexp.Regexp) *HeapSet {
+func (hs *HeapSet) Strings(n, m int, c bool, re *regexp.Regexp) *HeapSet {
 	hs.reduce("strings", func(h *heap.Heap) string {
 		var sb strings.Builder
 
-		for v := range h.Strings(n, m, i, re) {
+		for v := range h.Strings(n, m, c, re) {
 			sb.WriteString(strings.TrimSpace(v.Str))
 			sb.WriteRune('\n')
 		}
