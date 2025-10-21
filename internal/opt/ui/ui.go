@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/cuhsat/fox/internal/pkg/types/mode"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mattn/go-runewidth"
 
@@ -42,6 +43,7 @@ type UI struct {
 	bag     *bag.Bag
 
 	title   *widgets.Title
+	list    *widgets.List
 	view    *widgets.View
 	prompt  *widgets.Prompt
 	overlay *widgets.Overlay
@@ -91,6 +93,7 @@ func New(hs *heapset.HeapSet, util types.Invoke) *UI {
 		bag:     bag.New(),
 
 		title:   widgets.NewTitle(state),
+		list:    widgets.NewList(state),
 		view:    widgets.NewView(state),
 		prompt:  widgets.NewPrompt(state),
 		overlay: widgets.NewOverlay(state),
@@ -248,11 +251,23 @@ func (ui *UI) render(hs *heapset.HeapSet) {
 	x, y := 0, 0
 	w, h := ui.root.Size()
 
-	for _, base := range [...]widgets.Queueable{
-		ui.title,
-		ui.view,
-		ui.prompt,
-	} {
+	var queue []widgets.Queueable
+
+	if ui.state.Mode() == mode.Open {
+		queue = []widgets.Queueable{
+			ui.title,
+			ui.list,
+			ui.prompt,
+		}
+	} else {
+		queue = []widgets.Queueable{
+			ui.title,
+			ui.view,
+			ui.prompt,
+		}
+	}
+
+	for _, base := range queue {
 		y += base.Render(hs, x, y, w, h-y)
 	}
 

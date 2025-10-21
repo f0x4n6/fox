@@ -150,6 +150,8 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyUp:
 		switch {
+		case ui.state.Mode().Select():
+			ui.list.MoveUp(delta)
 		case ui.state.Mode().Prompt():
 			ui.prompt.SetInput(ui.history.PrevLine())
 		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
@@ -162,6 +164,8 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyDown:
 		switch {
+		case ui.state.Mode().Select():
+			ui.list.MoveDown(delta)
 		case ui.state.Mode().Prompt():
 			ui.prompt.SetInput(ui.history.NextLine())
 		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:

@@ -8,11 +8,7 @@
 
 ## 3. Features
 * Add new image README as GIF
-* Add tab tab cycling
 * Add custom render layout, like text, hex, csv, log
-* Add macOS Brew cask
-  * https://goreleaser.com/customization/homebrew_casks/
-  * https://docs.brew.sh/Cask-Cookbook
 * Add *Yara* rules scan
 
 ## 4. Optimizations
