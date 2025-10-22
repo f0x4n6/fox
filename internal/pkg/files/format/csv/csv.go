@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jfyne/csvd"
+	"github.com/ntauth/better-csvd"
 
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/text"
@@ -24,6 +24,8 @@ func Format(path string) string {
 	defer t.Close()
 
 	r := csvd.NewReader(f)
+	r.LazyQuotes = true
+
 	cols, err := r.ReadAll()
 
 	if err != nil {
