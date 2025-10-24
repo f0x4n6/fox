@@ -144,7 +144,7 @@ func (s *State) ForceRender() {
 
 func (s *State) SwitchMode(m mode.Mode) bool {
 	// deny goto in static modes
-	if m == mode.Goto && s.Mode().Static() {
+	if m == mode.Goto && s.Mode().IsStatic() {
 		return false
 	}
 

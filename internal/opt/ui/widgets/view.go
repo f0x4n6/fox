@@ -63,7 +63,7 @@ func (v *View) Reset() {
 }
 
 func (v *View) Goto(s string) {
-	if !v.state.Mode().Static() {
+	if !v.state.Mode().IsStatic() {
 		v.textGoto(s)
 	}
 }
@@ -103,7 +103,7 @@ func (v *View) LoadPosition(key string) {
 }
 
 func (v *View) ScrollLine() {
-	if v.state.Mode().Static() || v.heap.HasContext() {
+	if v.state.Mode().IsStatic() || v.heap.HasContext() {
 		v.ScrollDown(1)
 		return
 	}

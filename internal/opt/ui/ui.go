@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/cuhsat/fox/internal/pkg/types/mode"
+	"github.com/cuhsat/fox/internal/opt/ui/adapter"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mattn/go-runewidth"
 
@@ -21,6 +21,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/internal/pkg/types/mode"
 	"github.com/cuhsat/fox/internal/pkg/user/bag"
 	"github.com/cuhsat/fox/internal/pkg/user/history"
 	"github.com/cuhsat/fox/internal/pkg/user/plugins"
@@ -132,6 +133,9 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 		_ = ui.root.PostEvent(tcell.NewEventInterrupt(ui.state.IsFollow()))
 	})
 
+	ui.list.SetAdapter(new(adapter.Filesystem))
+	ui.list.SetSelected(hs.Open)
+
 	events := make(chan tcell.Event, 128)
 	closed := make(chan struct{})
 
@@ -157,7 +161,7 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 				}
 
 			case *tcell.EventClipboard:
-				if !ui.state.Mode().Static() {
+				if !ui.state.Mode().IsStatic() {
 					v := string(ev.Data())
 					v = strings.TrimPrefix(v, prefix)
 					v = strings.TrimSuffix(v, suffix)

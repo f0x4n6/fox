@@ -7,9 +7,20 @@
 * ~~Done~~
 
 ## 3. Features
+* Add -f for follow of file in print mode
 * Add new image README as GIF
+* Add Sleuth plugin support
 * Add custom render layout, like text, hex, csv, log
 * Add *Yara* rules scan
+* Add Mark Mode to mark line for evidence bag
+* Add script to setup EZ Tools and Dissect under Linux
+* Add AFF4 support
+  * https://pkg.go.dev/github.com/forensicanalysis/goaff4#section-readme
+  * https://github.com/aff4/ReferenceImages
+* Add MSI release
+  * https://github.com/marketplace/actions/build-windows-installer-msi-from-exe-file
+* Add brew release
+  * https://goreleaser.com/customization/homebrew_casks/
 
 ## 4. Optimizations
 * Check replacement with Kong / Koanf / Coral

@@ -1,9 +1,11 @@
 package widgets
 
 import (
+	"fmt"
 	"sync/atomic"
 
 	"github.com/cuhsat/fox/internal/opt"
+	"github.com/cuhsat/fox/internal/opt/ui/adapter"
 	"github.com/cuhsat/fox/internal/opt/ui/themes"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
@@ -11,10 +13,14 @@ import (
 type List struct {
 	base
 
+	adapter adapter.Adapter
+	fn      adapter.Callback
+
 	h int
 
-	last  int
-	delta int
+	off  int
+	last int
+	line int
 
 	values atomic.Value
 }
@@ -28,67 +34,83 @@ func NewList(state *opt.State) *List {
 func (l *List) Render(hs *heapset.HeapSet, x, y, w, h int) int {
 	l.h = h - 1 // fill all but the least line
 
-	// debug
-	l.SetValues([]string{
-		"Hello World 1",
-		"Hello World 2",
-		"Hello World 3",
-		"Hello World 4",
-		"Hello World 5",
-		"Hello World 6",
-		"Hello World 7",
-		"Hello World 8",
-		"Hello World 9",
-		"Hello World 10",
-		"Hello World 11",
-		"Hello World 12",
-		"Hello World 13",
-		"Hello World 14",
-		"Hello World 15",
-		"Hello World 16",
-		"Hello World 17",
-		"Hello World 18",
-		"Hello World 19",
-		"Hello World 20",
-		"Hello World 21",
-		"Hello World 22",
-		"Hello World 23",
-		"Hello World 24",
-		"Hello World 25",
-		"Hello World 26",
-		"Hello World 27",
-		"Hello World 28",
-		"Hello World 29",
-		"Hello World 30",
-	})
+	page := l.page()
 
-	off := max(h-l.delta, 0)
-
-	lines, _ := l.values.Load().([]string)
-
-	for i, line := range lines[off:] {
-		l.print(x, y+i, line, themes.Terminal)
+	for i, node := range page {
+		if !node.Leaf {
+			l.print(x, y+i, fmt.Sprintf("> %s", node.Text), themes.Terminal)
+		} else {
+			l.print(x, y+i, fmt.Sprintf("  %s", node.Text), themes.Terminal)
+		}
 	}
 
-	l.print(x, y+l.delta, "Hello World", themes.Subtext2)
+	l.print(x+2, y+(l.line), page[l.line].Text, themes.Subtext2)
 
 	return l.h
 }
 
-func (l *List) SetValues(vs []string) {
-	l.values.Store(vs)
+func (l *List) SetAdapter(adapter adapter.Adapter) {
+	l.adapter = adapter
+}
 
-	l.last = len(vs) - 1
+func (l *List) SetSelected(fn adapter.Callback) {
+	l.fn = fn
 }
 
 func (l *List) GetValue() string {
-	return ""
+	vs := l.values.Load().([]string)
+
+	return vs[l.line]
+}
+
+func (l *List) Reset() {
+	nodes := l.adapter.Init()
+
+	l.values.Store(nodes)
+
+	l.last = len(nodes) - 1
+}
+
+func (l *List) Select() bool {
+	page := l.page()
+	line := page[l.line]
+
+	v := line.Value
+
+	if !line.Leaf {
+		nodes := l.adapter.List(v)
+
+		l.values.Store(nodes)
+		l.last = len(nodes) - 1
+		l.line = 0
+		l.off = 0
+
+		return false
+	} else {
+		l.state.Call(func() { l.fn(v) })
+
+		return true
+	}
 }
 
 func (l *List) MoveUp(delta int) {
-	l.delta = max(l.delta-delta, 0)
+	if l.line > 0 {
+		l.line = max(l.line-delta, 0)
+	} else if l.off > 0 {
+		l.off = max(l.off-delta, 0)
+	}
 }
 
 func (l *List) MoveDown(delta int) {
-	l.delta = min(l.delta+delta, l.last)
+	if l.line < l.h-1 {
+		l.line = min(l.line+delta, l.last)
+	} else if l.off <= (l.last - l.h) {
+		l.off = min(l.off+delta, l.last)
+	}
+}
+
+func (l *List) page() []adapter.Node {
+	nodes := l.values.Load().([]adapter.Node)
+
+	return nodes[l.off:]
 }
