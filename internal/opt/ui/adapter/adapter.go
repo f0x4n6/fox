@@ -1,17 +1,17 @@
 package adapter
 
 import (
-	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/cuhsat/fox/internal/opt"
 )
 
+type Callback func(string)
+
 type Adapter interface {
-	Init() []Node
 	List(root string) []Node
 }
-
-type Callback func(string)
 
 type Node struct {
 	Leaf  bool
@@ -19,28 +19,31 @@ type Node struct {
 	Value string
 }
 
-type Filesystem struct {
+func (n *Node) String() string {
+	return n.Text
 }
 
-func (fs *Filesystem) Init() []Node {
-	dir, err := os.Getwd()
+type FileSystem struct {
+	state *opt.State
+}
 
-	if err != nil {
-		log.Panicln(err)
+func New(state *opt.State) *FileSystem {
+	return &FileSystem{
+		state: state,
 	}
-
-	return fs.List(dir)
 }
 
-func (fs *Filesystem) List(root string) []Node {
+func (fs *FileSystem) List(root string) []Node {
+	fs.state.ChangePath(root)
+
 	nodes := []Node{
 		{
-			Leaf:  true,
+			Leaf:  false,
 			Text:  ".",
 			Value: root,
 		},
 		{
-			Leaf:  true,
+			Leaf:  false,
 			Text:  "..",
 			Value: filepath.Dir(root),
 		},

@@ -1,6 +1,7 @@
 package opt
 
 import (
+	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -25,6 +26,8 @@ type State struct {
 
 	mode mode.Mode
 	last mode.Mode
+
+	path string
 
 	model string
 	embed string
@@ -61,6 +64,8 @@ func NewState(root tcell.Screen) *State {
 		theme: cfg.GetString("ui.theme"),
 	}
 
+	state.path, _ = os.Getwd()
+
 	state.space.Store(cfg.GetUint32("ui.space"))
 
 	state.n.Store(cfg.GetBool("ui.state.n"))
@@ -94,6 +99,12 @@ func (s *State) Last() mode.Mode {
 	s.RLock()
 	defer s.RUnlock()
 	return s.last
+}
+
+func (s *State) Path() string {
+	s.RLock()
+	defer s.RUnlock()
+	return s.path
 }
 
 func (s *State) Model() string {
@@ -159,6 +170,12 @@ func (s *State) SwitchMode(m mode.Mode) bool {
 	s.Unlock()
 
 	return true
+}
+
+func (s *State) ChangePath(p string) {
+	s.Lock()
+	s.path = p
+	s.Unlock()
 }
 
 func (s *State) ChangeModel(m string) {

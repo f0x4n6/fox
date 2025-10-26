@@ -1,7 +1,6 @@
 package widgets
 
 import (
-	"fmt"
 	"sync/atomic"
 
 	"github.com/cuhsat/fox/internal/opt"
@@ -37,14 +36,10 @@ func (l *List) Render(hs *heapset.HeapSet, x, y, w, h int) int {
 	page := l.page()
 
 	for i, node := range page {
-		if !node.Leaf {
-			l.print(x, y+i, fmt.Sprintf("> %s", node.Text), themes.Terminal)
-		} else {
-			l.print(x, y+i, fmt.Sprintf("  %s", node.Text), themes.Terminal)
-		}
+		l.print(x, y+i, node.String(), themes.Terminal)
 	}
 
-	l.print(x+2, y+(l.line), page[l.line].Text, themes.Subtext2)
+	l.print(x, y+(l.line), page[l.line].Text, themes.Subtext2)
 
 	return l.h
 }
@@ -64,7 +59,7 @@ func (l *List) GetValue() string {
 }
 
 func (l *List) Reset() {
-	nodes := l.adapter.Init()
+	nodes := l.adapter.List(l.state.Path())
 
 	l.values.Store(nodes)
 
@@ -75,10 +70,8 @@ func (l *List) Select() bool {
 	page := l.page()
 	line := page[l.line]
 
-	v := line.Value
-
 	if !line.Leaf {
-		nodes := l.adapter.List(v)
+		nodes := l.adapter.List(line.Value)
 
 		l.values.Store(nodes)
 		l.last = len(nodes) - 1
@@ -87,7 +80,7 @@ func (l *List) Select() bool {
 
 		return false
 	} else {
-		l.state.Call(func() { l.fn(v) })
+		l.state.Call(func() { l.fn(line.Value) })
 
 		return true
 	}

@@ -18,7 +18,7 @@ var ffs = NewForensicFs(
 	afero.NewReadOnlyFs(
 		afero.NewOsFs(),
 	),
-	// layered filesystem
+	// layer filesystem
 	NewNotifyFs(
 		afero.NewMemMapFs(),
 		Watcher,

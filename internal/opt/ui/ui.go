@@ -133,7 +133,7 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 		_ = ui.root.PostEvent(tcell.NewEventInterrupt(ui.state.IsFollow()))
 	})
 
-	ui.list.SetAdapter(new(adapter.Filesystem))
+	ui.list.SetAdapter(adapter.New(ui.state))
 	ui.list.SetSelected(hs.Open)
 
 	events := make(chan tcell.Event, 128)
