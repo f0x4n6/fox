@@ -3,49 +3,57 @@ package adapter
 import (
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/cuhsat/fox/internal/opt"
 )
 
-type Callback func(string)
-
 type Adapter interface {
+	Select(node Node)
 	List(root string) []Node
+	Width() int
 }
 
 type Node struct {
 	Leaf  bool
+	Data  string
 	Text  string
 	Value string
 }
 
-func (n *Node) String() string {
-	return n.Text
-}
-
 type FileSystem struct {
 	state *opt.State
+	open  func(string)
 }
 
-func New(state *opt.State) *FileSystem {
+func NewFileSystem(state *opt.State, fn func(string)) *FileSystem {
 	return &FileSystem{
 		state: state,
+		open:  fn,
 	}
+}
+
+func (fs *FileSystem) Select(node Node) {
+	fs.state.Call(func() { fs.open(node.Value) })
 }
 
 func (fs *FileSystem) List(root string) []Node {
 	fs.state.ChangePath(root)
 
+	dir := filepath.Dir(root)
+
 	nodes := []Node{
 		{
 			Leaf:  false,
+			Data:  fs.data(root),
 			Text:  ".",
 			Value: root,
 		},
 		{
 			Leaf:  false,
+			Data:  fs.data(dir),
 			Text:  "..",
-			Value: filepath.Dir(root),
+			Value: dir,
 		},
 	}
 
@@ -56,12 +64,29 @@ func (fs *FileSystem) List(root string) []Node {
 	}
 
 	for _, file := range files {
+		path := filepath.Join(root, file.Name())
+
 		nodes = append(nodes, Node{
 			Leaf:  !file.IsDir(),
+			Data:  fs.data(path),
 			Text:  file.Name(),
-			Value: filepath.Join(root, file.Name()),
+			Value: path,
 		})
 	}
 
 	return nodes
+}
+
+func (fs *FileSystem) Width() int {
+	return 30 // RFC1123
+}
+
+func (fs *FileSystem) data(path string) string {
+	fi, err := os.Stat(path)
+
+	if err != nil {
+		return "error"
+	}
+
+	return fi.ModTime().UTC().Format(time.RFC1123)
 }

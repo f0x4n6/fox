@@ -7,7 +7,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/cuhsat/fox/internal/opt/ui/adapter"
 	"github.com/gdamore/tcell/v2"
 	"github.com/mattn/go-runewidth"
 
@@ -16,12 +15,12 @@ import (
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/opt"
 	"github.com/cuhsat/fox/internal/opt/ai/chat"
+	"github.com/cuhsat/fox/internal/opt/ui/adapter"
 	"github.com/cuhsat/fox/internal/opt/ui/themes"
 	"github.com/cuhsat/fox/internal/opt/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/types"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/internal/pkg/types/mode"
 	"github.com/cuhsat/fox/internal/pkg/user/bag"
 	"github.com/cuhsat/fox/internal/pkg/user/history"
 	"github.com/cuhsat/fox/internal/pkg/user/plugins"
@@ -44,7 +43,6 @@ type UI struct {
 	bag     *bag.Bag
 
 	title   *widgets.Title
-	list    *widgets.List
 	view    *widgets.View
 	prompt  *widgets.Prompt
 	overlay *widgets.Overlay
@@ -94,7 +92,6 @@ func New(hs *heapset.HeapSet, util types.Invoke) *UI {
 		bag:     bag.New(),
 
 		title:   widgets.NewTitle(state),
-		list:    widgets.NewList(state),
 		view:    widgets.NewView(state),
 		prompt:  widgets.NewPrompt(state),
 		overlay: widgets.NewOverlay(state),
@@ -133,8 +130,7 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 		_ = ui.root.PostEvent(tcell.NewEventInterrupt(ui.state.IsFollow()))
 	})
 
-	ui.list.SetAdapter(adapter.New(ui.state))
-	ui.list.SetSelected(hs.Open)
+	ui.view.Init(adapter.NewFileSystem(ui.state, hs.Open))
 
 	events := make(chan tcell.Event, 128)
 	closed := make(chan struct{})
@@ -255,23 +251,11 @@ func (ui *UI) render(hs *heapset.HeapSet) {
 	x, y := 0, 0
 	w, h := ui.root.Size()
 
-	var queue []widgets.Queueable
-
-	if ui.state.Mode() == mode.Open {
-		queue = []widgets.Queueable{
-			ui.title,
-			ui.list,
-			ui.prompt,
-		}
-	} else {
-		queue = []widgets.Queueable{
-			ui.title,
-			ui.view,
-			ui.prompt,
-		}
-	}
-
-	for _, base := range queue {
+	for _, base := range [...]widgets.Queueable{
+		ui.title,
+		ui.view,
+		ui.prompt,
+	} {
 		y += base.Render(hs, x, y, w, h-y)
 	}
 

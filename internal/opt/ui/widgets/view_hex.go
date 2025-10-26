@@ -59,6 +59,6 @@ func (v *View) hexRender(p *panel) {
 		}
 
 		// vertical scrollbar
-		v.state.Root.SetContent(p.W-1, p.Y+scrollY, '│', nil, themes.Terminal)
+		v.state.Root.SetContent(p.W-1, p.Y+scrollY, '┃', nil, themes.Terminal)
 	}
 }

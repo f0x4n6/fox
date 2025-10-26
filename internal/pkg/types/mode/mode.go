@@ -33,21 +33,21 @@ func (m Mode) IsFilter() bool {
 	}
 }
 
+func (m Mode) IsStatic() bool {
+	switch m {
+	case Hex, Open:
+		return true
+	default:
+		return false
+	}
+}
+
 func (m Mode) IsPrompt() bool {
 	switch m {
 	case Less, Hex, Open:
 		return false
 	default:
 		return true
-	}
-}
-
-func (m Mode) IsStatic() bool {
-	switch m {
-	case Hex:
-		return true
-	default:
-		return false
 	}
 }
 

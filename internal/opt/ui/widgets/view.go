@@ -1,7 +1,10 @@
 package widgets
 
 import (
+	"sync/atomic"
+
 	"github.com/cuhsat/fox/internal/opt"
+	"github.com/cuhsat/fox/internal/opt/ui/adapter"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 	"github.com/cuhsat/fox/internal/pkg/types/mode"
@@ -12,10 +15,16 @@ type View struct {
 	base
 	heap  *heap.Heap
 	fmap  *smap.SMap
+	list  atomic.Value
 	cache map[string]position
+
+	adapter adapter.Adapter
 
 	h  int
 	nr int
+
+	off  int
+	line int
 
 	last  point
 	delta point
@@ -34,6 +43,10 @@ func NewView(state *opt.State) *View {
 	}
 }
 
+func (v *View) Init(a adapter.Adapter) {
+	v.adapter = a
+}
+
 func (v *View) Render(hs *heapset.HeapSet, x, y, w, h int) int {
 	v.h = h - 1 // fill all but the least line
 
@@ -48,6 +61,8 @@ func (v *View) Render(hs *heapset.HeapSet, x, y, w, h int) int {
 	switch v.state.Mode() {
 	case mode.Hex:
 		v.hexRender(p)
+	case mode.Open:
+		v.listRender(p)
 	default:
 		v.textRender(p)
 	}
@@ -59,18 +74,40 @@ func (v *View) Reset() {
 	v.delta.X = 0
 	v.delta.Y = 0
 
+	v.off = 0
+
 	v.nr = 0
 }
 
-func (v *View) Goto(s string) {
-	if !v.state.Mode().IsStatic() {
-		v.textGoto(s)
+func (v *View) Select() bool {
+	page := v.listPage()
+	line := page[v.line]
+
+	if !line.Leaf {
+		nodes := v.adapter.List(line.Value)
+
+		v.list.Store(nodes)
+		v.last = point{0, len(nodes) - 1}
+		v.line = 0
+		v.off = 0
+
+		return false
+	} else {
+		v.adapter.Select(line)
+
+		return true
 	}
 }
 
 func (v *View) Preserve() {
 	if v.fmap != nil && len(*v.fmap) > v.delta.Y {
 		v.nr = (*v.fmap)[v.delta.Y].Nr
+	}
+}
+
+func (v *View) GotoPosition(pos string) {
+	if !v.state.Mode().IsStatic() {
+		v.textGoto(pos)
 	}
 }
 
@@ -99,6 +136,30 @@ func (v *View) LoadPosition(key string) {
 		} else {
 			v.nr = s.nr
 		}
+	}
+}
+
+func (v *View) LoadRoot(root string) {
+	nodes := v.adapter.List(root)
+
+	v.list.Store(nodes)
+
+	v.last = point{0, len(nodes) - 1}
+}
+
+func (v *View) MoveUp(delta int) {
+	if v.line > 0 {
+		v.line = max(v.line-delta, 0)
+	} else if v.off > 0 {
+		v.off = max(v.off-delta, 0)
+	}
+}
+
+func (v *View) MoveDown(delta int) {
+	if v.line < v.h-1 {
+		v.line = min(v.line+delta, v.last.Y)
+	} else if v.off <= (v.last.Y - v.h) {
+		v.off = min(v.off+delta, v.last.Y)
 	}
 }
 

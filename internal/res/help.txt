@@ -23,7 +23,7 @@ Keymap:
   Ctrl + T             Toggle tail follow
   Ctrl + K             Increase context
   Ctrl + J             Decrease context
-  Ctrl + O             Open file(s)
+  Ctrl + O             Open file
   Ctrl + A             Merge files
   Ctrl + Q             Close file
   Ctrl + C             Copy to clipboard

@@ -70,9 +70,12 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	switch k := ev.Key(); k {
 	case tcell.KeyEscape:
-		if ui.lkey == tcell.KeyEscape {
+		switch {
+		case ui.lkey == tcell.KeyEscape:
 			return true // twice to exit
-		} else if ui.state.Mode().IsPrompt() {
+		case ui.state.Mode().IsSelect():
+			ui.changeBack()
+		case ui.state.Mode().IsPrompt():
 			ui.changeBack()
 		}
 
@@ -80,6 +83,8 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyTab:
 		switch {
+		case ui.state.Mode().IsSelect():
+			return false // stay
 		case m&tcell.ModShift != 0:
 			ui.prevTab(hs, h)
 		default:
@@ -151,7 +156,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyUp:
 		switch {
 		case ui.state.Mode().IsSelect():
-			ui.list.MoveUp(delta)
+			ui.view.MoveUp(delta)
 		case ui.state.Mode().IsPrompt():
 			ui.prompt.SetInput(ui.history.PrevLine())
 		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
@@ -165,7 +170,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyDown:
 		switch {
 		case ui.state.Mode().IsSelect():
-			ui.list.MoveDown(delta)
+			ui.view.MoveDown(delta)
 		case ui.state.Mode().IsPrompt():
 			ui.prompt.SetInput(ui.history.NextLine())
 		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
@@ -233,7 +238,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.changeMode(mode.Goto)
 
 	case tcell.KeyCtrlO:
-		ui.list.Reset()
+		ui.view.LoadRoot(ui.state.Path())
 		ui.changeMode(mode.Open)
 
 	case tcell.KeyCtrlL:
@@ -334,11 +339,11 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 			ui.changeMode(mode.Less)
 
 		case mode.Goto:
-			ui.view.Goto(l)
+			ui.view.GotoPosition(l)
 			ui.changeMode(ui.state.Last())
 
 		case mode.Open:
-			if ui.list.Select() {
+			if ui.view.Select() {
 				ui.changeMode(ui.state.Last())
 			}
 
@@ -362,6 +367,8 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		switch {
 		case len(ui.prompt.GetInput()) > 0:
 			ui.prompt.DelRune(widgets.Before)
+		case ui.state.Mode().IsSelect():
+			ui.changeBack()
 		case ui.state.Mode().IsPrompt():
 			ui.changeBack()
 		case len(h.Patterns()) > 0 && !ui.state.Mode().IsStatic():
