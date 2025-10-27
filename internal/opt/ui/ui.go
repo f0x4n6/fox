@@ -15,7 +15,6 @@ import (
 	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/opt"
 	"github.com/cuhsat/fox/internal/opt/ai/chat"
-	"github.com/cuhsat/fox/internal/opt/ui/adapter"
 	"github.com/cuhsat/fox/internal/opt/ui/themes"
 	"github.com/cuhsat/fox/internal/opt/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
@@ -129,8 +128,6 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 	hs.SetCallback(func() {
 		_ = ui.root.PostEvent(tcell.NewEventInterrupt(ui.state.IsFollow()))
 	})
-
-	ui.view.Init(adapter.NewFileSystem(ui.state, hs.Open))
 
 	events := make(chan tcell.Event, 128)
 	closed := make(chan struct{})

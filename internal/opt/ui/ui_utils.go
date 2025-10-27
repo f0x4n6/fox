@@ -83,9 +83,9 @@ func (ui *UI) changeMode(m mode.Mode) {
 	// config completion
 	switch m {
 	case mode.Open:
-		ui.state.SetFind(fs.Find)
+		ui.state.SetFindable(fs.Find)
 	default:
-		ui.state.SetFind(ui.history.FindLine)
+		ui.state.SetFindable(ui.history.FindLine)
 	}
 
 	if ui.state.Last().IsStatic() || m.IsStatic() {

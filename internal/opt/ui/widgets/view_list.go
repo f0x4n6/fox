@@ -3,22 +3,19 @@ package widgets
 import (
 	"math"
 
-	"github.com/cuhsat/fox/internal/opt/ui/adapter"
 	"github.com/cuhsat/fox/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
 func (v *View) listRender(p *panel) {
-	w := v.adapter.Width()
+	w := fs.InfoWidth
 
 	page := v.listPage()
 
 	// print list
-	for y, node := range page {
-		// print data
-		v.print(p.X, p.Y+y, node.Data, themes.Subtext0)
-
-		// print text
-		v.print(p.X+w, p.Y+y, node.Text, themes.Terminal)
+	for y, item := range page {
+		v.print(p.X+0, p.Y+y, item.Info, themes.Subtext0)
+		v.print(p.X+w, p.Y+y, item.Text, themes.Terminal)
 	}
 
 	// print select
@@ -43,8 +40,14 @@ func (v *View) listRender(p *panel) {
 	}
 }
 
-func (v *View) listPage() []adapter.Node {
-	nodes := v.list.Load().([]adapter.Node)
+func (v *View) listPage() []fs.Item {
+	items := v.list.Load().([]fs.Item)
 
-	return nodes[v.off:]
+	return items[v.off:]
+}
+
+func (v *View) listItem() fs.Item {
+	page := v.listPage()
+
+	return page[v.line]
 }

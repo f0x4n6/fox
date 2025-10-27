@@ -9,11 +9,13 @@ import (
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/cuhsat/fox/internal/pkg/flags"
+	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types/mode"
 	"github.com/cuhsat/fox/internal/pkg/user/config"
 )
 
+type Listable func(string) []fs.Item
 type Findable func(string) string
 
 type State struct {
@@ -22,6 +24,7 @@ type State struct {
 	Root tcell.Screen
 	Icon *text.Icon
 
+	List Listable
 	Find Findable
 
 	mode mode.Mode
@@ -51,6 +54,9 @@ func NewState(root tcell.Screen) *State {
 
 		// icons
 		Icon: text.Icons(!flg.UI.Legacy),
+
+		// calls
+		List: fs.List,
 
 		// modes
 		mode: mode.Default,
@@ -196,7 +202,13 @@ func (s *State) ChangeTheme(t string) {
 	s.Unlock()
 }
 
-func (s *State) SetFind(fn Findable) {
+func (s *State) SetListable(fn Listable) {
+	s.Lock()
+	s.List = fn
+	s.Unlock()
+}
+
+func (s *State) SetFindable(fn Findable) {
 	s.Lock()
 	s.Find = fn
 	s.Unlock()

@@ -1,10 +1,7 @@
 package fs
 
 import (
-	"io"
 	"os"
-	"path"
-	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -13,11 +10,12 @@ import (
 
 var Watcher, _ = fsnotify.NewBufferedWatcher(2048)
 
-var ffs = NewForensicFs(
+var _fs = NewForensicFs(
 	// base filesystem
 	afero.NewReadOnlyFs(
 		afero.NewOsFs(),
 	),
+
 	// layer filesystem
 	NewNotifyFs(
 		afero.NewMemMapFs(),
@@ -126,54 +124,4 @@ func (fs *ForensicFs) Exists(name string) bool {
 	}
 
 	return false
-}
-
-func Map(file File) ([]byte, error) {
-	b, err := io.ReadAll(file)
-
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = file.Seek(0, io.SeekStart)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return b, nil
-}
-
-func Find(name string) string {
-	dir := path.Dir(name)
-
-	files, err := os.ReadDir(dir)
-
-	if err != nil {
-		return ""
-	}
-
-	for _, file := range files {
-		s := path.Join(dir, file.Name())
-
-		if strings.HasPrefix(s, name) {
-			return s
-		}
-	}
-
-	return ""
-}
-
-func Open(path string) File {
-	f, _ := ffs.Open(path)
-	return f
-}
-
-func Create(path string) File {
-	f, _ := ffs.Create(path)
-	return f
-}
-
-func Exists(path string) bool {
-	return ffs.Exists(path)
 }

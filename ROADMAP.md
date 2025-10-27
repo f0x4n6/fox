@@ -7,6 +7,7 @@
 * ~~Done~~
 
 ## 3. Features
+* Add command chains
 * Add -f for follow of file in print mode
 * Add new image README as GIF
 * Add Sleuth plugin support
@@ -23,6 +24,7 @@
   * https://goreleaser.com/customization/homebrew_casks/
 
 ## 4. Optimizations
+* Entropy graph for files
 * Check replacement with Kong / Koanf / Coral
 * Add debug output (`-v` flag)
 * SMap speed

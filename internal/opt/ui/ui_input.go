@@ -5,6 +5,7 @@ package ui
 import (
 	"fmt"
 	"math"
+	"path/filepath"
 	"strings"
 	"unicode"
 
@@ -156,7 +157,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyUp:
 		switch {
 		case ui.state.Mode().IsSelect():
-			ui.view.MoveUp(delta)
+			ui.prompt.SetInput(ui.view.MoveUp(delta))
 		case ui.state.Mode().IsPrompt():
 			ui.prompt.SetInput(ui.history.PrevLine())
 		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
@@ -170,7 +171,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyDown:
 		switch {
 		case ui.state.Mode().IsSelect():
-			ui.view.MoveDown(delta)
+			ui.prompt.SetInput(ui.view.MoveDown(delta))
 		case ui.state.Mode().IsPrompt():
 			ui.prompt.SetInput(ui.history.NextLine())
 		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
@@ -238,7 +239,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.changeMode(mode.Goto)
 
 	case tcell.KeyCtrlO:
-		ui.view.LoadRoot(ui.state.Path())
+		ui.view.LoadPath(ui.state.Path())
 		ui.changeMode(mode.Open)
 
 	case tcell.KeyCtrlL:
@@ -343,8 +344,19 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 			ui.changeMode(ui.state.Last())
 
 		case mode.Open:
-			if ui.view.Select() {
-				ui.changeMode(ui.state.Last())
+			if !ui.view.Select() {
+				ui.prompt.SetInput(fs.ActualDir)
+			} else {
+				ui.changeMode(mode.Default)
+				ui.state.Call(func() {
+					dir := ui.state.Path()
+
+					if l != fs.ActualDir {
+						hs.Open(filepath.Join(dir, l))
+					} else {
+						hs.Open(dir)
+					}
+				})
 			}
 
 		case mode.Chat:

@@ -35,7 +35,7 @@ func (m Mode) IsFilter() bool {
 
 func (m Mode) IsStatic() bool {
 	switch m {
-	case Hex, Open:
+	case Hex:
 		return true
 	default:
 		return false
@@ -44,7 +44,7 @@ func (m Mode) IsStatic() bool {
 
 func (m Mode) IsPrompt() bool {
 	switch m {
-	case Less, Hex, Open:
+	case Less, Hex:
 		return false
 	default:
 		return true

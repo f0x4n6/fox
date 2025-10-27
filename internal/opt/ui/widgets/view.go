@@ -4,7 +4,7 @@ import (
 	"sync/atomic"
 
 	"github.com/cuhsat/fox/internal/opt"
-	"github.com/cuhsat/fox/internal/opt/ui/adapter"
+	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 	"github.com/cuhsat/fox/internal/pkg/types/mode"
@@ -17,8 +17,6 @@ type View struct {
 	fmap  *smap.SMap
 	list  atomic.Value
 	cache map[string]position
-
-	adapter adapter.Adapter
 
 	h  int
 	nr int
@@ -41,10 +39,6 @@ func NewView(state *opt.State) *View {
 		base:  base{state},
 		cache: make(map[string]position),
 	}
-}
-
-func (v *View) Init(a adapter.Adapter) {
-	v.adapter = a
 }
 
 func (v *View) Render(hs *heapset.HeapSet, x, y, w, h int) int {
@@ -80,23 +74,19 @@ func (v *View) Reset() {
 }
 
 func (v *View) Select() bool {
-	page := v.listPage()
-	line := page[v.line]
+	item := v.listItem()
 
-	if !line.Leaf {
-		nodes := v.adapter.List(line.Value)
-
-		v.list.Store(nodes)
-		v.last = point{0, len(nodes) - 1}
-		v.line = 0
-		v.off = 0
-
-		return false
-	} else {
-		v.adapter.Select(line)
-
-		return true
+	if item.Text == fs.ActualDir {
+		return true // select root
 	}
+
+	if item.Leaf {
+		return true // select line
+	}
+
+	v.LoadPath(item.Value)
+
+	return false
 }
 
 func (v *View) Preserve() {
@@ -139,28 +129,35 @@ func (v *View) LoadPosition(key string) {
 	}
 }
 
-func (v *View) LoadRoot(root string) {
-	nodes := v.adapter.List(root)
+func (v *View) LoadPath(root string) {
+	items := v.state.List(root)
 
-	v.list.Store(nodes)
+	v.state.ChangePath(root)
 
-	v.last = point{0, len(nodes) - 1}
+	v.list.Store(items)
+	v.last = point{0, len(items) - 1}
+	v.line = 0
+	v.off = 0
 }
 
-func (v *View) MoveUp(delta int) {
+func (v *View) MoveUp(delta int) string {
 	if v.line > 0 {
 		v.line = max(v.line-delta, 0)
 	} else if v.off > 0 {
 		v.off = max(v.off-delta, 0)
 	}
+
+	return v.listItem().Text
 }
 
-func (v *View) MoveDown(delta int) {
+func (v *View) MoveDown(delta int) string {
 	if v.line < v.h-1 {
 		v.line = min(v.line+delta, v.last.Y)
 	} else if v.off <= (v.last.Y - v.h) {
 		v.off = min(v.off+delta, v.last.Y)
 	}
+
+	return v.listItem().Text
 }
 
 func (v *View) ScrollLine() {
