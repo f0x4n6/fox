@@ -68,12 +68,12 @@ func (ui *UI) changeMode(m mode.Mode) {
 	}
 
 	// former mode
-	if ui.state.Last().Prompt() {
+	if ui.state.Last().IsPrompt() {
 		ui.prompt.SetInput("")
 	}
 
 	// actual mode
-	ui.prompt.Lock(!m.Prompt())
+	ui.prompt.Lock(!m.IsPrompt())
 
 	// force the cursor off
 	if ui.prompt.Locked() {
@@ -83,12 +83,12 @@ func (ui *UI) changeMode(m mode.Mode) {
 	// config completion
 	switch m {
 	case mode.Open:
-		ui.state.SetFind(fs.Find)
+		ui.state.SetFindable(fs.Find)
 	default:
-		ui.state.SetFind(ui.history.FindLine)
+		ui.state.SetFindable(ui.history.FindLine)
 	}
 
-	if ui.state.Last().Static() || m.Static() {
+	if ui.state.Last().IsStatic() || m.IsStatic() {
 		ui.view.Reset()
 	}
 }
@@ -98,7 +98,7 @@ func (ui *UI) changeBack() {
 		return // never change chat mode
 	}
 
-	if ui.state.Last().Prompt() {
+	if ui.state.Last().IsPrompt() {
 		ui.changeMode(mode.Default)
 	} else {
 		ui.changeMode(ui.state.Last())

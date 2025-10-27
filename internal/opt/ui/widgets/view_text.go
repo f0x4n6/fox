@@ -131,18 +131,18 @@ func (v *View) textRender(p *panel) {
 	}
 }
 
-func (v *View) textGoto(s string) {
+func (v *View) textGoto(pos string) {
 	var nr int
 
-	switch s[0] {
+	switch pos[0] {
 	case '+':
-		nr = (*v.fmap)[v.delta.Y].Nr + text.Int(s[1:])
+		nr = (*v.fmap)[v.delta.Y].Nr + text.Int(pos[1:])
 
 	case '-':
-		nr = (*v.fmap)[v.delta.Y].Nr - text.Int(s[1:])
+		nr = (*v.fmap)[v.delta.Y].Nr - text.Int(pos[1:])
 
 	default:
-		nr = text.Int(s)
+		nr = text.Int(pos)
 	}
 
 	if y, ok := v.fmap.Find(nr); ok {

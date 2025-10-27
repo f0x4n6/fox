@@ -24,7 +24,7 @@ func (m Mode) String() string {
 	return strings.ToUpper(string(m))
 }
 
-func (m Mode) Filter() bool {
+func (m Mode) IsFilter() bool {
 	switch m {
 	case Less, Grep, Pick:
 		return true
@@ -33,7 +33,16 @@ func (m Mode) Filter() bool {
 	}
 }
 
-func (m Mode) Prompt() bool {
+func (m Mode) IsStatic() bool {
+	switch m {
+	case Hex:
+		return true
+	default:
+		return false
+	}
+}
+
+func (m Mode) IsPrompt() bool {
 	switch m {
 	case Less, Hex:
 		return false
@@ -42,9 +51,9 @@ func (m Mode) Prompt() bool {
 	}
 }
 
-func (m Mode) Static() bool {
+func (m Mode) IsSelect() bool {
 	switch m {
-	case Hex:
+	case Open:
 		return true
 	default:
 		return false

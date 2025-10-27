@@ -154,7 +154,7 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 				}
 
 			case *tcell.EventClipboard:
-				if !ui.state.Mode().Static() {
+				if !ui.state.Mode().IsStatic() {
 					v := string(ev.Data())
 					v = strings.TrimPrefix(v, prefix)
 					v = strings.TrimSuffix(v, suffix)

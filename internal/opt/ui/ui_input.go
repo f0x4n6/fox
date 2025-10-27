@@ -5,6 +5,7 @@ package ui
 import (
 	"fmt"
 	"math"
+	"path/filepath"
 	"strings"
 	"unicode"
 
@@ -70,9 +71,12 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	switch k := ev.Key(); k {
 	case tcell.KeyEscape:
-		if ui.lkey == tcell.KeyEscape {
+		switch {
+		case ui.lkey == tcell.KeyEscape:
 			return true // twice to exit
-		} else if ui.state.Mode().Prompt() {
+		case ui.state.Mode().IsSelect():
+			ui.changeBack()
+		case ui.state.Mode().IsPrompt():
 			ui.changeBack()
 		}
 
@@ -80,6 +84,8 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyTab:
 		switch {
+		case ui.state.Mode().IsSelect():
+			return false // stay
 		case m&tcell.ModShift != 0:
 			ui.prevTab(hs, h)
 		default:
@@ -150,7 +156,9 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyUp:
 		switch {
-		case ui.state.Mode().Prompt():
+		case ui.state.Mode().IsSelect():
+			ui.prompt.SetInput(ui.view.MoveUp(delta))
+		case ui.state.Mode().IsPrompt():
 			ui.prompt.SetInput(ui.history.PrevLine())
 		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
 			ui.view.ScrollStart()
@@ -162,7 +170,9 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyDown:
 		switch {
-		case ui.state.Mode().Prompt():
+		case ui.state.Mode().IsSelect():
+			ui.prompt.SetInput(ui.view.MoveDown(delta))
+		case ui.state.Mode().IsPrompt():
 			ui.prompt.SetInput(ui.history.NextLine())
 		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
 			ui.view.ScrollEnd()
@@ -174,7 +184,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyLeft:
 		switch {
-		case ui.state.Mode().Prompt():
+		case ui.state.Mode().IsPrompt():
 			if m&tcell.ModCtrl != 0 {
 				ui.prompt.MoveStart()
 			} else {
@@ -190,7 +200,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyRight:
 		switch {
-		case ui.state.Mode().Prompt():
+		case ui.state.Mode().IsPrompt():
 			switch {
 			case !ui.prompt.CanMovedEnd():
 				ui.prompt.Complete()
@@ -229,6 +239,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.changeMode(mode.Goto)
 
 	case tcell.KeyCtrlO:
+		ui.view.LoadPath(ui.state.Path())
 		ui.changeMode(mode.Open)
 
 	case tcell.KeyCtrlL:
@@ -271,18 +282,18 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.root.GetClipboard()
 
 	case tcell.KeyCtrlE:
-		if !ui.state.Mode().Static() && hs.Merge() {
+		if !ui.state.Mode().IsStatic() && hs.Merge() {
 			ui.overlay.SendInfo("Merged all open files")
 		}
 
 	case tcell.KeyCtrlC:
-		if !ui.state.Mode().Static() {
+		if !ui.state.Mode().IsStatic() {
 			ui.root.SetClipboard(h.Bytes())
 			ui.overlay.SendInfo(fmt.Sprintf("%s copied to clipboard", h.String()))
 		}
 
 	case tcell.KeyCtrlS:
-		if !ui.state.Mode().Static() && ui.bag.Put(h) {
+		if !ui.state.Mode().IsStatic() && ui.bag.Put(h) {
 			ui.overlay.SendInfo(fmt.Sprintf("%s saved to %s", h.String(), ui.bag.String()))
 		}
 
@@ -308,7 +319,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		l := ui.prompt.ReadLine()
 		m := ui.state.Mode()
 
-		if m.Prompt() && len(strings.TrimSpace(l)) == 0 {
+		if m.IsPrompt() && len(strings.TrimSpace(l)) == 0 {
 			return false
 		}
 
@@ -329,14 +340,24 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 			ui.changeMode(mode.Less)
 
 		case mode.Goto:
-			ui.view.Goto(l)
+			ui.view.GotoPosition(l)
 			ui.changeMode(ui.state.Last())
 
 		case mode.Open:
-			ui.state.Call(func() {
-				hs.Open(l)
-			})
-			ui.changeMode(ui.state.Last())
+			if !ui.view.Select() {
+				ui.prompt.SetInput(fs.ActualDir)
+			} else {
+				ui.changeMode(mode.Default)
+				ui.state.Call(func() {
+					dir := ui.state.Path()
+
+					if l != fs.ActualDir {
+						hs.Open(filepath.Join(dir, l))
+					} else {
+						hs.Open(dir)
+					}
+				})
+			}
 
 		case mode.Chat:
 			ui.view.Reset()
@@ -358,9 +379,11 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		switch {
 		case len(ui.prompt.GetInput()) > 0:
 			ui.prompt.DelRune(widgets.Before)
-		case ui.state.Mode().Prompt():
+		case ui.state.Mode().IsSelect():
 			ui.changeBack()
-		case len(h.Patterns()) > 0 && !ui.state.Mode().Static():
+		case ui.state.Mode().IsPrompt():
+			ui.changeBack()
+		case len(h.Patterns()) > 0 && !ui.state.Mode().IsStatic():
 			ui.view.Reset()
 			h.DelFilter()
 		}

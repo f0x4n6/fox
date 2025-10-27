@@ -8,6 +8,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/internal/pkg/types/mode"
 )
 
 type Title struct {
@@ -28,6 +29,10 @@ func (t *Title) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 		i, h = hs.Heap()
 		s = h.String()
 		n = hs.Len()
+	}
+
+	if t.state.Mode() == mode.Open {
+		s = t.state.Path()
 	}
 
 	var c string

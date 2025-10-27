@@ -42,6 +42,7 @@ require (
 	github.com/Velocidex/yaml/v2 v2.2.8 // indirect
 	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/clipperhouse/uax29/v2 v2.2.0 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
@@ -58,7 +59,6 @@ require (
 
 require (
 	github.com/0xrawsec/golang-utils v1.3.2 // indirect
-	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect

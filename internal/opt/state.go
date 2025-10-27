@@ -1,6 +1,7 @@
 package opt
 
 import (
+	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -8,11 +9,13 @@ import (
 	"github.com/gdamore/tcell/v2"
 
 	"github.com/cuhsat/fox/internal/pkg/flags"
+	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/text"
 	"github.com/cuhsat/fox/internal/pkg/types/mode"
 	"github.com/cuhsat/fox/internal/pkg/user/config"
 )
 
+type Listable func(string) []fs.Item
 type Findable func(string) string
 
 type State struct {
@@ -21,10 +24,13 @@ type State struct {
 	Root tcell.Screen
 	Icon *text.Icon
 
+	List Listable
 	Find Findable
 
 	mode mode.Mode
 	last mode.Mode
+
+	path string
 
 	model string
 	embed string
@@ -49,6 +55,9 @@ func NewState(root tcell.Screen) *State {
 		// icons
 		Icon: text.Icons(!flg.UI.Legacy),
 
+		// calls
+		List: fs.List,
+
 		// modes
 		mode: mode.Default,
 		last: mode.Default,
@@ -60,6 +69,8 @@ func NewState(root tcell.Screen) *State {
 		// theme
 		theme: cfg.GetString("ui.theme"),
 	}
+
+	state.path, _ = os.Getwd()
 
 	state.space.Store(cfg.GetUint32("ui.space"))
 
@@ -94,6 +105,12 @@ func (s *State) Last() mode.Mode {
 	s.RLock()
 	defer s.RUnlock()
 	return s.last
+}
+
+func (s *State) Path() string {
+	s.RLock()
+	defer s.RUnlock()
+	return s.path
 }
 
 func (s *State) Model() string {
@@ -144,7 +161,7 @@ func (s *State) ForceRender() {
 
 func (s *State) SwitchMode(m mode.Mode) bool {
 	// deny goto in static modes
-	if m == mode.Goto && s.Mode().Static() {
+	if m == mode.Goto && s.Mode().IsStatic() {
 		return false
 	}
 
@@ -159,6 +176,12 @@ func (s *State) SwitchMode(m mode.Mode) bool {
 	s.Unlock()
 
 	return true
+}
+
+func (s *State) ChangePath(p string) {
+	s.Lock()
+	s.path = p
+	s.Unlock()
 }
 
 func (s *State) ChangeModel(m string) {
@@ -179,7 +202,13 @@ func (s *State) ChangeTheme(t string) {
 	s.Unlock()
 }
 
-func (s *State) SetFind(fn Findable) {
+func (s *State) SetListable(fn Listable) {
+	s.Lock()
+	s.List = fn
+	s.Unlock()
+}
+
+func (s *State) SetFindable(fn Findable) {
 	s.Lock()
 	s.Find = fn
 	s.Unlock()

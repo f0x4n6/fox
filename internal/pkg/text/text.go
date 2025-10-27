@@ -95,3 +95,20 @@ func Block(s string, w int) (t string) {
 
 	return
 }
+
+func Human(n int64) string {
+	const unit = 1000
+
+	if n < unit {
+		return fmt.Sprintf("%dB", n)
+	}
+
+	div, exp := int64(unit), 0
+
+	for n := n / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+
+	return fmt.Sprintf("%.1f%c", float64(n)/float64(div), "KMGTPE"[exp])
+}

@@ -77,7 +77,7 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	p.print(x, y, m, themes.Surface3)
 
 	// skip the rest in static modes
-	if p.state.Mode().Static() {
+	if p.state.Mode().IsStatic() {
 		return 1
 	}
 
@@ -89,7 +89,7 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	x += ml
 
 	// render filter
-	if p.state.Mode().Filter() {
+	if p.state.Mode().IsFilter() {
 		p.print(x, y, f, themes.Surface1)
 	}
 
@@ -124,7 +124,7 @@ func (p *Prompt) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	p.cursorEnd.Store(int32(vl - o))
 	p.cursorMax.Store(int32(cm - 1))
 
-	if p.state.Mode().Prompt() && !p.Locked() {
+	if p.state.Mode().IsPrompt() && !p.Locked() {
 		p.state.Root.ShowCursor(x+d+c, y)
 	} else {
 		p.state.Root.HideCursor()
@@ -305,7 +305,7 @@ func (p *Prompt) fitFilters(fs []*heap.Pattern) []*heap.Pattern {
 func (p *Prompt) fmtFilters(fs []*heap.Pattern, fit bool) string {
 	var sb strings.Builder
 
-	if p.state.Mode().Filter() {
+	if p.state.Mode().IsFilter() {
 		for i, f := range fs {
 			if fit && i == 0 {
 				sb.WriteRune(' ')
@@ -337,7 +337,7 @@ func (p *Prompt) fmtInput(fl int) string {
 
 	if v, ok := p.input.Load().(string); ok {
 		// add space before input in all modes
-		if (!p.state.Mode().Filter() || fl == 0) && len(v) > 0 {
+		if (!p.state.Mode().IsFilter() || fl == 0) && len(v) > 0 {
 			sb.WriteRune(' ')
 		}
 

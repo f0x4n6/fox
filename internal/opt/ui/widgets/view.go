@@ -1,7 +1,10 @@
 package widgets
 
 import (
+	"sync/atomic"
+
 	"github.com/cuhsat/fox/internal/opt"
+	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 	"github.com/cuhsat/fox/internal/pkg/types/mode"
@@ -12,10 +15,14 @@ type View struct {
 	base
 	heap  *heap.Heap
 	fmap  *smap.SMap
+	list  atomic.Value
 	cache map[string]position
 
 	h  int
 	nr int
+
+	off  int
+	line int
 
 	last  point
 	delta point
@@ -48,6 +55,8 @@ func (v *View) Render(hs *heapset.HeapSet, x, y, w, h int) int {
 	switch v.state.Mode() {
 	case mode.Hex:
 		v.hexRender(p)
+	case mode.Open:
+		v.listRender(p)
 	default:
 		v.textRender(p)
 	}
@@ -59,18 +68,36 @@ func (v *View) Reset() {
 	v.delta.X = 0
 	v.delta.Y = 0
 
+	v.off = 0
+
 	v.nr = 0
 }
 
-func (v *View) Goto(s string) {
-	if !v.state.Mode().Static() {
-		v.textGoto(s)
+func (v *View) Select() bool {
+	item := v.listItem()
+
+	if item.Text == fs.ActualDir {
+		return true // select root
 	}
+
+	if item.Leaf {
+		return true // select line
+	}
+
+	v.LoadPath(item.Value)
+
+	return false
 }
 
 func (v *View) Preserve() {
 	if v.fmap != nil && len(*v.fmap) > v.delta.Y {
 		v.nr = (*v.fmap)[v.delta.Y].Nr
+	}
+}
+
+func (v *View) GotoPosition(pos string) {
+	if !v.state.Mode().IsStatic() {
+		v.textGoto(pos)
 	}
 }
 
@@ -102,8 +129,39 @@ func (v *View) LoadPosition(key string) {
 	}
 }
 
+func (v *View) LoadPath(root string) {
+	items := v.state.List(root)
+
+	v.state.ChangePath(root)
+
+	v.list.Store(items)
+	v.last = point{0, len(items) - 1}
+	v.line = 0
+	v.off = 0
+}
+
+func (v *View) MoveUp(delta int) string {
+	if v.line > 0 {
+		v.line = max(v.line-delta, 0)
+	} else if v.off > 0 {
+		v.off = max(v.off-delta, 0)
+	}
+
+	return v.listItem().Text
+}
+
+func (v *View) MoveDown(delta int) string {
+	if v.line < v.h-1 {
+		v.line = min(v.line+delta, v.last.Y)
+	} else if v.off <= (v.last.Y - v.h) {
+		v.off = min(v.off+delta, v.last.Y)
+	}
+
+	return v.listItem().Text
+}
+
 func (v *View) ScrollLine() {
-	if v.state.Mode().Static() || v.heap.HasContext() {
+	if v.state.Mode().IsStatic() || v.heap.HasContext() {
 		v.ScrollDown(1)
 		return
 	}
