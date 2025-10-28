@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gdamore/tcell/v2"
+
 	"github.com/cuhsat/fox/internal/opt/ai"
 	"github.com/cuhsat/fox/internal/opt/ai/chat"
 	"github.com/cuhsat/fox/internal/opt/ui/themes"
@@ -29,6 +31,90 @@ const (
 
 func format(l, r string) string {
 	return text.Title(l, r, !flags.Get().UI.Legacy)
+}
+
+func (ui *UI) gotoHome() {
+	switch {
+	case ui.state.Mode().IsSelect():
+		ui.prompt.SetInput(ui.view.MoveHome())
+	default:
+		ui.view.ScrollHome()
+	}
+}
+
+func (ui *UI) gotoEnd() {
+	switch {
+	case ui.state.Mode().IsSelect():
+		ui.prompt.SetInput(ui.view.MoveEnd())
+	default:
+		ui.view.ScrollEnd()
+	}
+}
+
+func (ui *UI) lineUp() {
+	switch {
+	case ui.state.Mode().IsSelect():
+		ui.prompt.SetInput(ui.view.MoveUp(delta))
+	default:
+		ui.view.ScrollUp(delta)
+	}
+}
+
+func (ui *UI) lineDown() {
+	switch {
+	case ui.state.Mode().IsSelect():
+		ui.prompt.SetInput(ui.view.MoveDown(delta))
+	default:
+		ui.view.ScrollDown(delta)
+	}
+}
+
+func (ui *UI) pageUp(h int) {
+	switch {
+	case ui.state.Mode().IsSelect():
+		ui.prompt.SetInput(ui.view.MoveUp(h - 1))
+	default:
+		ui.view.ScrollUp(h)
+	}
+}
+
+func (ui *UI) pageDown(h int) {
+	switch {
+	case ui.state.Mode().IsSelect():
+		ui.prompt.SetInput(ui.view.MoveDown(h - 1))
+	default:
+		ui.view.ScrollDown(h)
+	}
+}
+
+func (ui *UI) scrollUp(h int, mod tcell.ModMask) {
+	m := ui.state.Mode()
+
+	switch {
+	case m.IsPrompt() && !m.IsSelect():
+		ui.prompt.SetInput(ui.history.PrevLine())
+	case mod&tcell.ModShift != 0 && mod&tcell.ModCtrl != 0:
+		ui.gotoHome()
+	case mod&tcell.ModShift != 0:
+		ui.pageUp(h)
+	default:
+		ui.lineUp()
+	}
+}
+
+func (ui *UI) scrollDown(h int, mod tcell.ModMask) {
+	m := ui.state.Mode()
+
+	switch {
+	case m.IsPrompt() && !m.IsSelect():
+		ui.prompt.SetInput(ui.history.NextLine())
+	case mod&tcell.ModShift != 0 && mod&tcell.ModCtrl != 0:
+		ui.gotoEnd()
+	case mod&tcell.ModShift != 0:
+		ui.pageDown(h)
+	default:
+		ui.lineDown()
+	}
 }
 
 func (ui *UI) prevTab(hs *heapset.HeapSet, h *heap.Heap) {

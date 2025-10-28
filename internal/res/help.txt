@@ -10,9 +10,10 @@ Keymap:
   Ctrl + Shift + Up    Scroll to start
   Ctrl + Shift + Down  Scroll to end
   Ctrl + Space         Scroll to [+|-]LINE
-  Ctrl + Right / Tab   Load next file
-  Ctrl + Left          Load prev file
+  Ctrl + Right / Tab   Show next file
+  Ctrl + Left          Show prev file
   Ctrl + ^             Cycle through themes
+  Ctrl + O             Switch to OPEN mode
   Ctrl + L             Switch to LESS mode
   Ctrl + F             Switch to GREP mode
   Ctrl + X             Switch to HEX mode
@@ -23,7 +24,6 @@ Keymap:
   Ctrl + T             Toggle tail follow
   Ctrl + K             Increase context
   Ctrl + J             Decrease context
-  Ctrl + O             Open file(s)
   Ctrl + A             Merge files
   Ctrl + Q             Close file
   Ctrl + C             Copy to clipboard
@@ -38,6 +38,19 @@ Keymap:
   F6                   Show file(s) hash sum
   F7                   Show file(s) timeline
   F8 - F24             Execute plugin
+
+Keymap (OPEN):
+  Esc                  Switch to LESS mode
+  Enter                Open file(s)
+  Up                   Prev file in directory
+  Down                 Next file in directory
+  Left                 Move cursor left
+  Right                Move cursor right
+  Right the at end     Complete suggestion
+  Ctrl + Left          Move cursor to start
+  Ctrl + Right         Move cursor to end
+  Ctrl + V             Paste from clipboard
+  Any other key        Define file path(s)
 
 Keymap (LESS):
   Enter                Scroll one line down

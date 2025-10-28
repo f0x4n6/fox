@@ -155,32 +155,10 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.runPlugin(hs, h, strings.ToLower(ev.Name()))
 
 	case tcell.KeyUp:
-		switch {
-		case ui.state.Mode().IsSelect():
-			ui.prompt.SetInput(ui.view.MoveUp(delta))
-		case ui.state.Mode().IsPrompt():
-			ui.prompt.SetInput(ui.history.PrevLine())
-		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
-			ui.view.ScrollStart()
-		case m&tcell.ModShift != 0:
-			ui.view.ScrollUp(pageH)
-		default:
-			ui.view.ScrollUp(delta)
-		}
+		ui.scrollUp(pageH, m)
 
 	case tcell.KeyDown:
-		switch {
-		case ui.state.Mode().IsSelect():
-			ui.prompt.SetInput(ui.view.MoveDown(delta))
-		case ui.state.Mode().IsPrompt():
-			ui.prompt.SetInput(ui.history.NextLine())
-		case m&tcell.ModShift != 0 && m&tcell.ModCtrl != 0:
-			ui.view.ScrollEnd()
-		case m&tcell.ModShift != 0:
-			ui.view.ScrollDown(pageH)
-		default:
-			ui.view.ScrollDown(delta)
-		}
+		ui.scrollDown(pageH, m)
 
 	case tcell.KeyLeft:
 		switch {
@@ -218,16 +196,16 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		}
 
 	case tcell.KeyHome:
-		ui.view.ScrollStart()
+		ui.gotoHome()
 
 	case tcell.KeyPgUp:
-		ui.view.ScrollUp(pageH)
+		ui.pageUp(pageH)
 
 	case tcell.KeyPgDn:
-		ui.view.ScrollDown(pageH)
+		ui.pageDown(pageH)
 
 	case tcell.KeyEnd:
-		ui.view.ScrollEnd()
+		ui.gotoEnd()
 
 	case tcell.KeyCtrlCarat:
 		ui.changeTheme()

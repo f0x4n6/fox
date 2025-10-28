@@ -19,7 +19,7 @@ func (v *View) listRender(p *panel) {
 	}
 
 	// print select
-	v.print(p.X+w, p.Y+(v.line), page[v.line].Text, themes.Subtext2)
+	v.print(p.X+w, p.Y+(v.line), v.listItem().Text, themes.Subtext2)
 
 	// print scrollbar
 	for y := range p.H {
@@ -43,11 +43,11 @@ func (v *View) listRender(p *panel) {
 func (v *View) listPage() []fs.Item {
 	items := v.list.Load().([]fs.Item)
 
-	return items[v.off:]
+	return items[min(v.off, len(items)-1):]
 }
 
 func (v *View) listItem() fs.Item {
 	page := v.listPage()
 
-	return page[v.line]
+	return page[min(v.line, len(page)-1)]
 }

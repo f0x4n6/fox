@@ -13,7 +13,9 @@ const (
 	ParentDir = ".."
 )
 
-const InfoWidth = 24
+const InfoWidth = 20
+
+const infoFmt = "%12s %6s"
 
 type Item struct {
 	Leaf  bool
@@ -54,16 +56,16 @@ func Info(path string) string {
 	fi, err := os.Stat(path)
 
 	if err != nil {
-		return "Error"
+		return fmt.Sprintf(infoFmt, "", "ERROR")
 	}
 
 	s := text.Human(fi.Size())
 
 	if fi.IsDir() {
-		s = "Folder"
+		s = "DIR"
 	}
 
 	t := fi.ModTime().UTC().Format("02 Jan 15:04")
 
-	return fmt.Sprintf("%s │ %6s │", t, s)
+	return fmt.Sprintf(infoFmt, t, s)
 }

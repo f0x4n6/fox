@@ -5,7 +5,7 @@
 | Key                            | Action       |
 |--------------------------------|--------------|
 | <kbd>Esc</kbd> <kbd>Esc</kbd>  | Exit         |
-| <kbd>Ctrl</kbd> + <kbd>O</kbd> | Open file(s) |
+| <kbd>Ctrl</kbd> + <kbd>O</kbd> | Browse files |
 | <kbd>Ctrl</kbd> + <kbd>E</kbd> | Merge files  |
 | <kbd>Ctrl</kbd> + <kbd>Q</kbd> | Close file   |
 
@@ -20,14 +20,15 @@
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Up</kbd>                    | Scroll to start            |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Down</kbd>                  | Scroll to end              |
 | <kbd>Ctrl</kbd> + <kbd>Space</kbd> / <kbd>Ctrl</kbd> + <kbd>G</kbd>   | Scroll to `+` / `-` `LINE` |
-| <kbd>Ctrl</kbd> + <kbd>Right</kbd> / <kbd>Tab</kbd>                   | Load next file             |
-| <kbd>Ctrl</kbd> + <kbd>Left</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Load prev file             |
+| <kbd>Ctrl</kbd> + <kbd>Right</kbd> / <kbd>Tab</kbd>                   | Show next file             |
+| <kbd>Ctrl</kbd> + <kbd>Left</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Show prev file             |
 
 ## Workbench
 
 | Key                            | Action                                        |
 |--------------------------------|-----------------------------------------------|
 | <kbd>Ctrl</kbd> + <kbd>^</kbd> | Cycle through [themes](../themes/builtin.md)  |
+| <kbd>Ctrl</kbd> + <kbd>O</kbd> | Switch to [Open](../features/ui/open.md) mode |
 | <kbd>Ctrl</kbd> + <kbd>L</kbd> | Switch to [Less](../features/ui/less.md) mode |
 | <kbd>Ctrl</kbd> + <kbd>F</kbd> | Switch to [Grep](../features/ui/grep.md) mode |
 | <kbd>Ctrl</kbd> + <kbd>X</kbd> | Switch to [Hex](../features/ui/hex.md) mode   |

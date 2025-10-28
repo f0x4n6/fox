@@ -140,6 +140,19 @@ func (v *View) LoadPath(root string) {
 	v.off = 0
 }
 
+func (v *View) MoveHome() string {
+	v.line, v.off = 0, 0
+
+	return v.listItem().Text
+}
+
+func (v *View) MoveEnd() string {
+	v.line = min(v.last.Y, v.h-1)
+	v.off = max((v.last.Y-v.h)+1, 0)
+
+	return v.listItem().Text
+}
+
 func (v *View) MoveUp(delta int) string {
 	if v.line > 0 {
 		v.line = max(v.line-delta, 0)
@@ -153,8 +166,8 @@ func (v *View) MoveUp(delta int) string {
 func (v *View) MoveDown(delta int) string {
 	if v.line < v.h-1 {
 		v.line = min(v.line+delta, v.last.Y)
-	} else if v.off <= (v.last.Y - v.h) {
-		v.off = min(v.off+delta, v.last.Y)
+	} else if v.off < (v.last.Y-v.h)+1 {
+		v.off = min(v.off+delta, (v.last.Y-v.h)+1)
 	}
 
 	return v.listItem().Text
@@ -184,7 +197,7 @@ func (v *View) ScrollLast() {
 	v.delta.Y = max(v.last.Y-(v.h-3), 0)
 }
 
-func (v *View) ScrollStart() {
+func (v *View) ScrollHome() {
 	v.delta.Y = 0
 }
 
