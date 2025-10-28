@@ -225,7 +225,7 @@ func TestWrap(t *testing.T) {
 }
 
 func TestGrep(t *testing.T) {
-	f, m, err := fixture("test.cls")
+	f, m, err := fixture("test.ioc")
 	v := "test@example.org\nhttps://example.org\n"
 
 	if err != nil {

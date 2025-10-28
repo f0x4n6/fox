@@ -17,7 +17,7 @@ The string carving util has also a built-in classification of found strings. The
 
 ## Example
 ```console
-$ fox strings -p --class testdata/test.cls
+$ fox strings -p --class testdata/test.ioc
 00000000  data  Hello World
 0000000c  ipv4  127.0.0.1
 00000016  ipv6  2001:0db8:85a3:08d3:1319:8a2e:0370:7344

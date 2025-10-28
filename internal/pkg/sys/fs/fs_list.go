@@ -41,8 +41,14 @@ func List(root string) []Item {
 	for _, file := range files {
 		path := filepath.Join(root, file.Name())
 
+		dir, err := isDir(path)
+
+		if err != nil {
+			continue
+		}
+
 		items = append(items, Item{
-			Leaf:  !file.IsDir(),
+			Leaf:  !dir,
 			Info:  Info(path),
 			Text:  file.Name(),
 			Value: path,
@@ -56,7 +62,7 @@ func Info(path string) string {
 	fi, err := os.Stat(path)
 
 	if err != nil {
-		return fmt.Sprintf(infoFmt, "", "ERROR")
+		return fmt.Sprintf(infoFmt, "", "ERR")
 	}
 
 	s := text.Human(fi.Size())
@@ -68,4 +74,30 @@ func Info(path string) string {
 	t := fi.ModTime().UTC().Format("02 Jan 15:04")
 
 	return fmt.Sprintf(infoFmt, t, s)
+}
+
+func isDir(path string) (bool, error) {
+	fi, err := os.Stat(path)
+
+	if err != nil {
+		return false, err
+	}
+
+	if fi.Mode()&os.ModeSymlink == 0 {
+		return fi.IsDir(), nil
+	}
+
+	dst, err := filepath.EvalSymlinks(path)
+
+	if err != nil {
+		return false, err
+	}
+
+	fi, err = os.Stat(dst)
+
+	if err != nil {
+		return false, err
+	}
+
+	return fi.IsDir(), nil
 }
