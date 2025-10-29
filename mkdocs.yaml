@@ -72,11 +72,11 @@ nav:
     - Configuration: plugins/config.md
 
     - Ready-made:
-      - Logs: plugins/ready/logs.md
       - Dissect: plugins/ready/dissect.md
-      - Sleuth Kit: plugins/ready/sleuth.md
       - Eric Zimmerman: plugins/ready/eztools.md
-      - Reverse Engineering: plugins/ready/reverse.md
+      - Sleuth Kit: plugins/ready/sleuth.md
+      - Various logs: plugins/ready/logs.md
+      - Various tools: plugins/ready/tools.md
 
   - Themes:
     - Built-in: themes/builtin.md

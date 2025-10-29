@@ -11,9 +11,7 @@
 [auto.info]
 name = 'target-info'
 path = '.*\.(dd|img|raw|ad1|asdf|E0?|00?)'
-exec = [
-  'target-info "FILE"'
-]
+exec = 'target-info "FILE"'
 
 # available hotkeys:
 #
@@ -22,6 +20,4 @@ exec = [
 [hotkey.f8]
 name = 'target-query'
 mode = 'query'
-exec = [
-  'target-query -j -f "INPUT" "BASE"'
-]
+exec = 'target-query -j -f "INPUT" "BASE"'

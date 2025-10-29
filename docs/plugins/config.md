@@ -14,7 +14,7 @@ Automatic plugins will be executed, if the file path matches the specified regul
 Hotkey plugins will only be executed, if the specified hotkey is pressed. They also provide the ability to ask the user for a specific `INPUT`, which then can be used as a variable while executing commands. The function keys <kbd>F8</kbd> to <kbd>F24</kbd> are reserved for hotkey plugins.
 
 ## Defining a new plugin
-A plugin consists at least of `name`, `exec` and either `path` (automatic) or `mode` (hotkey). The following variables are available for automatic plugins:
+A plugin consists at least of `name`, `exec` and either `path` (automatic) or `mode` (hotkey). The `exec` value can either be one command or a list of commands. The following variables are available for automatic plugins:
 
 - `FILE` path
 - `BASE` path of file
@@ -29,9 +29,7 @@ For example, a simple **stat** plugin can be defined as follows:
 [auto.stat]
 name = 'stat'
 path = '.*\.log'
-exec = [
-  'stat "FILE"'
-]
+exec = 'stat "FILE"'
 ```
 
 For example, a simple **echo** plugin can be defined as follows:
@@ -39,7 +37,5 @@ For example, a simple **echo** plugin can be defined as follows:
 [hotkey.f8]
 name = 'echo'
 mode = 'echo'
-exec = [
-  'echo "INPUT"'
-]
+exec = 'echo "INPUT"'
 ```
