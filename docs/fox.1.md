@@ -330,7 +330,7 @@ See GitHub Issues: <https://github.com/cuhsat/fox/issues>
 AUTHOR
 ======
 
-Christian Uhsat <christian@uhsat.de>
+Christian Uhsat <christian at uhsat dot de>
 
 SEE ALSO
 ========

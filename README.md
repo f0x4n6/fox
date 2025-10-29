@@ -14,7 +14,7 @@ The Swiss Army Knife for examining text files. Combining the power of many tradi
 * Evidence bag with [Chain of Custody](https://forensic-examiner.eu/features/evidence) signing
 * Evidence streaming using [Splunk HEC](https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTinput) or [ECS](https://www.elastic.co/docs/reference/ecs)
 * Integrated super timeline in [Common Event Format](https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%201%20What%20is%20CEF.htm)
-* Integrated plugin support for e.g. [Dissect](https://docs.dissect.tools) or [Eric Zimmerman's tools](https://ericzimmerman.github.io/)
+* Integrated plugin support for e.g. [Sleuth Kit](https://www.sleuthkit.org/) or [Eric Zimmerman's tools](https://ericzimmerman.github.io/)
 * Integrated assistant using local [Ollama LLMs](https://ollama.com/search) like *DeepSeek R1*
 
 ## Install

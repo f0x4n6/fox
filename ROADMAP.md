@@ -9,7 +9,6 @@
 ## 3. Features
 * Add command chains
 * Add new image README as GIF
-* Add Sleuth plugin support
 * Add custom render layout, like text, hex, csv, log
 * Add *Yara* rules scan
 * Add Mark Mode to mark line for evidence bag

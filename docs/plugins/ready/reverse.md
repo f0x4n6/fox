@@ -12,7 +12,7 @@ exec = [
 
 ## [objdump](https://linux.die.net/man/1/objdump)
 ```toml
-[auto.obj]
+[auto.objdump]
 name = 'objdump'
 path = '.*\.(bin|dll|exe|scr|sys)'
 exec = [
