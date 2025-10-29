@@ -55,6 +55,10 @@ Options
 
 :   Print directly to console.
 
+**-f, --follow**
+
+:   Print follows file end.
+
 **-x, --hex**
 
 :   Print file in canonical hex.
@@ -179,7 +183,7 @@ Options Evidence
 
 :   Evidence bag case _name_ (default YYYY-MM-DD).
 
-**-f, --file**=_file_
+**-F, --file**=_file_
 
 :   Evidence bag _file_ name (default evidence).
 

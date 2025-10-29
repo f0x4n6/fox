@@ -13,7 +13,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
-var TimelineUsage = fox.Ascii + `
+var TimelineUsage = fox.Fox + `
 Display super timeline.
 
 Usage:

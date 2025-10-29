@@ -18,7 +18,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/page"
 )
 
-var HashUsage = fox.Ascii + `
+var HashUsage = fox.Fox + `
 Display file hash or checksums.
 
 Usage:

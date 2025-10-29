@@ -91,7 +91,7 @@ func (hs *HeapSet) OpenHelp() {
 		idx = hs.Len()
 
 		f := fs.Create("/fox/help")
-		_, _ = f.WriteString(fmt.Sprintf(fox.Ascii+fox.Help, fox.Version))
+		_, _ = f.WriteString(fmt.Sprintf(fox.Fox+fox.Help, fox.Version))
 
 		hs.atomicAdd(heap.New(
 			"Help",

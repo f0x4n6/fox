@@ -16,7 +16,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
-var DeflateUsage = fox.Ascii + `
+var DeflateUsage = fox.Fox + `
 Deflate compressed files.
 
 Usage:

@@ -24,6 +24,7 @@ Path(s) to open or `-` for **STDIN**
 
 ### Print
 - `-p`, `--print` — print only to console
+- `-f`, `--follow` — print follows file end
 - `--no-file` — don't print filenames
 - `--no-line` — don't print line numbers
 
@@ -62,7 +63,7 @@ Path(s) to open or `-` for **STDIN**
 
 ### Evidence bag
 - `-N`, `--case=NAME` — evidence bag case name (*default:* `YYYY-MM-DD`)
-- `-f`, `--file=FILE` — evidence bag file name (*default:* `evidence`)
+- `-F`, `--file=FILE` — evidence bag file name (*default:* `evidence`)
 - `--mode=MODE` — evidence bag file mode (*default:* `plain`)
 
 Available evidence bag modes:

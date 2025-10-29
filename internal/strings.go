@@ -10,8 +10,8 @@ const (
 )
 
 var (
-	//go:embed res/ascii.txt
-	Ascii string
+	//go:embed res/fox.txt
+	Fox string
 
 	//go:embed res/help.txt
 	Help string

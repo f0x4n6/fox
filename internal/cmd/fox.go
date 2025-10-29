@@ -27,7 +27,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/user/config"
 )
 
-var Usage = fmt.Sprintf(fox.Ascii+`
+var Usage = fmt.Sprintf(fox.Fox+`
 The Swiss Army Knife for examining text files (%s)
 Visit https://%s for documentation.
 
@@ -52,6 +52,7 @@ Local:
 
 Print:
   -p, --print              print only to console
+  -f, --follow             print follows file end
       --no-file            don't print filenames
       --no-line            don't print line numbers
 
@@ -90,7 +91,7 @@ UI options:
 
 Evidence bag:
   -N, --case=NAME          evidence bag case name (default: YYYY-MM-DD)
-  -f, --file=FILE          evidence bag file name (default: evidence)
+  -F, --file=FILE          evidence bag file name (default: evidence)
       --mode=MODE          evidence bag file mode (default: plain):
                              none, plain, text, json, jsonl, xml, sqlite
 
@@ -152,6 +153,11 @@ var Fox = &cobra.Command{
 
 		// print if output is piped
 		if sys.Piped(os.Stdout) {
+			flg.Print = true
+		}
+
+		// print implied by follow
+		if flg.Follow {
 			flg.Print = true
 		}
 
@@ -249,6 +255,7 @@ func init() {
 	Fox.Flags().BoolVarP(&flg.Hex, "hex", "x", false, "show file in canonical hex")
 
 	Fox.PersistentFlags().BoolVarP(&flg.Print, "print", "p", false, "print only to console")
+	Fox.PersistentFlags().BoolVarP(&flg.Follow, "follow", "f", false, "print follows file end")
 	Fox.PersistentFlags().BoolVar(&flg.NoFile, "no-file", false, "don't print filenames")
 	Fox.PersistentFlags().BoolVar(&flg.NoLine, "no-line", false, "don't print line numbers")
 
@@ -282,7 +289,7 @@ func init() {
 	Fox.PersistentFlags().BoolVar(&flg.UI.Legacy, "legacy", false, "don't use any unicode decorations")
 
 	Fox.PersistentFlags().StringVarP(&flg.Evidence.Case, "case", "N", "", "evidence bag case name")
-	Fox.PersistentFlags().StringVarP(&flg.Evidence.File, "file", "f", flags.BagFile, "evidence bag file name")
+	Fox.PersistentFlags().StringVarP(&flg.Evidence.File, "file", "F", flags.BagFile, "evidence bag file name")
 	Fox.PersistentFlags().Var(&flg.Evidence.Mode, "mode", "evidence bag file mode")
 	Fox.PersistentFlags().StringVarP(&flg.Evidence.Sign, "sign", "s", "", "key phrase to sign evidence bag via HMAC-SHA256")
 	Fox.PersistentFlags().StringVarP(&flg.Evidence.Url, "url", "u", "", "forward evidence to server address")
@@ -340,7 +347,7 @@ func run(args []string) {
 	var b *bag.Bag
 
 	if len(flg.AI.Query) > 0 && !ai.Check() {
-		sys.Exit("Assistant is not available")
+		sys.Exit("assistant is not available")
 	}
 
 	if flg.Bag {
@@ -349,6 +356,13 @@ func run(args []string) {
 
 	hs := heapset.New(args)
 	defer hs.ThrowAway()
+
+	if flg.Follow && hs.Len() > 1 {
+		sys.Exit("can only follow one file")
+	} else if flg.Follow {
+		tail(hs, hs.LoadHeap())
+		return
+	}
 
 	hs.Range(func(_ int, h *heap.Heap) bool {
 		if h.Type != types.Stdin {
@@ -393,6 +407,16 @@ func run(args []string) {
 		}
 		return true
 	})
+}
+
+func tail(hs *heapset.HeapSet, h *heap.Heap) {
+	fmt.Print(string(h.Read()))
+
+	hs.SetCallback(func() {
+		fmt.Print(string(h.Read()))
+	})
+
+	sys.Wait()
 }
 
 func log() {

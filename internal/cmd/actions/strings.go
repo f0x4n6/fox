@@ -20,7 +20,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/page"
 )
 
-var StringsUsage = fox.Ascii + `
+var StringsUsage = fox.Fox + `
 Display ASCII and Unicode strings.
 
 Usage:

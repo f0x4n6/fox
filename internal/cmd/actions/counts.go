@@ -14,7 +14,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
-var CountsUsage = fox.Ascii + `
+var CountsUsage = fox.Fox + `
 Display line and byte counts.
 
 Usage:

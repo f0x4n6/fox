@@ -11,6 +11,7 @@ type Flags struct {
 	Hex bool
 
 	Print  bool
+	Follow bool
 	NoFile bool
 	NoLine bool
 

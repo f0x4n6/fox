@@ -32,6 +32,7 @@ type Heap struct {
 
 	hash Hash    // file hash sums
 	size int64   // file size
+	seek int64   // file seek
 	file fs.File // file handle
 }
 
@@ -68,6 +69,14 @@ func (h *Heap) Size() int64 {
 	h.RLock()
 	defer h.RUnlock()
 	return h.size
+}
+
+func (h *Heap) Read() []byte {
+	h.RLock()
+	defer h.RUnlock()
+	start := h.seek
+	h.seek = h.size
+	return (*h.mmap)[min(start, h.size):]
 }
 
 func (h *Heap) Bytes() []byte {

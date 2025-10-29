@@ -8,7 +8,6 @@
 
 ## 3. Features
 * Add command chains
-* Add -f for follow of file in print mode
 * Add new image README as GIF
 * Add Sleuth plugin support
 * Add custom render layout, like text, hex, csv, log

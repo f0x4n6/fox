@@ -15,7 +15,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 )
 
-var CompareUsage = fox.Ascii + `
+var CompareUsage = fox.Fox + `
 Compare two files.
 
 Usage:

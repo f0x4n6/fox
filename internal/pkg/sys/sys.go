@@ -7,13 +7,15 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"runtime"
 	"runtime/debug"
 	"strings"
+	"syscall"
 
-	fox "github.com/cuhsat/fox/internal"
 	"github.com/rainu/go-command-chain"
 
+	"github.com/cuhsat/fox/internal"
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
@@ -36,6 +38,14 @@ func (l logger) Write(b []byte) (int, error) {
 func Init() {
 	log.SetFlags(0)
 	log.SetOutput(new(logger))
+}
+
+func Wait() {
+	exit := make(chan os.Signal, 1)
+
+	signal.Notify(exit, syscall.SIGINT, syscall.SIGTERM)
+
+	<-exit
 }
 
 func Exit(v ...any) {
