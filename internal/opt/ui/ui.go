@@ -224,6 +224,9 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 			flg.Timeline.Cef,
 		).CloseOther()
 
+	case types.Unique:
+		hs.Unique()
+
 	case types.None:
 		// normal
 	}

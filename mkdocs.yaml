@@ -30,6 +30,7 @@ nav:
       - fox hash: start/usage/hash.md
       - fox strings: start/usage/strings.md
       - fox timeline: start/usage/timeline.md
+      - fox unique: start/usage/unique.md
 
   - Features:
     - Filesystem: features/filesystem.md
@@ -67,6 +68,7 @@ nav:
     - Hashes: utils/hashes.md
     - Strings: utils/strings.md
     - Timeline: utils/timeline.md
+    - Unique: utils/unique.md
 
   - Plugins:
     - Configuration: plugins/config.md

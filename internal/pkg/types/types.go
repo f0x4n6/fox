@@ -47,4 +47,5 @@ const (
 	HashSum
 	Strings
 	Timeline
+	Unique = 7
 )

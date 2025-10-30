@@ -259,9 +259,9 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyCtrlV:
 		ui.root.GetClipboard()
 
-	case tcell.KeyCtrlE:
-		if !ui.state.Mode().IsStatic() && hs.Merge() {
-			ui.overlay.SendInfo("Merged all open files")
+	case tcell.KeyCtrlU:
+		if !ui.state.Mode().IsStatic() && hs.Unique() {
+			ui.overlay.SendInfo("Union all open files")
 		}
 
 	case tcell.KeyCtrlC:

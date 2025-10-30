@@ -6,7 +6,7 @@
 |--------------------------------|--------------|
 | <kbd>Esc</kbd> <kbd>Esc</kbd>  | Exit         |
 | <kbd>Ctrl</kbd> + <kbd>O</kbd> | Browse files |
-| <kbd>Ctrl</kbd> + <kbd>E</kbd> | Merge files  |
+| <kbd>Ctrl</kbd> + <kbd>U</kbd> | Union files  |
 | <kbd>Ctrl</kbd> + <kbd>Q</kbd> | Close file   |
 
 ## Navigation

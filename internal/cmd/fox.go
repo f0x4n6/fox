@@ -45,6 +45,7 @@ Actions:
   hash                     display file hash or checksums
   strings                  display ASCII and Unicode strings
   timeline                 display super timeline
+  unique                   display unique lines
 
 Local:
   -b, --bag                save into evidence bag
@@ -335,6 +336,7 @@ func init() {
 	Fox.AddCommand(actions.Hash)
 	Fox.AddCommand(actions.Strings)
 	Fox.AddCommand(actions.Timeline)
+	Fox.AddCommand(actions.Unique)
 
 	config.Load(Fox.Flags())
 

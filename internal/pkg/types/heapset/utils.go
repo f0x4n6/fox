@@ -22,10 +22,10 @@ import (
 
 type util func(h *heap.Heap) string
 
-func (hs *HeapSet) Merge() bool {
+func (hs *HeapSet) Unique() bool {
 	var heaps []*heap.Heap
 
-	f := fs.Create("/fox/merged")
+	f := fs.Create("/fox/unique")
 
 	hs.Range(func(i int, h *heap.Heap) bool {
 		switch h.Type {
@@ -46,7 +46,7 @@ func (hs *HeapSet) Merge() bool {
 		return false
 	}
 
-	hs.OpenFile(f.Name(), f.Name(), "merged", types.Ignore)
+	hs.OpenFile(f.Name(), f.Name(), "unique", types.Ignore)
 
 	return true
 }

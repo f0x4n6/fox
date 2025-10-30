@@ -24,7 +24,7 @@ Keymap:
   Ctrl + T             Toggle tail follow
   Ctrl + K             Increase context
   Ctrl + J             Decrease context
-  Ctrl + A             Merge files
+  Ctrl + U             Union files
   Ctrl + Q             Close file
   Ctrl + C             Copy to clipboard
   Ctrl + S             Save evidence bag

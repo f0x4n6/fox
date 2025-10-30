@@ -48,6 +48,10 @@ timeline
 
 :   Display super timeline.
 
+unique
+
+:   Display unique lines.
+
 Options
 -------
 
