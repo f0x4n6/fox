@@ -13,7 +13,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/loader"
 )
 
-type Callback func()
+type Changed func(*heap.Heap)
 
 type Range func(int, *heap.Heap) bool
 
@@ -22,7 +22,8 @@ type HeapSet struct {
 
 	loader *loader.Loader // file loader
 
-	watch Callback     // callback
+	changed Changed // file changed
+
 	heaps []*heap.Heap // set heaps
 	index *int32       // set index
 }
@@ -33,7 +34,7 @@ func New(paths []string) *HeapSet {
 		index:  new(int32),
 	}
 
-	go hs.watchFiles()
+	go hs.notify()
 
 	for _, h := range hs.loader.Load(paths) {
 		hs.atomicAdd(h)
@@ -182,7 +183,7 @@ func (hs *HeapSet) LoadHeap() *heap.Heap {
 	h := hs.atomicGet(atomic.LoadInt32(hs.index))
 
 	if h.Ensure().Type == types.Regular {
-		hs.addFile(h.Path) // watch file
+		hs.watchFile(h.Path) // changed file
 	}
 
 	return h

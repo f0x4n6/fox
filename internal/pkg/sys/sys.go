@@ -46,6 +46,8 @@ func Wait() {
 	signal.Notify(exit, syscall.SIGINT, syscall.SIGTERM)
 
 	<-exit
+
+	os.Exit(0)
 }
 
 func Exit(v ...any) {

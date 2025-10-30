@@ -357,11 +357,8 @@ func run(args []string) {
 	hs := heapset.New(args)
 	defer hs.ThrowAway()
 
-	if flg.Follow && hs.Len() > 1 {
-		sys.Exit("can only follow one file")
-	} else if flg.Follow {
-		tail(hs, hs.LoadHeap())
-		return
+	if flg.Follow {
+		tail(hs)
 	}
 
 	hs.Range(func(_ int, h *heap.Heap) bool {
@@ -409,11 +406,16 @@ func run(args []string) {
 	})
 }
 
-func tail(hs *heapset.HeapSet, h *heap.Heap) {
-	fmt.Print(string(h.Read()))
+func tail(hs *heapset.HeapSet) {
+	hs.WatchFiles()
 
-	hs.SetCallback(func() {
+	hs.SetChanged(func(h *heap.Heap) {
 		fmt.Print(string(h.Read()))
+	})
+
+	hs.Range(func(_ int, h *heap.Heap) bool {
+		fmt.Print(string(h.Read()))
+		return true
 	})
 
 	sys.Wait()

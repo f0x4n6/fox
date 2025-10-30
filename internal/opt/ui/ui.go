@@ -19,6 +19,7 @@ import (
 	"github.com/cuhsat/fox/internal/opt/ui/widgets"
 	"github.com/cuhsat/fox/internal/pkg/flags"
 	"github.com/cuhsat/fox/internal/pkg/types"
+	"github.com/cuhsat/fox/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/internal/pkg/types/heapset"
 	"github.com/cuhsat/fox/internal/pkg/user/bag"
 	"github.com/cuhsat/fox/internal/pkg/user/history"
@@ -125,7 +126,7 @@ func (ui *UI) Close() {
 }
 
 func (ui *UI) run(hs *heapset.HeapSet) {
-	hs.SetCallback(func() {
+	hs.SetChanged(func(_ *heap.Heap) {
 		_ = ui.root.PostEvent(tcell.NewEventInterrupt(ui.state.IsFollow()))
 	})
 
@@ -145,7 +146,7 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 				return // terminal closed
 			}
 
-			_, heap := hs.Heap()
+			_, h := hs.Heap()
 
 			switch ev := ev.(type) {
 			case *tcell.EventInterrupt:
@@ -174,10 +175,10 @@ func (ui *UI) run(hs *heapset.HeapSet) {
 				ui.overlay.SendError(ev.Error())
 
 			case *tcell.EventMouse:
-				ui.handleMouse(hs, heap, ev)
+				ui.handleMouse(hs, h, ev)
 
 			case *tcell.EventKey:
-				if ui.handleKey(hs, heap, ev) {
+				if ui.handleKey(hs, h, ev) {
 					return // exit
 				}
 			}
@@ -232,13 +233,13 @@ func (ui *UI) render(hs *heapset.HeapSet) {
 	title := fox.Product
 
 	if hs != nil {
-		_, heap := hs.Heap()
+		_, h := hs.Heap()
 
-		if heap.Type == types.Stdin {
+		if h.Type == types.Stdin {
 			ui.root.Sync() // prevent hiccups
 		}
 
-		title = format(title, heap.String())
+		title = format(title, h.String())
 	}
 
 	ui.root.SetTitle(title)
