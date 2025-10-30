@@ -260,9 +260,8 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.root.GetClipboard()
 
 	case tcell.KeyCtrlU:
-		if !ui.state.Mode().IsStatic() && hs.Unique() {
-			ui.overlay.SendInfo("Union all open files")
-		}
+		hs.Unique()
+		ui.changeMode(mode.Default)
 
 	case tcell.KeyCtrlC:
 		if !ui.state.Mode().IsStatic() {

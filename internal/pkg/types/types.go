@@ -49,3 +49,5 @@ const (
 	Timeline
 	Unique = 7
 )
+
+type Null struct{}

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync/atomic"
 
+	"github.com/zeebo/xxh3"
+
 	"github.com/cuhsat/fox/internal/pkg/files/events"
 	"github.com/cuhsat/fox/internal/pkg/files/events/evtx"
 	"github.com/cuhsat/fox/internal/pkg/files/events/journal"
@@ -21,35 +23,6 @@ import (
 )
 
 type util func(h *heap.Heap) string
-
-func (hs *HeapSet) Unique() bool {
-	var heaps []*heap.Heap
-
-	f := fs.Create("/fox/unique")
-
-	hs.Range(func(i int, h *heap.Heap) bool {
-		switch h.Type {
-		case types.Regular, types.Deflate:
-			_, _ = f.Write(h.Bytes())
-			_, _ = f.WriteString("\n")
-			h.ThrowAway()
-
-		default:
-			heaps = append(heaps, h)
-		}
-		return true
-	})
-
-	fi, _ := f.Stat()
-
-	if fi.Size() == 0 {
-		return false
-	}
-
-	hs.OpenFile(f.Name(), f.Name(), "unique", types.Ignore)
-
-	return true
-}
 
 func (hs *HeapSet) Compare(git bool) *HeapSet {
 	var heaps [2]*heap.Heap
@@ -96,6 +69,34 @@ func (hs *HeapSet) Entropy(n, m float64) *HeapSet {
 	})
 
 	return hs
+}
+
+func (hs *HeapSet) Extract(c bool) (ls []string) {
+	var fn = plain.Format
+
+	if c {
+		fn = cef.Format
+	}
+
+	hs.Range(func(_ int, h *heap.Heap) bool {
+		for _, str := range *h.FMap() {
+			for _, ex := range []events.Extract{
+				evtx.Extract,
+				journal.Extract,
+			} {
+				if e := ex(str.Str); e != nil {
+					ls = append(ls, fn(e))
+				}
+			}
+		}
+		return true
+	})
+
+	slices.SortStableFunc(ls, func(a, b string) int {
+		return cmp.Compare(a, b)
+	})
+
+	return ls
 }
 
 func (hs *HeapSet) HashSum(algos ...string) *HeapSet {
@@ -147,32 +148,37 @@ func (hs *HeapSet) Timeline(c bool) *HeapSet {
 	return hs
 }
 
-func (hs *HeapSet) Extract(c bool) (ls []string) {
-	var fn = plain.Format
+func (hs *HeapSet) Unique() *HeapSet {
+	var lines = make(map[uint64]types.Null)
+	var heaps []*heap.Heap
 
-	if c {
-		fn = cef.Format
-	}
+	f := fs.Create("/fox/unique")
 
-	hs.Range(func(_ int, h *heap.Heap) bool {
-		for _, str := range *h.FMap() {
-			for _, ex := range []events.Extract{
-				evtx.Extract,
-				journal.Extract,
-			} {
-				if e := ex(str.Str); e != nil {
-					ls = append(ls, fn(e))
+	hs.Range(func(i int, h *heap.Heap) bool {
+		switch h.Type {
+		case types.Regular, types.Deflate:
+			for _, s := range *h.SMap() {
+				x := xxh3.HashString(s.Str)
+
+				if _, ok := lines[x]; !ok {
+					_, _ = f.WriteString(s.Str)
+					_, _ = f.WriteString("\n")
+					lines[x] = types.Null{}
 				}
 			}
+			h.ThrowAway()
+
+		default:
+			heaps = append(heaps, h) // skip others
 		}
 		return true
 	})
 
-	slices.SortStableFunc(ls, func(a, b string) int {
-		return cmp.Compare(a, b)
-	})
+	hs.heaps = heaps
 
-	return ls
+	hs.OpenFile(f.Name(), f.Name(), "unique", types.Ignore)
+
+	return hs
 }
 
 func (hs *HeapSet) reduce(t string, fn util) {
