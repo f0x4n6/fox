@@ -5,7 +5,7 @@ The Swiss Army Knife for examining text files. Combining the power of many tradi
 ![](docs/assets/img/terminal.png)
 
 ## Key Features
-* Read-only forensic [filesystem](https://forensic-examiner.eu/features/filesystem) abstraction
+* Read-only [forensic filesystem](https://forensic-examiner.eu/features/filesystem) abstraction
 * Multibyte support with [bidirectional character](https://nvd.nist.gov/vuln/detail/CVE-2021-42574) detection
 * Built-in `grep`, `diff`, `hexdump` and `strings` like [abilities](https://forensic-examiner.eu/start/usage/fox)
 * Built-in parsing of [Linux Journals](https://forensic-examiner.eu/files/logs/linux) and [Windows Event Logs](https://forensic-examiner.eu/files/logs/windows)
