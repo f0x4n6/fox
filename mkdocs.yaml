@@ -118,30 +118,8 @@ theme:
     - search.suggest
 
   palette:
-
-    # Palette toggle for automatic mode
-    - media: "(prefers-color-scheme)"
-      toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to light mode
-
-    # Palette toggle for light mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: examiner-light
-      primary: custom
-      accent: custom
-      toggle:
-        icon: material/toggle-switch-off
-        name: Switch to dark mode
-
-    # Palette toggle for dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: examiner-dark
-      primary: custom
-      accent: custom
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to system preference
+    primary: custom
+    accent: custom
 
 extra:
   homepage: https://forensic-examiner.eu

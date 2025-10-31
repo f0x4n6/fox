@@ -7,16 +7,9 @@
       display: none;
     }
   }
-  @media screen and (max-width: 1200px) {
-    .md-nav__title,
-    .md-nav__source {
-      background-color: #000 !important
-    }
-  }
 </style>
 
-<img class="theme-light" src="assets/img/examiner_a.png" alt="Forensic Examiner"/>
-<img class="theme-dark" src="assets/img/examiner_b.png" alt="Forensic Examiner"/>
+![](assets/img/examiner.png "Forensic Examiner")
 
 ![](assets/img/terminal.png)
 

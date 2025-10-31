@@ -1,5 +1,5 @@
-/* Theme Examiner-Light */
-[data-md-color-scheme="examiner-light"] {
+:root  > * {
+    /* Defaults */
     --md-primary-fg-color:        #000;
     --md-primary-fg-color--light: #000;
     --md-primary-fg-color--dark:  #000;
@@ -8,120 +8,63 @@
     --md-accent-fg-color--light: #0f88cd;
     --md-accent-fg-color--dark:  #0f88cd;
 
-    --md-header-bg-color:       #000;
-    --md-header-bg-color--dark: #000;
+    --md-footer-fg-color:        #000;
+    --md-footer-fg-color--light: #000;
+    --md-footer-fg-color--dark:  #000;
 
-    --md-footer-bg-color:       #000;
-    --md-footer-bg-color--dark: #000;
+    --md-footer-bg-color:       #fff;
+    --md-footer-bg-color--dark: #fff;
 
     --md-typeset-a-color: #0f88cd;
 
-    .theme-light {
-        display: block !important;
+    /* Link */
+    .md-content a {
+        color: #000;
     }
 
     .md-content a {
-        color: #000;
+        text-decoration: underline #0f88cd !important;
+        text-underline-offset: 0.25em !important;
+    }
+
+    /* Quote */
+    .md-content blockquote {
+        border-color: #0f88cd !important;
+    }
+
+    /* Button */
+    .md-button {
+        color: #fff !important;
+        display: block !important;
+        margin: 0 auto !important;
+        max-width: 10rem !important;
+        text-align: center !important;
+        text-decoration: none !important;
+    }
+
+    .md-typeset .md-button--primary {
+        color: #fff !important;
+        background: #0f88cd !important;
+        border-color: #0f88cd !important;
+    }
+
+    /* Tip */
+    .md-typeset .tip {
+        border-color: #0f88cd !important;
     }
 
     .md-typeset .tip > .admonition-title,
     .md-typeset .tip > summary {
         background: #0f88cd1a !important;
     }
-}
 
-/* Theme Examiner-Dark */
-[data-md-color-scheme="examiner-dark"] {
-    --md-default-fg-color:        #ccc;
-    --md-default-fg-color--light: #ccc;
-
-    --md-default-bg-color:        #000;
-    --md-default-bg-color--light: #333;
-
-    --md-primary-fg-color:        #fff;
-    --md-primary-fg-color--light: #fff;
-    --md-primary-fg-color--dark:  #ccc;
-
-    --md-accent-fg-color:        #0f88cd;
-    --md-accent-fg-color--light: #0f88cd;
-    --md-accent-fg-color--dark:  #0f88cd;
-
-    --md-header-bg-color:       #000;
-    --md-header-bg-color--dark: #000;
-
-    --md-footer-bg-color:       #000;
-    --md-footer-bg-color--dark: #000;
-
-    --md-code-fg-color: #ccc;
-    --md-code-bg-color: #333;
-
-    --md-typeset-color: #ccc;
-    --md-typeset-a-color: #0f88cd;
-    --md-typeset-kbd-color: #ccc;
-    --md-typeset-table-color: #333;
-
-    .theme-dark {
-        display: block !important;
+    .md-typeset .tip > .admonition-title::before,
+    .md-typeset .tip > summary::before {
+        background: #0f88cd !important;
     }
 
-    .md-content a {
-        color: #fff;
+    /* Search */
+    .md-search__form {
+        background: #333;
     }
-
-    .md-typeset .admonition.tip {
-        color: #ccc !important;
-        background: #000 !important;
-    }
-
-    .md-typeset .tip > .admonition-title,
-    .md-typeset .tip > summary {
-        background: #0f88cd40 !important;
-    }
-}
-
-.theme-light,
-.theme-dark {
-    display: none;
-}
-
-.md-header,
-.md-tabs {
-    background: #000 !important;
-}
-
-.md-button {
-    color: #fff !important;
-    display: block !important;
-    margin: 0 auto !important;
-    max-width: 10rem !important;
-    text-align: center !important;
-    text-decoration: none !important;
-}
-
-.md-content a {
-    text-decoration: underline #0f88cd !important;
-    text-underline-offset: 0.25em !important;
-}
-
-.md-typeset kbd {
-    color: #333 !important;
-}
-
-.md-content blockquote {
-    border-color: #0f88cd !important;
-}
-
-.md-typeset .md-button--primary {
-    color: #fff !important;
-    background: #0f88cd !important;
-    border-color: #0f88cd !important;
-}
-
-.md-typeset .tip {
-    border-color: #0f88cd !important;
-}
-
-.md-typeset .tip > .admonition-title::before,
-.md-typeset .tip > summary::before {
-    background: #0f88cd !important;
 }
