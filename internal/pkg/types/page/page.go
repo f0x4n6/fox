@@ -28,6 +28,7 @@ type Page struct {
 type Line struct {
 	Nr  string
 	Grp int
+	Tag bool
 	Str string
 }
 

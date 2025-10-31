@@ -84,9 +84,9 @@ func Text(ctx *Context) (page *TextPage) {
 	return
 }
 
-func textLine(nr, str string, grp int) *TextLine {
+func textLine(nr, str string, grp int, tag bool) *TextLine {
 	return &TextLine{
-		Line{nr, grp, str},
+		Line{nr, grp, tag, str},
 		make([]Part, 0),
 	}
 }
@@ -102,7 +102,7 @@ func textStream(ctx *Context, page *TextPage) {
 		str := (*ctx.Heap.SMap())[0].Str
 		str = text.Trim(str, min(ctx.X, text.Len(str)), ctx.W)
 
-		page.Lines <- textLine(nr, str, 0)
+		page.Lines <- textLine(nr, str, 0, false)
 	}
 
 	// stream lines
@@ -113,7 +113,7 @@ func textStream(ctx *Context, page *TextPage) {
 
 		// insert context separator
 		if ctx.Context && lastGrp != str.Grp && numGrp > 1 {
-			page.Lines <- textLine(Sep, "", str.Grp)
+			page.Lines <- textLine(Sep, "", str.Grp, false)
 			numGrp = 1
 			numSep++
 		}
@@ -125,6 +125,7 @@ func textStream(ctx *Context, page *TextPage) {
 			fmt.Sprintf("%0*d ", page.N, str.Nr),
 			text.Trim(str.Str, off, ctx.W),
 			str.Grp,
+			str.Tag,
 		)
 
 		if ctx.Pinned {

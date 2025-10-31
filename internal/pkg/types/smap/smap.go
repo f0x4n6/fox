@@ -21,6 +21,7 @@ type SMap []String
 type String struct {
 	Nr  int    // string nr
 	Grp int    // string group
+	Tag bool   // string tagged
 	Str string // string data
 }
 
@@ -77,7 +78,7 @@ func (s *SMap) Render(e int) *SMap {
 	tab := strings.Repeat(" ", e)
 	return apply(func(ch chan<- String, c *chunk) {
 		for _, s := range (*s)[c.min:c.max] {
-			ch <- String{s.Nr, s.Grp, expand(s.Str, tab)}
+			ch <- String{s.Nr, s.Grp, s.Tag, expand(s.Str, tab)}
 		}
 	}, len(*s))
 }
@@ -91,12 +92,12 @@ func (s *SMap) Format(e int) *SMap {
 			buf.Reset()
 
 			if json.Indent(&buf, []byte(s.Str), "", tab) != nil {
-				ch <- String{s.Nr, s.Grp, s.Str}
+				ch <- String{s.Nr, s.Grp, s.Tag, s.Str}
 				continue
 			}
 
 			for b := range bytes.SplitSeq(buf.Bytes(), []byte("\n")) {
-				ch <- String{s.Nr, s.Grp, string(b)}
+				ch <- String{s.Nr, s.Grp, s.Tag, string(b)}
 			}
 		}
 	}, len(*s))
@@ -112,11 +113,11 @@ func (s *SMap) Wrap(e, w int) *SMap {
 			i, l = 0, expand(s.Str, tab)
 
 			for i < runewidth.StringWidth(l)-w {
-				ch <- String{s.Nr, s.Grp, l[i : i+w]}
+				ch <- String{s.Nr, s.Grp, s.Tag, l[i : i+w]}
 				i += w
 			}
 
-			ch <- String{s.Nr, s.Grp, l[i:]}
+			ch <- String{s.Nr, s.Grp, s.Tag, l[i:]}
 		}
 	}, len(*s))
 }

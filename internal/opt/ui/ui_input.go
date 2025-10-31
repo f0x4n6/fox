@@ -36,6 +36,8 @@ func (ui *UI) handleMouse(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventMous
 	b := ev.Buttons()
 
 	switch {
+	case b&tcell.ButtonPrimary != 0:
+		//ev.Position()
 	case b&tcell.ButtonMiddle != 0:
 		ui.root.GetClipboard()
 	case b&tcell.Button4 != 0:
@@ -232,6 +234,16 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyCtrlP:
 		ui.changeMode(mode.Pick)
 
+	case tcell.KeyCtrlT:
+		ui.changeMode(mode.Tag)
+
+	case tcell.KeyCtrlA:
+		// tag all
+
+	case tcell.KeyCtrlU:
+		hs.Unique()
+		ui.changeMode(mode.Default)
+
 	case tcell.KeyCtrlY:
 		ui.state.TogglePinned()
 
@@ -258,10 +270,6 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyCtrlV:
 		ui.root.GetClipboard()
-
-	case tcell.KeyCtrlU:
-		hs.Unique()
-		ui.changeMode(mode.Default)
 
 	case tcell.KeyCtrlC:
 		if !ui.state.Mode().IsStatic() {

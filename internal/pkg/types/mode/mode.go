@@ -16,6 +16,7 @@ const (
 	Open = Mode("Open")
 	Chat = Mode("Chat")
 	Hex  = Mode("Hex")
+	Tag  = Mode("Tag")
 )
 
 type Mode string
@@ -35,7 +36,7 @@ func (m Mode) IsFilter() bool {
 
 func (m Mode) IsStatic() bool {
 	switch m {
-	case Hex:
+	case Hex, Tag:
 		return true
 	default:
 		return false
@@ -44,7 +45,7 @@ func (m Mode) IsStatic() bool {
 
 func (m Mode) IsPrompt() bool {
 	switch m {
-	case Less, Hex:
+	case Less, Hex, Tag:
 		return false
 	default:
 		return true
