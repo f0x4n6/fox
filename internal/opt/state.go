@@ -40,8 +40,8 @@ type State struct {
 
 	n atomic.Bool
 	w atomic.Bool
-	t atomic.Bool
-	p atomic.Bool
+	y atomic.Bool
+	r atomic.Bool
 }
 
 func NewState(root tcell.Screen) *State {
@@ -76,8 +76,8 @@ func NewState(root tcell.Screen) *State {
 
 	state.n.Store(cfg.GetBool("ui.state.n"))
 	state.w.Store(cfg.GetBool("ui.state.w"))
-	state.t.Store(cfg.GetBool("ui.state.t"))
-	state.p.Store(false)
+	state.y.Store(cfg.GetBool("ui.state.y"))
+	state.r.Store(cfg.GetBool("ui.state.r"))
 
 	// precede flags
 	s := strings.ToUpper(flg.UI.State)
@@ -85,11 +85,13 @@ func NewState(root tcell.Screen) *State {
 	if strings.ContainsRune(s, '-') {
 		state.n.Store(false)
 		state.w.Store(false)
-		state.t.Store(false)
+		state.y.Store(false)
+		state.r.Store(false)
 	} else if len(s) > 0 {
 		state.n.Store(strings.ContainsRune(s, 'N'))
 		state.w.Store(strings.ContainsRune(s, 'W'))
-		state.t.Store(strings.ContainsRune(s, 'T'))
+		state.y.Store(strings.ContainsRune(s, 'Y'))
+		state.r.Store(strings.ContainsRune(s, 'R'))
 	}
 
 	return state
@@ -143,16 +145,16 @@ func (s *State) IsWrap() bool {
 	return s.w.Load()
 }
 
-func (s *State) IsFollow() bool {
-	return s.t.Load()
-}
-
-func (s *State) IsPinned() bool {
+func (s *State) IsSticky() bool {
 	if s.Mode() == mode.Less {
-		return s.p.Load()
+		return s.y.Load()
 	} else {
 		return false
 	}
+}
+
+func (s *State) IsReload() bool {
+	return s.r.Load()
 }
 
 func (s *State) ForceRender() {
@@ -222,12 +224,12 @@ func (s *State) ToggleWrap() {
 	s.w.Store(!s.w.Load())
 }
 
-func (s *State) ToggleFollow() {
-	s.t.Store(!s.t.Load())
+func (s *State) ToggleSticky() {
+	s.y.Store(!s.y.Load())
 }
 
-func (s *State) TogglePinned() {
-	s.p.Store(!s.p.Load())
+func (s *State) ToggleReload() {
+	s.r.Store(!s.r.Load())
 }
 
 func (s *State) Call(fn func()) {
@@ -246,7 +248,8 @@ func (s *State) Save() {
 	cfg.Set("ui.space", s.Space())
 	cfg.Set("ui.state.n", s.IsNavi())
 	cfg.Set("ui.state.w", s.IsWrap())
-	cfg.Set("ui.state.t", s.IsFollow())
+	cfg.Set("ui.state.y", s.IsSticky())
+	cfg.Set("ui.state.r", s.IsReload())
 
 	if !flags.Get().Optional.Readonly {
 		config.Save()

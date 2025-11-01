@@ -56,7 +56,7 @@ Path(s) to open or `-` for **STDIN**
 - `--seed=NUMBER` — option for random seed (*default:* `8211`)
 
 ### UI flags
-- `--state={N|W|T|-}` — sets the used UI state flags
+- `--state={N|W|Y|R|-}` — sets the used UI state flags
 - `--theme=THEME` — sets the used UI theme
 - `--space=NUMBER` — sets the used indentation space (*default:* `2`)
 - `--legacy` — don't use any unicode decorations (**ISO 8859-1**)

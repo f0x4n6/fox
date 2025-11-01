@@ -34,7 +34,8 @@ func Load(flg *pflag.FlagSet) {
 	// setup default values
 	cfg.SetDefault("ui.state.n", true)
 	cfg.SetDefault("ui.state.w", false)
-	cfg.SetDefault("ui.state.t", false)
+	cfg.SetDefault("ui.state.y", false)
+	cfg.SetDefault("ui.state.r", false)
 
 	// setup environment
 	cfg.AutomaticEnv()

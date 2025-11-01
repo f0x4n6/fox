@@ -32,11 +32,12 @@
 | <kbd>Ctrl</kbd> + <kbd>L</kbd> | Switch to [Less](../features/ui/less.md) mode |
 | <kbd>Ctrl</kbd> + <kbd>F</kbd> | Switch to [Grep](../features/ui/grep.md) mode |
 | <kbd>Ctrl</kbd> + <kbd>X</kbd> | Switch to [Hex](../features/ui/hex.md) mode   |
+| <kbd>Ctrl</kbd> + <kbd>T</kbd> | Switch to [Tag](../features/ui/tag.md) mode   |
 | <kbd>Ctrl</kbd> + <kbd>P</kbd> | Pick specific lines                           |
 | <kbd>Ctrl</kbd> + <kbd>N</kbd> | Toggle navigation                             |
 | <kbd>Ctrl</kbd> + <kbd>W</kbd> | Toggle text wrap                              |
-| <kbd>Ctrl</kbd> + <kbd>Y</kbd> | Toggle head pinned                            |
-| <kbd>Ctrl</kbd> + <kbd>T</kbd> | Toggle tail follow                            |
+| <kbd>Ctrl</kbd> + <kbd>Y</kbd> | Toggle sticky head                            |
+| <kbd>Ctrl</kbd> + <kbd>R</kbd> | Toggle file reload                            |
 | <kbd>Ctrl</kbd> + <kbd>K</kbd> | Increase context                              |
 | <kbd>Ctrl</kbd> + <kbd>J</kbd> | Decrease context                              |
 | <kbd>Ctrl</kbd> + <kbd>Z</kbd> | Suspend to shell                              |

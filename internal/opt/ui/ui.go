@@ -127,7 +127,7 @@ func (ui *UI) Close() {
 
 func (ui *UI) run(hs *heapset.HeapSet) {
 	hs.SetChanged(func(_ *heap.Heap) {
-		_ = ui.root.PostEvent(tcell.NewEventInterrupt(ui.state.IsFollow()))
+		_ = ui.root.PostEvent(tcell.NewEventInterrupt(ui.state.IsReload()))
 	})
 
 	events := make(chan tcell.Event, 128)

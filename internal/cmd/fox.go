@@ -85,7 +85,7 @@ AI options:
       --seed=NUMBER        option for random seed (default: 8211)
 
 UI options:
-      --state={N|W|T|-}    sets the used UI state flags
+      --state={N|W|Y|R|-}  sets the used UI state flags
       --theme=THEME        sets the used UI theme
       --space=NUMBER       sets the used indentation space (default: 2)
       --legacy             don't use any unicode decorations (ISO 8859-1)
@@ -229,7 +229,7 @@ var Fox = &cobra.Command{
 		}
 
 		if len(flg.UI.State) > 0 {
-			re := regexp.MustCompile("[^-nwtNWT]+")
+			re := regexp.MustCompile("[^-nwyrNWYR]+")
 
 			flg.UI.State = re.ReplaceAllString(flg.UI.State, "")
 		}

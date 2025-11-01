@@ -54,6 +54,7 @@ space = 2
 
 [ui.state]
 n = true
-t = true
 w = true
+y = true
+r = true
 ```

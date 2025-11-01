@@ -162,7 +162,7 @@ Options UI
 
 :   Sets the used UI _state_ flags.
 
-    The state must be either be **N**, **W**, **T** or a combination. Use **-** to reset the state.
+    The state must be either be **N**, **W**, **Y**, **R** or a combination. Use **-** to reset the state.
 
 **--theme**=_theme_
 

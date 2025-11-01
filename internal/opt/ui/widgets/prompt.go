@@ -375,8 +375,14 @@ func (p *Prompt) fmtStatus(l, c int) string {
 		sb.WriteRune(p.state.Icon.None)
 	}
 
-	if p.state.IsFollow() {
-		sb.WriteRune('T')
+	if p.state.IsSticky() {
+		sb.WriteRune('Y')
+	} else {
+		sb.WriteRune(p.state.Icon.None)
+	}
+
+	if p.state.IsReload() {
+		sb.WriteRune('R')
 	} else {
 		sb.WriteRune(p.state.Icon.None)
 	}

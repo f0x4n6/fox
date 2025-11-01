@@ -17,11 +17,12 @@ Keymap:
   Ctrl + L             Switch to LESS mode
   Ctrl + F             Switch to GREP mode
   Ctrl + X             Switch to HEX mode
+  Ctrl + T             Switch to TAG mode
   Ctrl + P             Pick specific lines
   Ctrl + N             Toggle navigation
   Ctrl + W             Toggle text wrap
-  Ctrl + Y             Toggle head pinned
-  Ctrl + T             Toggle tail follow
+  Ctrl + Y             Toggle sticky head
+  Ctrl + R             Toggle reload file
   Ctrl + K             Increase context
   Ctrl + J             Decrease context
   Ctrl + U             Union files
@@ -72,6 +73,10 @@ Keymap (GREP):
   Any other key        Define RegEx pattern
 
 Keymap (HEX):
+  Enter                Scroll one line down
+  Space                Scroll one page down
+
+Keymap (TAG):
   Enter                Scroll one line down
   Space                Scroll one page down
 

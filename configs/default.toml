@@ -35,5 +35,6 @@ space = 2
 
 [ui.state]
 n = true
-t = false
 w = false
+y = false
+r = false
