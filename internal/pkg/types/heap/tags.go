@@ -29,3 +29,13 @@ func (h *Heap) IsTagged(nr int) bool {
 
 	return ok && t
 }
+
+func (h *Heap) HasTags() bool {
+	for _, str := range *h.smap {
+		if h.tags[str.Nr] {
+			return true
+		}
+	}
+
+	return false
+}

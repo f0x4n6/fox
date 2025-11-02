@@ -273,8 +273,12 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		}
 
 	case tcell.KeyCtrlS:
-		if !ui.state.Mode().IsStatic() && ui.bag.Put(h) {
-			ui.overlay.SendInfo(fmt.Sprintf("%s saved to %s", h.String(), ui.bag.String()))
+		if !ui.state.Mode().IsStatic() {
+			if h.HasTags() && ui.bag.Put(h) {
+				ui.overlay.SendInfo(fmt.Sprintf("%s saved to %s", h.String(), ui.bag.String()))
+			} else {
+				ui.overlay.SendError(fmt.Sprintf("%s has no tagged lines", h.String()))
+			}
 		}
 
 	case tcell.KeyCtrlB:

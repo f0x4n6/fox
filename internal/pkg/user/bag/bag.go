@@ -155,7 +155,9 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 		})
 
 		for _, str := range *h.FMap() {
-			w.WriteLine(str.Nr, str.Grp, str.Str)
+			if h.IsTagged(str.Nr) {
+				w.WriteLine(str.Nr, str.Grp, str.Str)
+			}
 		}
 
 		w.Flush()

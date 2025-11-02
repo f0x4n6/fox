@@ -372,6 +372,8 @@ func run(args []string) {
 			}
 
 			if flg.Bag {
+				h.TagAll()
+
 				b.Put(h)
 			} else if len(flg.AI.Query) > 0 {
 				c := chat.New(ctx, h)
