@@ -50,7 +50,7 @@ var Unique = &cobra.Command{
 			hs := heapset.New(args)
 			defer hs.ThrowAway()
 
-			hs.Unique()
+			hs.Unique().CloseOther()
 
 			buf := page.NewContext(hs.LoadHeap())
 

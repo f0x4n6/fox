@@ -150,33 +150,22 @@ func (hs *HeapSet) Timeline(c bool) *HeapSet {
 
 func (hs *HeapSet) Unique() *HeapSet {
 	var lines = make(map[uint64]types.Null)
-	var heaps []*heap.Heap
 
-	f := fs.Create("/fox/unique")
+	hs.reduce("unique", func(h *heap.Heap) string {
+		var sb strings.Builder
 
-	hs.Range(func(i int, h *heap.Heap) bool {
-		switch h.Type {
-		case types.Regular, types.Deflate:
-			for _, s := range *h.SMap() {
-				x := xxh3.HashString(s.Str)
+		for _, s := range *h.SMap() {
+			x := xxh3.HashString(s.Str)
 
-				if _, ok := lines[x]; !ok {
-					_, _ = f.WriteString(s.Str)
-					_, _ = f.WriteString("\n")
-					lines[x] = types.Null{}
-				}
+			if _, ok := lines[x]; !ok {
+				sb.WriteString(s.Str)
+				sb.WriteRune('\n')
+				lines[x] = types.Null{}
 			}
-			h.ThrowAway()
-
-		default:
-			heaps = append(heaps, h) // skip others
 		}
-		return true
+
+		return sb.String()
 	})
-
-	hs.heaps = heaps
-
-	hs.OpenFile(f.Name(), f.Name(), "unique", types.Ignore)
 
 	return hs
 }

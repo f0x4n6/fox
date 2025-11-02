@@ -15,9 +15,9 @@ exec = 'target-info "FILE"'
 
 # available hotkeys:
 #
-#  F8 to F24
+#  F9 to F24
 #
-[hotkey.f8]
+[hotkey.f9]
 name = 'target-query'
 mode = 'query'
 exec = 'target-query -j -f "INPUT" "BASE"'

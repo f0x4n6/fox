@@ -6,7 +6,6 @@
 |--------------------------------|--------------|
 | <kbd>Esc</kbd> <kbd>Esc</kbd>  | Exit         |
 | <kbd>Ctrl</kbd> + <kbd>O</kbd> | Browse files |
-| <kbd>Ctrl</kbd> + <kbd>U</kbd> | Union files  |
 | <kbd>Ctrl</kbd> + <kbd>Q</kbd> | Close file   |
 
 ## Navigation
@@ -56,6 +55,7 @@
 |--------------------------------|----------------------------------------------------|
 | <kbd>F1</kbd>                  | Open help message                                  |
 | <kbd>F2</kbd>                  | Open [assistant](../features/ai/assistant.md) chat |
+| <kbd>F3</kbd>                  | Only [unique](../utils/unique.md) lines            |
 | <kbd>F3</kbd>                  | Show file(s) [counts](../utils/counts.md)          |
 | <kbd>F4</kbd>                  | Show file(s) [entropy](../utils/entropy.md)        |
 | <kbd>F5</kbd>                  | Show file(s) [strings](../utils/strings.md)        |
