@@ -236,17 +236,11 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyCtrlP:
 		ui.changeMode(mode.Pick)
 
+	case tcell.KeyCtrlY:
+		ui.state.ToggleSticky()
+
 	case tcell.KeyCtrlT:
-		ui.changeMode(mode.Tag)
-
-	case tcell.KeyCtrlA:
-		if !ui.state.Mode().IsStatic() {
-			h.TagAll()
-		}
-
-	case tcell.KeyCtrlU:
-		hs.Unique()
-		ui.changeMode(mode.Default)
+		ui.state.ToggleReload()
 
 	case tcell.KeyCtrlN:
 		ui.state.ToggleNavi()
@@ -255,12 +249,6 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyCtrlW:
 		ui.state.ToggleWrap()
 		ui.view.Preserve()
-
-	case tcell.KeyCtrlY:
-		ui.state.ToggleSticky()
-
-	case tcell.KeyCtrlR:
-		ui.state.ToggleReload()
 
 	case tcell.KeyCtrlJ:
 		if h.ModContext(-1) {

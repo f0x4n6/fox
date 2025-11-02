@@ -56,10 +56,10 @@
 | <kbd>F1</kbd>                  | Open help message                                  |
 | <kbd>F2</kbd>                  | Open [assistant](../features/ai/assistant.md) chat |
 | <kbd>F3</kbd>                  | Only [unique](../utils/unique.md) lines            |
-| <kbd>F3</kbd>                  | Show file(s) [counts](../utils/counts.md)          |
-| <kbd>F4</kbd>                  | Show file(s) [entropy](../utils/entropy.md)        |
-| <kbd>F5</kbd>                  | Show file(s) [strings](../utils/strings.md)        |
-| <kbd>F6</kbd>                  | Show file(s) [hash sum](../utils/hashes.md)        |
-| <kbd>F7</kbd>                  | Show file(s) [timeline](../utils/timeline.md)      |
-| <kbd>F8</kbd> - <kbd>F24</kbd> | Execute [plugins](../plugins/config.md)            |
-| <kbd>Ctrl</kbd> + <kbd>Z</kbd> | Suspend to shell                              |
+| <kbd>F4</kbd>                  | Show file(s) [counts](../utils/counts.md)          |
+| <kbd>F5</kbd>                  | Show file(s) [entropy](../utils/entropy.md)        |
+| <kbd>F6</kbd>                  | Show file(s) [strings](../utils/strings.md)        |
+| <kbd>F7</kbd>                  | Show file(s) [hash sum](../utils/hashes.md)        |
+| <kbd>F8</kbd>                  | Show file(s) [timeline](../utils/timeline.md)      |
+| <kbd>F9</kbd> - <kbd>F24</kbd> | Execute [plugins](../plugins/config.md)            |
+| <kbd>Ctrl</kbd> + <kbd>Z</kbd> | Suspend to shell                                   |
