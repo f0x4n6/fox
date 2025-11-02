@@ -33,7 +33,7 @@ Keymap:
   Ctrl + Z             Suspend to shell
   F1                   Open help message
   F2                   Open assistant chat
-  F3                   Only unique lines
+  F3                   Show unique lines
   F4                   Show file(s) counts
   F5                   Show file(s) entropy
   F6                   Show file(s) strings
