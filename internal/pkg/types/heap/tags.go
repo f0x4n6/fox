@@ -14,13 +14,13 @@ func (h *Heap) TagNone() {
 	}
 }
 
-func (h *Heap) InverseTags() {
+func (h *Heap) InvertTags() {
 	for _, str := range *h.smap {
 		h.tags[str.Nr] = !h.tags[str.Nr]
 	}
 }
 
-func (h *Heap) InverseTag(nr int) {
+func (h *Heap) InvertTag(nr int) {
 	h.tags[nr] = !h.tags[nr]
 }
 

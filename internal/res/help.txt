@@ -80,6 +80,9 @@ Keymap (HEX):
 Keymap (TAG):
   Enter                Scroll one line down
   Space                Scroll one page down
+  A                    Tag all lines
+  N                    Tag no lines
+  I                    Invert tags
 
 Assistant:
   Stop                 Stops the current activity

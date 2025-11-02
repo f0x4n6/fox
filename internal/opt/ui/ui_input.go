@@ -233,13 +233,16 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 	case tcell.KeyCtrlX:
 		ui.changeMode(mode.Hex)
 
+	case tcell.KeyCtrlT:
+		ui.changeMode(mode.Tag)
+
 	case tcell.KeyCtrlP:
 		ui.changeMode(mode.Pick)
 
 	case tcell.KeyCtrlY:
 		ui.state.ToggleSticky()
 
-	case tcell.KeyCtrlT:
+	case tcell.KeyCtrlR:
 		ui.state.ToggleReload()
 
 	case tcell.KeyCtrlN:
@@ -369,14 +372,29 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		r := ev.Rune()
 
 		switch r {
-		case 0: // error
+		case 0x00: // error
 			return false
 
-		case 32: // space
+		case 0x20: // space
 			if ui.prompt.Locked() {
 				ui.view.ScrollDown(pageH)
 			} else {
 				ui.prompt.AddRune(r)
+			}
+
+		case 0x61: // a
+			if ui.state.Mode() == mode.Tag {
+				h.TagAll()
+			}
+
+		case 0x6E: // n
+			if ui.state.Mode() == mode.Tag {
+				h.TagNone()
+			}
+
+		case 0x69: // i
+			if ui.state.Mode() == mode.Tag {
+				h.InvertTags()
 			}
 
 		default: // all other keys

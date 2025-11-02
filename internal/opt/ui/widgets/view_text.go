@@ -162,6 +162,6 @@ func (v *View) textMark(_, y int) {
 	if y <= v.last.Y && v.delta.Y+y < len(*v.fmap) {
 		str := (*v.fmap)[v.delta.Y+y]
 
-		v.heap.InverseTag(str.Nr)
+		v.heap.InvertTag(str.Nr)
 	}
 }

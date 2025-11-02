@@ -41,6 +41,14 @@
 | <kbd>Ctrl</kbd> + <kbd>J</kbd> | Decrease context                              |
 | <kbd>Ctrl</kbd> + <kbd>A</kbd> | Tag all lines                                 |
 
+## Tagging
+
+| Key          | Action        |
+|--------------|---------------|
+| <kbd>A</kbd> | Tag all lines |
+| <kbd>N</kbd> | Tag no lines  |
+| <kbd>I</kbd> | Invert tags   |
+
 ## Evidence
 
 | Key                            | Action                                       |
