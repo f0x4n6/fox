@@ -263,6 +263,16 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 			ui.view.Reset()
 		}
 
+	case tcell.KeyCtrlA:
+		if !ui.state.Mode().IsStatic() {
+			h.TagAll()
+		}
+
+	case tcell.KeyCtrlU:
+		if !ui.state.Mode().IsStatic() {
+			// TODO: filter only tagged lines
+		}
+
 	case tcell.KeyCtrlV:
 		ui.root.GetClipboard()
 
