@@ -225,7 +225,7 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 		).CloseOther()
 
 	case types.Unique:
-		hs.Unique()
+		hs.Unique().CloseOther()
 
 	case types.None:
 		// normal

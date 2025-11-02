@@ -15,7 +15,7 @@ The Swiss Army Knife for examining text files. Combining the power of many tradi
 * Evidence streaming using [Splunk HEC](https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTinput) or [ECS](https://www.elastic.co/docs/reference/ecs)
 * Integrated super timeline in [Common Event Format](https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%201%20What%20is%20CEF.htm)
 * Integrated plugin support for e.g. [Sleuth Kit](https://www.sleuthkit.org/) or [Eric Zimmerman's tools](https://ericzimmerman.github.io/)
-* Integrated assistant using local [Ollama LLMs](https://ollama.com/search) like *DeepSeek R1*
+* Integrated assistant using local [Ollama LLMs](https://ollama.com/search) like *Mistral* or *DeepSeek R1*
 
 ## Install
 Install directly using Go:

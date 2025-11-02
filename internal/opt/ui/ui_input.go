@@ -100,27 +100,29 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.runAssistant(hs, h)
 
 	case tcell.KeyF3:
-		hs.Counts()
+		hs.Unique()
 		ui.changeMode(mode.Default)
 
 	case tcell.KeyF4:
-		hs.Entropy(0.0, 1.0)
+		hs.Counts()
 		ui.changeMode(mode.Default)
 
 	case tcell.KeyF5:
-		hs.Strings(3, math.MaxInt, true, nil)
+		hs.Entropy(0.0, 1.0)
 		ui.changeMode(mode.Default)
 
 	case tcell.KeyF6:
-		hs.HashSum(types.SHA256)
+		hs.Strings(3, math.MaxInt, true, nil)
 		ui.changeMode(mode.Default)
 
 	case tcell.KeyF7:
-		hs.Timeline(false)
+		hs.HashSum(types.SHA256)
 		ui.changeMode(mode.Default)
 
 	case tcell.KeyF8:
-		fallthrough
+		hs.Timeline(false)
+		ui.changeMode(mode.Default)
+
 	case tcell.KeyF9:
 		fallthrough
 	case tcell.KeyF10:
