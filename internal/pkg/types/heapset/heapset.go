@@ -86,7 +86,7 @@ func (hs *HeapSet) Open(path string) {
 }
 
 func (hs *HeapSet) OpenHelp() {
-	idx, ok := hs.findByName("Help")
+	idx, ok := hs.findByName("Welcome")
 
 	if !ok {
 		idx = hs.Len()
@@ -95,7 +95,7 @@ func (hs *HeapSet) OpenHelp() {
 		_, _ = f.WriteString(fmt.Sprintf(fox.Fox+fox.Help, fox.Version))
 
 		hs.atomicAdd(heap.New(
-			"Help",
+			"Welcome",
 			f.Name(),
 			f.Name(),
 			types.Ignore,

@@ -7,7 +7,7 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/sys/fs"
 )
 
-func (v *View) listRender(p *panel) {
+func (v *View) listRender(p *plane) {
 	w := fs.InfoWidth
 
 	page := v.listPage()

@@ -36,7 +36,7 @@ func (m Mode) IsFilter() bool {
 
 func (m Mode) IsStatic() bool {
 	switch m {
-	case Hex, Tag:
+	case Hex:
 		return true
 	default:
 		return false

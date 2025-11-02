@@ -30,6 +30,7 @@ type Heap struct {
 
 	filters []*Filter // filters
 
+	tags Tags    // tagged lines
 	hash Hash    // file hash sums
 	size int64   // file size
 	seek int64   // file seek
@@ -182,6 +183,9 @@ func (h *Heap) Reload() {
 
 	// reduce smap
 	h.smap = limit.ReduceSMap(smap.Map(h.mmap))
+
+	// resets tags
+	h.tags = make(Tags, len(*h.smap))
 
 	// resets filters
 	h.filters = h.filters[:0]

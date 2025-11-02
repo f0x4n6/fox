@@ -12,13 +12,13 @@ import (
 	"github.com/cuhsat/fox/internal/pkg/types/page"
 )
 
-func (v *View) textRender(p *panel) {
+func (v *View) textRender(p *plane) {
 	var color tcell.Style
 
 	pg := page.Text(&page.Context{
 		Heap:    v.heap,
 		Context: v.heap.HasContext(),
-		Pinned:  v.state.IsPinned(),
+		Sticky:  v.state.IsSticky(),
 		Navi:    v.state.IsNavi(),
 		Wrap:    v.state.IsWrap(),
 		Space:   v.state.Space(),
@@ -70,8 +70,10 @@ func (v *View) textRender(p *panel) {
 		if len(line.Str) > 0 {
 			if isChat && strings.HasPrefix(line.Str, ps1) {
 				color = themes.Subtext2
-			} else if i == 1 && v.state.IsPinned() {
+			} else if i == 1 && v.state.IsSticky() {
 				color = themes.Subtext0
+			} else if line.Tag {
+				color = themes.Subtext2
 			} else {
 				color = themes.Terminal
 			}
@@ -89,7 +91,13 @@ func (v *View) textRender(p *panel) {
 
 		// render line number
 		if isNavi {
-			v.print(p.X, lineY, line.Nr, themes.Subtext0)
+			if line.Tag {
+				color = themes.Subtext2
+			} else {
+				color = themes.Subtext0
+			}
+
+			v.print(p.X, lineY, line.Nr, color)
 		}
 	}
 
@@ -147,5 +155,13 @@ func (v *View) textGoto(pos string) {
 
 	if y, ok := v.fmap.Find(nr); ok {
 		v.ScrollTo(v.delta.X, y)
+	}
+}
+
+func (v *View) textMark(_, y int) {
+	if y <= v.last.Y && v.delta.Y+y < len(*v.fmap) {
+		str := (*v.fmap)[v.delta.Y+y]
+
+		v.heap.InverseTag(str.Nr)
 	}
 }

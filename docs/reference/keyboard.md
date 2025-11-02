@@ -40,7 +40,7 @@
 | <kbd>Ctrl</kbd> + <kbd>R</kbd> | Toggle file reload                            |
 | <kbd>Ctrl</kbd> + <kbd>K</kbd> | Increase context                              |
 | <kbd>Ctrl</kbd> + <kbd>J</kbd> | Decrease context                              |
-| <kbd>Ctrl</kbd> + <kbd>Z</kbd> | Suspend to shell                              |
+| <kbd>Ctrl</kbd> + <kbd>A</kbd> | Tag all lines                                 |
 
 ## Evidence
 
@@ -62,3 +62,4 @@
 | <kbd>F6</kbd>                  | Show file(s) [hash sum](../utils/hashes.md)        |
 | <kbd>F7</kbd>                  | Show file(s) [timeline](../utils/timeline.md)      |
 | <kbd>F8</kbd> - <kbd>F24</kbd> | Execute [plugins](../plugins/config.md)            |
+| <kbd>Ctrl</kbd> + <kbd>Z</kbd> | Suspend to shell                              |

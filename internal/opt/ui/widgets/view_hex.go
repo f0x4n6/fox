@@ -11,7 +11,7 @@ const (
 	ruleW = 2
 )
 
-func (v *View) hexRender(p *panel) {
+func (v *View) hexRender(p *plane) {
 	pg := page.Hex(&page.Context{
 		Heap: v.heap,
 		Navi: v.state.IsNavi(),

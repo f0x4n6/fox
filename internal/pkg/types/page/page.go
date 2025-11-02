@@ -43,7 +43,7 @@ type Context struct {
 	Heap *heap.Heap
 
 	Context bool
-	Pinned  bool
+	Sticky  bool
 	Navi    bool
 	Wrap    bool
 
@@ -61,7 +61,7 @@ func NewContext(h *heap.Heap) *Context {
 	return &Context{
 		Heap:    h,
 		Context: true,
-		Pinned:  false,
+		Sticky:  false,
 		Navi:    true,
 		Wrap:    false,
 		Space:   2,

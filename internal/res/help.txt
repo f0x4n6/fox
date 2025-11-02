@@ -25,6 +25,7 @@ Keymap:
   Ctrl + R             Toggle reload file
   Ctrl + K             Increase context
   Ctrl + J             Decrease context
+  Ctrl + A             Tag all lines
   Ctrl + U             Union files
   Ctrl + Q             Close file
   Ctrl + C             Copy to clipboard

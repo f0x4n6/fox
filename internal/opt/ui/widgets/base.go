@@ -18,7 +18,7 @@ type point struct {
 	Y int
 }
 
-type panel struct {
+type plane struct {
 	X int
 	Y int
 	W int

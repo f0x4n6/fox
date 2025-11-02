@@ -48,6 +48,7 @@ nav:
       - Less: features/ui/less.md
       - Grep: features/ui/grep.md
       - Hex: features/ui/hex.md
+      - Tag: features/ui/tag.md
 
   - Files:
     - Loader: files/loader.md

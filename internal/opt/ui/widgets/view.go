@@ -18,7 +18,6 @@ type View struct {
 	list  atomic.Value
 	cache map[string]position
 
-	h  int
 	nr int
 
 	off  int
@@ -26,6 +25,7 @@ type View struct {
 
 	last  point
 	delta point
+	plane plane
 }
 
 type position struct {
@@ -42,26 +42,24 @@ func NewView(state *opt.State) *View {
 }
 
 func (v *View) Render(hs *heapset.HeapSet, x, y, w, h int) int {
-	v.h = h - 1 // fill all but the least line
+	v.plane = plane{x, y, w, h - 1} // fill all but the least line
 
 	if hs != nil {
 		_, v.heap = hs.Heap()
 	} else {
-		return v.h
+		return v.plane.H
 	}
-
-	p := &panel{x, y, w, v.h}
 
 	switch v.state.Mode() {
 	case mode.Hex:
-		v.hexRender(p)
+		v.hexRender(&v.plane)
 	case mode.Open:
-		v.listRender(p)
+		v.listRender(&v.plane)
 	default:
-		v.textRender(p)
+		v.textRender(&v.plane)
 	}
 
-	return v.h
+	return v.plane.H
 }
 
 func (v *View) Reset() {
@@ -140,6 +138,22 @@ func (v *View) LoadPath(root string) {
 	v.off = 0
 }
 
+func (v *View) MarkLine(x, y int) {
+	// check horizontal out-of-bounds
+	if x < v.plane.X || x > v.plane.X+v.plane.W {
+		return
+	}
+
+	// check vertical out-of-bounds
+	if y < v.plane.Y || y > v.plane.Y+v.plane.H {
+		return
+	}
+
+	if !v.state.Mode().IsStatic() {
+		v.textMark(x, y-v.plane.Y)
+	}
+}
+
 func (v *View) MoveHome() string {
 	v.line, v.off = 0, 0
 
@@ -147,8 +161,8 @@ func (v *View) MoveHome() string {
 }
 
 func (v *View) MoveEnd() string {
-	v.line = min(v.last.Y, v.h-1)
-	v.off = max((v.last.Y-v.h)+1, 0)
+	v.line = min(v.last.Y, v.plane.H-1)
+	v.off = max((v.last.Y-v.plane.H)+1, 0)
 
 	return v.listItem().Text
 }
@@ -164,10 +178,10 @@ func (v *View) MoveUp(delta int) string {
 }
 
 func (v *View) MoveDown(delta int) string {
-	if v.line < v.h-1 {
+	if v.line < v.plane.H-1 {
 		v.line = min(v.line+delta, v.last.Y)
-	} else if v.off < (v.last.Y-v.h)+1 {
-		v.off = min(v.off+delta, (v.last.Y-v.h)+1)
+	} else if v.off < (v.last.Y-v.plane.H)+1 {
+		v.off = min(v.off+delta, (v.last.Y-v.plane.H)+1)
 	}
 
 	return v.listItem().Text
@@ -194,7 +208,7 @@ func (v *View) ScrollLine() {
 }
 
 func (v *View) ScrollLast() {
-	v.delta.Y = max(v.last.Y-(v.h-3), 0)
+	v.delta.Y = max(v.last.Y-(v.plane.H-3), 0)
 }
 
 func (v *View) ScrollHome() {

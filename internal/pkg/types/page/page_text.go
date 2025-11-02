@@ -97,7 +97,7 @@ func textStream(ctx *Context, page *TextPage) {
 	numSep, numGrp, lastGrp := 0, 1, 0
 
 	// pin first line
-	if ctx.Pinned {
+	if ctx.Sticky {
 		nr := fmt.Sprintf("%0*d ", page.N, 0)
 		str := (*ctx.Heap.SMap())[0].Str
 		str = text.Trim(str, min(ctx.X, text.Len(str)), ctx.W)
@@ -125,10 +125,10 @@ func textStream(ctx *Context, page *TextPage) {
 			fmt.Sprintf("%0*d ", page.N, str.Nr),
 			text.Trim(str.Str, off, ctx.W),
 			str.Grp,
-			str.Tag,
+			ctx.Heap.IsTagged(str.Nr),
 		)
 
-		if ctx.Pinned {
+		if ctx.Sticky {
 			y++ // skip first line
 		}
 
