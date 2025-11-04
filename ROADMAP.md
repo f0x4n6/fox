@@ -7,9 +7,7 @@
 * ~~Done~~
 
 ## 3. Features
-* Change symbol for pick
 * Add secondary mouse button for area tagging
-* Add command chains
 * Add new image README as GIF
 * Add custom render layout, like text, hex, csv, log
 * Add scan rules

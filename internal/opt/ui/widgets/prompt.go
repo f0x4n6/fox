@@ -315,12 +315,7 @@ func (p *Prompt) fmtFilters(fs []*heap.Pattern, fit bool) string {
 			sb.WriteRune(' ')
 			sb.WriteString(f.Value)
 			sb.WriteRune(' ')
-
-			if f.Regex != nil {
-				sb.WriteRune(p.state.Icon.Grep)
-			} else {
-				sb.WriteRune(p.state.Icon.Pick)
-			}
+			sb.WriteRune(p.state.Icon.Grep)
 		}
 
 		// add space after filters

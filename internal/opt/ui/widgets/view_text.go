@@ -42,7 +42,7 @@ func (v *View) textRender(p *plane) {
 	}
 
 	// reset
-	v.nr = 0
+	v.nr, v.trans = 0, make(map[int]int, pg.H)
 
 	ps1, off, i := string(v.state.Icon.Ps1), 0, 0
 
@@ -55,6 +55,8 @@ func (v *View) textRender(p *plane) {
 
 	// render lines
 	for line := range pg.Lines {
+		v.trans[i] = line.Org
+
 		lineX := p.X + off
 		lineY := p.Y + i
 
@@ -159,9 +161,7 @@ func (v *View) textGoto(pos string) {
 }
 
 func (v *View) textMark(_, y int) {
-	if y <= v.last.Y && v.delta.Y+y < len(*v.fmap) {
-		str := (*v.fmap)[v.delta.Y+y]
-
-		v.heap.ToggleTag(str.Nr)
+	if y <= v.last.Y && y < len(v.trans) {
+		v.heap.ToggleTag(v.trans[y])
 	}
 }

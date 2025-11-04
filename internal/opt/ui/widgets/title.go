@@ -20,10 +20,12 @@ func NewTitle(state *opt.State) *Title {
 }
 
 func (t *Title) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
-	var i int32
-	var n int32
-	var h *heap.Heap
-	var s = "Loading…"
+	var (
+		i int32
+		n int32
+		h *heap.Heap
+		s = "Loading…"
+	)
 
 	if hs != nil {
 		i, h = hs.Heap()
@@ -44,16 +46,11 @@ func (t *Title) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	// render blank line
 	t.blank(x, y, w, themes.Surface0)
 
-	// render status icon
-	t.print(x, y, "🦊", themes.Surface0)
-
-	x += 3
-
 	// render heap filepath
 	t.print(x, y, text.Abr(s, w-(x+text.Len(c)+1)), themes.Surface2)
 
 	// render heapset index and count
-	t.print(x+w-(text.Len(c)+3), y, c, themes.Surface1)
+	t.print(x+w-text.Len(c), y, c, themes.Surface1)
 
 	return 1
 }

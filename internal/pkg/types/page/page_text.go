@@ -17,6 +17,8 @@ type TextPage struct {
 
 type TextLine struct {
 	Line
+	Org   int
+	Tag   bool
 	Parts []Part
 }
 
@@ -84,9 +86,11 @@ func Text(ctx *Context) (page *TextPage) {
 	return
 }
 
-func textLine(nr, str string, grp int, tag bool) *TextLine {
+func textLine(nr, str string, org, grp int, tag bool) *TextLine {
 	return &TextLine{
-		Line{nr, grp, tag, str},
+		Line{nr, grp, str},
+		org,
+		tag,
 		make([]Part, 0),
 	}
 }
@@ -102,7 +106,7 @@ func textStream(ctx *Context, page *TextPage) {
 		str := (*ctx.Heap.SMap())[0].Str
 		str = text.Trim(str, min(ctx.X, text.Len(str)), ctx.W)
 
-		page.Lines <- textLine(nr, str, 0, false)
+		page.Lines <- textLine(nr, str, 0, 0, false)
 	}
 
 	// stream lines
@@ -113,7 +117,7 @@ func textStream(ctx *Context, page *TextPage) {
 
 		// insert context separator
 		if ctx.Context && lastGrp != str.Grp && numGrp > 1 {
-			page.Lines <- textLine(Sep, "", str.Grp, false)
+			page.Lines <- textLine(Sep, "", str.Nr, str.Grp, false)
 			numGrp = 1
 			numSep++
 		}
@@ -124,6 +128,7 @@ func textStream(ctx *Context, page *TextPage) {
 		line := textLine(
 			fmt.Sprintf("%0*d ", page.N, str.Nr),
 			text.Trim(str.Str, off, ctx.W),
+			str.Nr,
 			str.Grp,
 			ctx.Heap.IsTagged(str.Nr),
 		)

@@ -17,6 +17,7 @@ type View struct {
 	fmap  *smap.SMap
 	list  atomic.Value
 	cache map[string]position
+	trans map[int]int
 
 	nr int
 
@@ -150,7 +151,7 @@ func (v *View) MarkLine(x, y int) {
 	}
 
 	if !v.state.Mode().IsStatic() {
-		v.textMark(x, y-v.plane.Y)
+		v.textMark(x-v.plane.X, y-v.plane.Y)
 	}
 }
 
