@@ -139,7 +139,7 @@ func (v *View) LoadPath(root string) {
 	v.off = 0
 }
 
-func (v *View) MarkLine(x, y int) {
+func (v *View) MarkLine(x, y int, z bool) {
 	// check horizontal out-of-bounds
 	if x < v.plane.X || x > v.plane.X+v.plane.W {
 		return
@@ -151,7 +151,7 @@ func (v *View) MarkLine(x, y int) {
 	}
 
 	if !v.state.Mode().IsStatic() {
-		v.textMark(x-v.plane.X, y-v.plane.Y)
+		v.textMark(x-v.plane.X, y-v.plane.Y, z)
 	}
 }
 

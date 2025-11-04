@@ -160,8 +160,8 @@ func (v *View) textGoto(pos string) {
 	}
 }
 
-func (v *View) textMark(_, y int) {
+func (v *View) textMark(_, y int, z bool) {
 	if y <= v.last.Y && y < len(v.trans) {
-		v.heap.ToggleTag(v.trans[y])
+		v.heap.TagLine(v.trans[y], z)
 	}
 }

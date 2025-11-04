@@ -7,14 +7,11 @@
 * ~~Done~~
 
 ## 3. Features
-* Add secondary mouse button for area tagging
-* Add new image README as GIF
-* Add custom render layout, like text, hex, csv, log
 * Add scan rules
 
 ## 4. Optimizations
-* Entropy graph for files
 * Check replacement with Kong / Koanf / Coral
+* Add custom render layout, like text, hex, csv, log
 * Add debug output (`-v` flag)
 * SMap speed
   * https://dev.to/moseeh_52/efficient-file-reading-in-go-mastering-bufionewscanner-vs-osreadfile-4h05

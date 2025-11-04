@@ -34,10 +34,13 @@ func (ui *UI) handleMouse(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventMous
 	}
 
 	b := ev.Buttons()
+	x, y := ev.Position()
 
 	switch {
 	case b&tcell.ButtonPrimary != 0:
-		ui.view.MarkLine(ev.Position())
+		ui.view.MarkLine(x, y, true)
+	case b&tcell.ButtonSecondary != 0:
+		ui.view.MarkLine(x, y, false)
 	case b&tcell.ButtonMiddle != 0:
 		ui.root.GetClipboard()
 	case b&tcell.Button4 != 0:

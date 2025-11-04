@@ -69,11 +69,11 @@ func (h *Heap) stream(ch chan<- byte) {
 }
 
 func (h *Heap) parse(lines string) (nrs []int) {
-	for _, l := range strings.Split(lines, ",") {
-		r := strings.Split(l, "-")
+	for _, t := range strings.Split(lines, ",") {
+		r := strings.Split(t, "-")
 
-		if strings.HasPrefix(l, "%") {
-			n := text.Int(strings.TrimPrefix(l, "%"))
+		if strings.HasPrefix(t, "%") {
+			n := text.Int(strings.TrimPrefix(t, "%"))
 
 			for i := n; i <= h.Length(); i += n {
 				nrs = append(nrs, i)
@@ -88,7 +88,7 @@ func (h *Heap) parse(lines string) (nrs []int) {
 				}
 			}
 		} else {
-			if nr := text.Int(l); nr > 0 {
+			if nr := text.Int(t); nr > 0 {
 				nrs = append(nrs, nr)
 			}
 		}

@@ -19,6 +19,20 @@ func (h *Heap) HasTags() bool {
 	return false
 }
 
+func (h *Heap) IsTagged(nr int) bool {
+	h.RLock()
+	t, ok := h.tags[nr]
+	h.RUnlock()
+
+	return ok && t
+}
+
+func (h *Heap) TagLine(nr int, v bool) {
+	h.Lock()
+	h.tags[nr] = v
+	h.Unlock()
+}
+
 func (h *Heap) TagLines(lines string) {
 	lines = strings.TrimSpace(lines)
 	lines = strings.ToLower(lines)
@@ -31,46 +45,34 @@ func (h *Heap) TagLines(lines string) {
 		h.TagNone()
 
 	case "i", "invert":
-		h.ToggleTags()
+		h.TagOthers()
 
 	default:
 		nrs := h.parse(lines)
 
-		h.Lock()
-
 		for _, nr := range nrs {
-			h.tags[nr] = true
+			h.TagLine(nr, true)
 		}
-
-		h.Unlock()
 	}
 }
 
 func (h *Heap) TagAll() {
 	fmap := *h.FMap()
 
-	h.Lock()
-
 	for _, str := range fmap {
-		h.tags[str.Nr] = true
+		h.TagLine(str.Nr, true)
 	}
-
-	h.Unlock()
 }
 
 func (h *Heap) TagNone() {
 	fmap := *h.FMap()
 
-	h.Lock()
-
 	for _, str := range fmap {
-		h.tags[str.Nr] = false
+		h.TagLine(str.Nr, false)
 	}
-
-	h.Unlock()
 }
 
-func (h *Heap) ToggleTags() {
+func (h *Heap) TagOthers() {
 	fmap := *h.FMap()
 
 	h.Lock()
@@ -80,18 +82,4 @@ func (h *Heap) ToggleTags() {
 	}
 
 	h.Unlock()
-}
-
-func (h *Heap) ToggleTag(nr int) {
-	h.Lock()
-	h.tags[nr] = !h.tags[nr]
-	h.Unlock()
-}
-
-func (h *Heap) IsTagged(nr int) bool {
-	h.RLock()
-	t, ok := h.tags[nr]
-	h.RUnlock()
-
-	return ok && t
 }
