@@ -9,6 +9,7 @@ import (
 	"github.com/cuhsat/zip/pkg/zip"
 
 	"github.com/cuhsat/fox/v3/internal/pkg/files"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
 	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
 )
 
@@ -32,7 +33,7 @@ func Deflate(path, pass string) (i []*files.Item) {
 		return
 	}
 
-	defer r.Close()
+	defer sys.Handler(r.Close)
 
 	for _, f := range r.File {
 		if strings.HasSuffix(f.Name, "/") {

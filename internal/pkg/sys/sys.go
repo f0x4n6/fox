@@ -57,7 +57,7 @@ func Exit(v ...any) {
 
 func Exec(cmds []string) fs.File {
 	f := fs.Create("/fox/exec")
-	defer f.Close()
+	defer Handler(f.Close)
 
 	for _, cmd := range cmds {
 		err := cmdchain.Builder().JoinShellCmd(cmd).
@@ -150,6 +150,10 @@ func Piped(file fs.File) bool {
 	}
 
 	return (fi.Mode() & os.ModeCharDevice) != os.ModeCharDevice
+}
+
+func Handler(fn func() error) {
+	_ = fn()
 }
 
 func Recover() {

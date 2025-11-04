@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/cuhsat/fox/v3/internal/pkg/files"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
 	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
 )
 
@@ -17,7 +18,7 @@ func Detect(path string) bool {
 
 func Deflate(path string) string {
 	a := fs.Open(path)
-	defer a.Close()
+	defer sys.Handler(a.Close)
 
 	r, err := gzip.NewReader(a)
 
@@ -26,10 +27,10 @@ func Deflate(path string) string {
 		return path
 	}
 
-	defer r.Close()
+	defer sys.Handler(r.Close)
 
 	t := fs.Create(path)
-	defer t.Close()
+	defer sys.Handler(t.Close)
 
 	_, err = io.Copy(t, r)
 

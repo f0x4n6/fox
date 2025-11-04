@@ -12,6 +12,7 @@ import (
 	"github.com/pierrec/lz4/v4"
 
 	"github.com/cuhsat/fox/v3/internal/pkg/files"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
 	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
 )
 
@@ -53,10 +54,10 @@ func Detect(path string) bool {
 
 func Parse(path string) string {
 	f := fs.Open(path)
-	defer f.Close()
+	defer sys.Handler(f.Close)
 
 	t := fs.Create(path)
-	defer t.Close()
+	defer sys.Handler(t.Close)
 
 	for {
 		l, err := decode(f)

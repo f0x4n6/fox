@@ -8,6 +8,7 @@ import (
 
 	"github.com/Velocidex/go-journalctl/parser"
 
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
 	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
 )
 
@@ -17,10 +18,10 @@ func Detect(path string) bool {
 
 func Parse(path string) string {
 	f := fs.Open(path)
-	defer f.Close()
+	defer sys.Handler(f.Close)
 
 	t := fs.Create(path)
-	defer t.Close()
+	defer sys.Handler(t.Close)
 
 	j, err := parser.OpenFile(f)
 

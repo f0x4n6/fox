@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-cabfile/cabfile"
 
 	"github.com/cuhsat/fox/v3/internal/pkg/files"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
 	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
 )
 
@@ -20,7 +21,7 @@ func Detect(path string) bool {
 
 func Deflate(path, _ string) (i []*files.Item) {
 	a := fs.Open(path)
-	defer a.Close()
+	defer sys.Handler(a.Close)
 
 	r, err := cabfile.New(a)
 

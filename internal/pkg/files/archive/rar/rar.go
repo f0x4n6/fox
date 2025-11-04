@@ -9,6 +9,7 @@ import (
 	"github.com/nwaples/rardecode"
 
 	"github.com/cuhsat/fox/v3/internal/pkg/files"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
 	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
 )
 
@@ -20,7 +21,7 @@ func Detect(path string) bool {
 
 func Deflate(path, pass string) (i []*files.Item) {
 	a := fs.Open(path)
-	defer a.Close()
+	defer sys.Handler(a.Close)
 
 	r, err := rardecode.NewReader(a, pass)
 

@@ -154,7 +154,7 @@ exec = 'jls "FILE"'
 ```
 
 ## [mactime](https://www.sleuthkit.org/sleuthkit/man/mactime.html)
-Create an ASCII time line of file activity.
+Create an ASCII timeline of file activity.
 ```toml
 [hotkey.f9]
 name = 'mactime'

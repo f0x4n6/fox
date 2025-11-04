@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
 	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
 )
 
@@ -19,7 +20,7 @@ func HasMagic(p string, o int, m []byte) bool {
 	buf := make([]byte, o+len(m))
 
 	f := fs.Open(p)
-	defer f.Close()
+	defer sys.Handler(f.Close)
 
 	fi, err := f.Stat()
 

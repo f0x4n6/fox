@@ -8,6 +8,7 @@ import (
 
 	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
 	"github.com/cuhsat/fox/v3/internal/pkg/files/schema"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
 )
 
 type Url struct {
@@ -45,7 +46,7 @@ func (w *Url) Flush() {
 		return
 	}
 
-	defer res.Body.Close()
+	defer sys.Handler(res.Body.Close)
 
 	if res.StatusCode != 200 {
 		log.Println(http.StatusText(res.StatusCode))
