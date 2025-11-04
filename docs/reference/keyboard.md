@@ -2,11 +2,11 @@
 
 ## Files
 
-| Key                            | Action       |
-|--------------------------------|--------------|
-| <kbd>Esc</kbd> <kbd>Esc</kbd>  | Exit         |
-| <kbd>Ctrl</kbd> + <kbd>O</kbd> | Browse files |
-| <kbd>Ctrl</kbd> + <kbd>Q</kbd> | Close file   |
+| Key                            | Action     |
+|--------------------------------|------------|
+| <kbd>Esc</kbd> <kbd>Esc</kbd>  | Exit       |
+| <kbd>Ctrl</kbd> + <kbd>O</kbd> | Open files |
+| <kbd>Ctrl</kbd> + <kbd>Q</kbd> | Close file |
 
 ## Navigation
 
@@ -40,14 +40,6 @@
 | <kbd>Ctrl</kbd> + <kbd>K</kbd> | Increase context                              |
 | <kbd>Ctrl</kbd> + <kbd>J</kbd> | Decrease context                              |
 | <kbd>Ctrl</kbd> + <kbd>A</kbd> | Tag all lines                                 |
-
-## Tagging
-
-| Key          | Action        |
-|--------------|---------------|
-| <kbd>A</kbd> | Tag all lines |
-| <kbd>N</kbd> | Tag no lines  |
-| <kbd>I</kbd> | Invert tags   |
 
 ## Evidence
 

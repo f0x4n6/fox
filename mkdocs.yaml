@@ -18,8 +18,8 @@ nav:
   - Home: index.md
 
   - Getting started:
-    - Installation: start/install.md
     - Tutorial: start/tutorial.md
+    - Installation: start/install.md
 
     - Usage:
       - fox: start/usage/fox.md

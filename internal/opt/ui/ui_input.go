@@ -221,7 +221,6 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		ui.changeMode(mode.Goto)
 
 	case tcell.KeyCtrlO:
-		ui.view.LoadPath(ui.state.Path())
 		ui.changeMode(mode.Open)
 
 	case tcell.KeyCtrlL:
@@ -399,16 +398,29 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		case 0x61: // a
 			if ui.state.Mode() == mode.Tag {
 				h.TagAll()
+			} else {
+				ui.prompt.AddRune(r)
 			}
 
 		case 0x6E: // n
 			if ui.state.Mode() == mode.Tag {
 				h.TagNone()
+			} else {
+				ui.prompt.AddRune(r)
 			}
 
 		case 0x69: // i
 			if ui.state.Mode() == mode.Tag {
 				h.InvertTags()
+			} else {
+				ui.prompt.AddRune(r)
+			}
+
+		case 0x74: // t
+			if ui.state.Mode() == mode.Tag {
+				h.InvertTag(1)
+			} else {
+				ui.prompt.AddRune(r)
 			}
 
 		default: // all other keys

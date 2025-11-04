@@ -47,7 +47,7 @@ const (
 	HashSum
 	Strings
 	Timeline
-	Unique = 7
+	Unique
 )
 
 type Null struct{}

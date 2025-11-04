@@ -169,6 +169,7 @@ func (ui *UI) changeMode(m mode.Mode) {
 	// config completion
 	switch m {
 	case mode.Open:
+		ui.view.LoadPath(ui.state.Path())
 		ui.state.SetFindable(fs.Find)
 	default:
 		ui.state.SetFindable(ui.history.FindLine)

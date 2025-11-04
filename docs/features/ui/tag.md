@@ -10,9 +10,11 @@ Available mode specific keys:
 
 | Key              | Action                         |
 |------------------|--------------------------------|
-| <kbd>Esc</kbd>   | Switch to [Less](less.md) mode |
 | <kbd>Enter</kbd> | Scroll one line down           |
 | <kbd>Space</kbd> | Scroll one page down           |
+| <kbd>Up</kbd>    | Prev line in file              |
+| <kbd>Down</kbd>  | Next line in file              |
+| <kbd>T</kbd>     | Tag current line               |
 | <kbd>A</kbd>     | Tag all lines                  |
 | <kbd>N</kbd>     | Tag no lines                   |
 | <kbd>I</kbd>     | Invert tags                    |

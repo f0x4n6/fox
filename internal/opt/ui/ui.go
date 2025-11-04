@@ -58,7 +58,7 @@ func Start(args []string, invoke types.Invoke) {
 	ui.run(hs)
 }
 
-func New(hs *heapset.HeapSet, util types.Invoke) *UI {
+func New(hs *heapset.HeapSet, invoke types.Invoke) *UI {
 	runewidth.CreateLUT()
 
 	root, err := tcell.NewScreen()
@@ -101,7 +101,7 @@ func New(hs *heapset.HeapSet, util types.Invoke) *UI {
 	root.SetStyle(themes.Terminal)
 	root.Sync()
 
-	ui.invoke(hs, util)
+	ui.invoke(hs, invoke)
 	ui.render(nil)
 	ui.changeMode(flags.Get().UI.Mode)
 
@@ -192,6 +192,9 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 	flg := flags.Get()
 
 	switch util {
+	case types.None:
+		// normal
+
 	case types.Compare:
 		hs.Compare(
 			flg.Compare.Git,
@@ -226,9 +229,6 @@ func (ui *UI) invoke(hs *heapset.HeapSet, util types.Invoke) {
 
 	case types.Unique:
 		hs.Unique().CloseOther()
-
-	case types.None:
-		// normal
 	}
 }
 

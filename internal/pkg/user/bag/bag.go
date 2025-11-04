@@ -154,7 +154,7 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 			Modified: mod(h),
 		})
 
-		for _, str := range *h.FMap() {
+		for _, str := range *h.SMap() {
 			if h.IsTagged(str.Nr) {
 				w.WriteLine(str.Nr, str.Grp, str.Str)
 			}
