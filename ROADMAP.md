@@ -7,11 +7,12 @@
 * ~~Done~~
 
 ## 3. Features
+* Change symbol for pick
+* Add secondary mouse button for area tagging
 * Add command chains
 * Add new image README as GIF
 * Add custom render layout, like text, hex, csv, log
-* Add Yara rules scan
-* Add Mark Mode to mark line for evidence bag
+* Add scan rules
 
 ## 4. Optimizations
 * Entropy graph for files

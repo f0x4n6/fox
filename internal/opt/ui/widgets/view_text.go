@@ -6,10 +6,10 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/cuhsat/fox/internal/opt/ui/themes"
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/page"
+	"github.com/cuhsat/fox/v3/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/page"
 )
 
 func (v *View) textRender(p *plane) {
@@ -162,6 +162,6 @@ func (v *View) textMark(_, y int) {
 	if y <= v.last.Y && v.delta.Y+y < len(*v.fmap) {
 		str := (*v.fmap)[v.delta.Y+y]
 
-		v.heap.InvertTag(str.Nr)
+		v.heap.ToggleTag(str.Nr)
 	}
 }

@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cuhsat/fox/internal/pkg/types/page"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/page"
 	"github.com/spf13/cobra"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/opt/ui"
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/opt/ui"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
 )
 
 var UniqueUsage = fox.Fox + `
@@ -21,7 +21,7 @@ Usage:
   fox unique [FLAG ...] PATH ...
 
 Alias:
-  anew, un
+  un
 
 Positional arguments:
   Path(s) to open
@@ -37,7 +37,7 @@ var Unique = &cobra.Command{
 	Short:   "display unique lines",
 	Long:    "display unique lines",
 	Args:    cobra.ArbitraryArgs,
-	Aliases: []string{"anew", "un"},
+	Aliases: []string{"un"},
 	Run: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
 

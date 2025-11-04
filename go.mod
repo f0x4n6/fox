@@ -1,4 +1,4 @@
-module github.com/cuhsat/fox
+module github.com/cuhsat/fox/v3
 
 go 1.25.1
 
@@ -19,7 +19,7 @@ require (
 	github.com/google/go-cabfile v0.0.0-20220815135208-f9ac3a87fd26
 	github.com/inconshreveable/mousetrap v1.1.0
 	github.com/josephspurrier/goversioninfo v1.5.0
-	github.com/klauspost/compress v1.18.0
+	github.com/klauspost/compress v1.18.1
 	github.com/mattn/go-runewidth v0.0.19
 	github.com/ntauth/better-csvd v0.0.0-20240704144201-58768136af28
 	github.com/nwaples/rardecode v1.1.3
@@ -33,7 +33,7 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/ulikunitz/xz v0.5.15
 	github.com/zeebo/xxh3 v1.0.2
-	modernc.org/sqlite v1.39.0
+	modernc.org/sqlite v1.40.0
 )
 
 require (
@@ -41,10 +41,11 @@ require (
 	github.com/Velocidex/ordereddict v0.0.0-20250821063524-02dc06e46238 // indirect
 	github.com/Velocidex/yaml/v2 v2.2.8 // indirect
 	github.com/akavel/rsrc v0.10.2 // indirect
-	github.com/clipperhouse/uax29/v2 v2.2.0 // indirect
+	github.com/clipperhouse/stringish v0.1.1 // indirect
+	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
+	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/sagikazarmark/locafero v0.12.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
@@ -52,7 +53,7 @@ require (
 	github.com/tmthrgd/go-popcount v0.0.0-20190904054823-afb1ace8b04f // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.42.0 // indirect
+	golang.org/x/crypto v0.43.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	mvdan.cc/sh/v3 v3.12.0 // indirect
 )
@@ -63,13 +64,13 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/ncruces/go-strftime v0.1.9 // indirect
-	github.com/ollama/ollama v0.12.3
+	github.com/ncruces/go-strftime v1.0.0 // indirect
+	github.com/ollama/ollama v0.12.9
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	golang.org/x/exp v0.0.0-20250911091902-df9299821621 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/term v0.35.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/term v0.36.0 // indirect
+	golang.org/x/text v0.30.0 // indirect
 	modernc.org/libc v1.66.10 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect

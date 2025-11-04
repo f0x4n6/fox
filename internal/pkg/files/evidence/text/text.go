@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
 )
 
 const Ext = ".bag"

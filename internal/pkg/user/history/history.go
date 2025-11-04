@@ -11,8 +11,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/user"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/user"
 )
 
 type History struct {

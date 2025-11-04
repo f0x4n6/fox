@@ -39,12 +39,13 @@
 | <kbd>Ctrl</kbd> + <kbd>R</kbd> | Toggle file reload                            |
 | <kbd>Ctrl</kbd> + <kbd>K</kbd> | Increase context                              |
 | <kbd>Ctrl</kbd> + <kbd>J</kbd> | Decrease context                              |
-| <kbd>Ctrl</kbd> + <kbd>A</kbd> | Tag all lines                                 |
 
 ## Evidence
 
 | Key                            | Action                                       |
 |--------------------------------|----------------------------------------------|
+| <kbd>Ctrl</kbd> + <kbd>A</kbd> | Tag all lines                                |
+| <kbd>Ctrl</kbd> + <kbd>U</kbd> | Untag all lines                              |
 | <kbd>Ctrl</kbd> + <kbd>C</kbd> | Copy to clipboard                            |
 | <kbd>Ctrl</kbd> + <kbd>S</kbd> | Save [evidence](../features/evidence.md) bag |
 | <kbd>Ctrl</kbd> + <kbd>B</kbd> | Open [evidence](../features/evidence.md) bag |

@@ -8,11 +8,11 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/cuhsat/fox/internal/opt"
-	"github.com/cuhsat/fox/internal/opt/ui/themes"
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v3/internal/opt"
+	"github.com/cuhsat/fox/v3/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
 )
 
 type Position int

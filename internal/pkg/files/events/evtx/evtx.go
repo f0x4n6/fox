@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/cuhsat/fox/internal/pkg/files/events"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/events"
 )
 
 var re = regexp.MustCompile(`"Computer":\s*"(?P<host>.*?)".*"(EventID|Value)":\s*"(?P<data>.*?)".*"SystemTime":\s*"(?P<time>.+?)"`)

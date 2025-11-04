@@ -1,10 +1,10 @@
 # Tutorial
 
 ## 0. Install
-If you have not done it yet, [install](install.md) the **Forensic Examiner** to your system:
+If you haven't done it yet, [install](install.md) the **Forensic Examiner** to your system:
 
 ```console
-go install github.com/cuhsat/fox@latest
+go install github.com/cuhsat/fox/v3@latest
 ```
 
 ## 1. Open a file
@@ -53,6 +53,6 @@ If the models are not loaded into memory already, then this could take a few sec
 ![](../assets/img/tutorial/step_3.png "Analyse the artifacts")
 
 ## 4. Save the evidence
-Press <kbd>Tab</kbd> to switch back from the assistant to the original file. To tag all filtered lines as evidence, simply press <kbd>Ctrl</kbd>+<kbd>A</kbd>. Then press <kbd>Ctrl</kbd>+<kbd>S</kbd> to save the formerly tagged lines into the [Evidence Bag](../features/evidence.md#evidence-bag). Press <kbd>Esc</kbd> twice, to exit the Forensic Examiner. This concludes this tutorial.
+Press <kbd>Tab</kbd> to switch back from the assistant to the original file. To tag all filtered lines as evidence, simply press <kbd>Ctrl</kbd>+<kbd>A</kbd> followed by <kbd>Ctrl</kbd>+<kbd>S</kbd> to save the formerly tagged lines into the [Evidence Bag](../features/evidence.md#evidence-bag). Press <kbd>Esc</kbd> twice, to exit the Forensic Examiner. This concludes this tutorial.
 
 ![](../assets/img/tutorial/step_4.png "Save the evidence")

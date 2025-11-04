@@ -10,8 +10,8 @@ import (
 
 	"github.com/philippgille/chromem-go"
 
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/types/smap"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/smap"
 )
 
 type RAG struct {

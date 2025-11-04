@@ -8,11 +8,11 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types/mode"
-	"github.com/cuhsat/fox/internal/pkg/user/config"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/mode"
+	"github.com/cuhsat/fox/v3/internal/pkg/user/config"
 )
 
 type Listable func(string) []fs.Item

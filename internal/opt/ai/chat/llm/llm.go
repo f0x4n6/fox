@@ -9,8 +9,8 @@ import (
 
 	"github.com/ollama/ollama/api"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/pkg/user/config"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/pkg/user/config"
 )
 
 type LLM struct {

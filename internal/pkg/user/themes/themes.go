@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/cuhsat/fox/internal/pkg/user"
+	"github.com/cuhsat/fox/v3/internal/pkg/user"
 )
 
 type Themes struct {

@@ -7,7 +7,7 @@ fox compare [FLAG ...] FILE1 FILE2
 ```
 
 ### Aliases
-`diff`, `cmp`, `ce`
+`diff`, `co`
 
 ### Arguments
 Files to open

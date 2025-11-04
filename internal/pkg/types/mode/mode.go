@@ -45,7 +45,7 @@ func (m Mode) IsStatic() bool {
 
 func (m Mode) IsPrompt() bool {
 	switch m {
-	case Less, Hex, Tag:
+	case Less, Hex:
 		return false
 	default:
 		return true

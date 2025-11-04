@@ -4,9 +4,9 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/mattn/go-runewidth"
 
-	"github.com/cuhsat/fox/internal/opt"
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v3/internal/opt"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
 )
 
 type Queueable interface {

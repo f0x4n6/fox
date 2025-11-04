@@ -3,8 +3,8 @@ package widgets
 import (
 	"math"
 
-	"github.com/cuhsat/fox/internal/opt/ui/themes"
-	"github.com/cuhsat/fox/internal/pkg/types/page"
+	"github.com/cuhsat/fox/v3/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/page"
 )
 
 const (

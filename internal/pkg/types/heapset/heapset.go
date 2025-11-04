@@ -6,11 +6,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/types/loader"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/loader"
 )
 
 type Changed func(*heap.Heap)
@@ -92,7 +92,7 @@ func (hs *HeapSet) OpenHelp() {
 		idx = hs.Len()
 
 		f := fs.Create("/fox/help")
-		_, _ = f.WriteString(fmt.Sprintf(fox.Fox+fox.Help, fox.Version))
+		_, _ = f.WriteString(fmt.Sprintf(fox.Fox+fox.Help, fox.Version, fox.Website))
 
 		hs.atomicAdd(heap.New(
 			"Welcome",

@@ -12,8 +12,8 @@ package main
 import (
 	"github.com/inconshreveable/mousetrap"
 
-	"github.com/cuhsat/fox/internal/cmd"
-	"github.com/cuhsat/fox/internal/pkg/sys"
+	"github.com/cuhsat/fox/v3/internal/cmd"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
 )
 
 // Main start and catch.

@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
 )
 
 type Hec struct {

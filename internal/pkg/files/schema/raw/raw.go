@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cuhsat/fox/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
 )
 
 type Raw struct {

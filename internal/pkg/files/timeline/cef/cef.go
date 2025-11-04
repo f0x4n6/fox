@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/pkg/files/events"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/events"
 )
 
 func Format(e *events.Event) string {

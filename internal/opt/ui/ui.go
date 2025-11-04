@@ -12,18 +12,18 @@ import (
 
 	_ "github.com/gdamore/tcell/v2/encoding"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/opt"
-	"github.com/cuhsat/fox/internal/opt/ai/chat"
-	"github.com/cuhsat/fox/internal/opt/ui/themes"
-	"github.com/cuhsat/fox/internal/opt/ui/widgets"
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/internal/pkg/user/bag"
-	"github.com/cuhsat/fox/internal/pkg/user/history"
-	"github.com/cuhsat/fox/internal/pkg/user/plugins"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/opt"
+	"github.com/cuhsat/fox/v3/internal/opt/ai/chat"
+	"github.com/cuhsat/fox/v3/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/v3/internal/opt/ui/widgets"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v3/internal/pkg/user/bag"
+	"github.com/cuhsat/fox/v3/internal/pkg/user/history"
+	"github.com/cuhsat/fox/v3/internal/pkg/user/plugins"
 )
 
 const (

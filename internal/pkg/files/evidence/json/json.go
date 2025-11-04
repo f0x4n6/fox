@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/cuhsat/fox/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
 )
 
 const (

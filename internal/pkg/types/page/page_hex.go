@@ -3,8 +3,8 @@ package page
 import (
 	"fmt"
 
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
 )
 
 type HexPage struct {

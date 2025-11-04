@@ -3,12 +3,12 @@ package widgets
 import (
 	"fmt"
 
-	"github.com/cuhsat/fox/internal/opt"
-	"github.com/cuhsat/fox/internal/opt/ui/themes"
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/internal/pkg/types/mode"
+	"github.com/cuhsat/fox/v3/internal/opt"
+	"github.com/cuhsat/fox/v3/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/mode"
 )
 
 type Title struct {
@@ -44,11 +44,16 @@ func (t *Title) Render(hs *heapset.HeapSet, x, y, w, _ int) int {
 	// render blank line
 	t.blank(x, y, w, themes.Surface0)
 
+	// render status icon
+	t.print(x, y, "🦊", themes.Surface0)
+
+	x += 3
+
 	// render heap filepath
 	t.print(x, y, text.Abr(s, w-(x+text.Len(c)+1)), themes.Surface2)
 
 	// render heapset index and count
-	t.print(x+w-text.Len(c), y, c, themes.Surface1)
+	t.print(x+w-(text.Len(c)+3), y, c, themes.Surface1)
 
 	return 1
 }

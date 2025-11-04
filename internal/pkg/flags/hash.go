@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cuhsat/fox/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
 )
 
 type Algorithms struct {

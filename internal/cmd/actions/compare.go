@@ -6,13 +6,13 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/opt/ui"
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/opt/ui"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
 )
 
 var CompareUsage = fox.Fox + `
@@ -22,7 +22,7 @@ Usage:
   fox compare [FLAG ...] FILE1 FILE2
 
 Alias:
-  diff, cmp, ce
+  diff, co
 
 Positional arguments:
   Files to open
@@ -41,7 +41,7 @@ var Compare = &cobra.Command{
 	Short:   "compare two files",
 	Long:    "compare two files",
 	Args:    cobra.ArbitraryArgs,
-	Aliases: []string{"diff", "cmp", "ce"},
+	Aliases: []string{"diff", "co"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
 

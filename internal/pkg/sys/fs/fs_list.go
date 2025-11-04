@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/cuhsat/fox/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
 )
 
 const (

@@ -7,7 +7,7 @@ fox counts [FLAG ...] PATH ...
 ```
 
 ### Aliases
-`co`, `wc`
+`wc`
 
 ### Arguments
 Path(s) to open

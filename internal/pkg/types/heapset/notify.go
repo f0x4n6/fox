@@ -6,8 +6,8 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 
-	"github.com/cuhsat/fox/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
 )
 
 func (hs *HeapSet) SetChanged(fn Changed) {

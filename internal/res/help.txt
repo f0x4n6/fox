@@ -1,8 +1,11 @@
 
 The Swiss Army Knife for examining text files (%s)
+Visit <https://%s> for documentation.
 
-Keymap:
+General keymap:
   Esc x 2              Exit
+  Enter                Scroll one line down
+  Space                Scroll one page down
   Shift + Up           Scroll page up
   Shift + Down         Scroll page down
   Shift + Left         Scroll page left
@@ -26,6 +29,7 @@ Keymap:
   Ctrl + K             Increase context
   Ctrl + J             Decrease context
   Ctrl + A             Tag all lines
+  Ctrl + U             Untag all lines
   Ctrl + Q             Close file
   Ctrl + C             Copy to clipboard
   Ctrl + S             Save evidence bag
@@ -41,50 +45,20 @@ Keymap:
   F8                   Show file(s) timeline
   F9 - F24             Execute plugin
 
-Keymap (OPEN):
-  Esc                  Switch to LESS mode
-  Enter                Open file(s)
-  Up                   Prev file in directory
-  Down                 Next file in directory
+Input keymap:
+  Esc                  Switch back mode
+  Enter                Apply filter or input
+  Backspace            Remove filter or input
+  Up                   Prev value (in history)
+  Down                 Next value (in history)
   Left                 Move cursor left
   Right                Move cursor right
-  Right the at end     Complete suggestion
+  Right at the end     Complete suggestion
   Ctrl + Left          Move cursor to start
   Ctrl + Right         Move cursor to end
   Ctrl + V             Paste from clipboard
-  Any other key        Define file path(s)
 
-Keymap (LESS):
-  Enter                Scroll one line down
-  Space                Scroll one page down
-  Any other key        Switch to GREP mode
-
-Keymap (GREP):
-  Esc                  Switch to LESS mode
-  Enter                Append filter
-  Backspace            Remove filter
-  Up                   Prev value in history
-  Down                 Next value in history
-  Left                 Move cursor left
-  Right                Move cursor right
-  Right the at end     Complete suggestion
-  Ctrl + Left          Move cursor to start
-  Ctrl + Right         Move cursor to end
-  Ctrl + V             Paste from clipboard
-  Any other key        Define RegEx pattern
-
-Keymap (HEX):
-  Enter                Scroll one line down
-  Space                Scroll one page down
-
-Keymap (TAG):
-  Enter                Scroll one line down
-  Space                Scroll one page down
-  A                    Tag all lines
-  N                    Tag no lines
-  I                    Invert tags
-
-Assistant:
+Assistant commands:
   Stop                 Stops the current activity
   List                 Lists locally available models
   Set model NAME       Pulls and sets the LLM analysing model
@@ -92,4 +66,5 @@ Assistant:
   Get model            Shows the current LLM analysing model
   Get embed            Shows the current RAG embedding model
   Del NAME             Deletes the local model
-  Any other input      Define assistant prompt
+
+The Forensic Examiner is released under the GPL-3.0 license.

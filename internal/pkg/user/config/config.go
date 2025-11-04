@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/cuhsat/fox/configs"
-	"github.com/cuhsat/fox/internal/pkg/user"
+	"github.com/cuhsat/fox/v3/configs"
+	"github.com/cuhsat/fox/v3/internal/pkg/user"
 )
 
 func Get() *viper.Viper {

@@ -17,6 +17,7 @@ Specific lines and line range can be picked using the syntax defined below.
 | `1`    | Pick line `1`         |
 | `1,2`  | Pick lines `1` & `2`  |
 | `1-3`  | Pick lines `1` to `3` |
+| `%4`   | Pick every `4`th line |
 
 ## Context window
 This mode offers also a dynamic **Context Window** for filtered lines. This context window can be changed on-the-fly for all open files alike:

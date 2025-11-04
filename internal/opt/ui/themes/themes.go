@@ -6,7 +6,7 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/cuhsat/fox/internal/pkg/user/themes"
+	"github.com/cuhsat/fox/v3/internal/pkg/user/themes"
 )
 
 const Default = "examiner-dark"

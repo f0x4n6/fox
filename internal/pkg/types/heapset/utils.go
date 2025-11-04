@@ -11,15 +11,15 @@ import (
 
 	"github.com/zeebo/xxh3"
 
-	"github.com/cuhsat/fox/internal/pkg/files/events"
-	"github.com/cuhsat/fox/internal/pkg/files/events/evtx"
-	"github.com/cuhsat/fox/internal/pkg/files/events/journal"
-	"github.com/cuhsat/fox/internal/pkg/files/timeline/cef"
-	"github.com/cuhsat/fox/internal/pkg/files/timeline/plain"
-	"github.com/cuhsat/fox/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/events"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/events/evtx"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/events/journal"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/timeline/cef"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/timeline/plain"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
 )
 
 type util func(h *heap.Heap) string

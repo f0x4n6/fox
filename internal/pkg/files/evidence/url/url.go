@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cuhsat/fox/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/internal/pkg/files/schema"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/schema"
 )
 
 type Url struct {

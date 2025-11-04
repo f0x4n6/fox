@@ -7,9 +7,9 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/cuhsat/fox/internal/opt"
-	"github.com/cuhsat/fox/internal/opt/ui/themes"
-	"github.com/cuhsat/fox/internal/pkg/sys"
+	"github.com/cuhsat/fox/v3/internal/opt"
+	"github.com/cuhsat/fox/v3/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
 )
 
 const timeout = 3

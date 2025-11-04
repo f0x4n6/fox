@@ -11,13 +11,13 @@ import (
 
 	"github.com/ollama/ollama/api"
 
-	"github.com/cuhsat/fox/internal/opt"
-	"github.com/cuhsat/fox/internal/opt/ai/chat/llm"
-	"github.com/cuhsat/fox/internal/opt/ai/chat/rag"
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/user/config"
+	"github.com/cuhsat/fox/v3/internal/opt"
+	"github.com/cuhsat/fox/v3/internal/opt/ai/chat/llm"
+	"github.com/cuhsat/fox/v3/internal/opt/ai/chat/rag"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/user/config"
 )
 
 const banner = "How may I help you today?"

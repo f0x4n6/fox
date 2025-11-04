@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/cuhsat/fox/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
 )
 
 const Ext = ".txt"

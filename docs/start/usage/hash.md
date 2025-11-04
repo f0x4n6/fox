@@ -7,7 +7,7 @@ fox hash [FLAG ...] PATH ...
 ```
 
 ### Aliases
-`sum`, `ha`
+`ha`
 
 ### Arguments
 Path(s) to open

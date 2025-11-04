@@ -11,16 +11,16 @@ import (
 
 	"github.com/gdamore/tcell/v2"
 
-	"github.com/cuhsat/fox/internal/opt/ai/chat"
-	"github.com/cuhsat/fox/internal/opt/ui/widgets"
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/internal/pkg/types/mode"
-	"github.com/cuhsat/fox/internal/pkg/user/plugins"
+	"github.com/cuhsat/fox/v3/internal/opt/ai/chat"
+	"github.com/cuhsat/fox/v3/internal/opt/ui/widgets"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/mode"
+	"github.com/cuhsat/fox/v3/internal/pkg/user/plugins"
 )
 
 const (
@@ -269,7 +269,7 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 	case tcell.KeyCtrlU:
 		if !ui.state.Mode().IsStatic() {
-			// TODO: filter only tagged lines
+			h.TagNone()
 		}
 
 	case tcell.KeyCtrlV:
@@ -329,7 +329,12 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 
 		case mode.Pick:
 			ui.view.Reset()
-			h.Select(l, 0, 0)
+			h.AddLines(l, 0, 0)
+			ui.changeMode(mode.Less)
+
+		case mode.Tag:
+			ui.view.Reset()
+			h.TagLines(l)
 			ui.changeMode(mode.Less)
 
 		case mode.Goto:
@@ -391,34 +396,6 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		case 0x20: // space
 			if ui.prompt.Locked() {
 				ui.view.ScrollDown(pageH)
-			} else {
-				ui.prompt.AddRune(r)
-			}
-
-		case 0x61: // a
-			if ui.state.Mode() == mode.Tag {
-				h.TagAll()
-			} else {
-				ui.prompt.AddRune(r)
-			}
-
-		case 0x6E: // n
-			if ui.state.Mode() == mode.Tag {
-				h.TagNone()
-			} else {
-				ui.prompt.AddRune(r)
-			}
-
-		case 0x69: // i
-			if ui.state.Mode() == mode.Tag {
-				h.InvertTags()
-			} else {
-				ui.prompt.AddRune(r)
-			}
-
-		case 0x74: // t
-			if ui.state.Mode() == mode.Tag {
-				h.InvertTag(1)
 			} else {
 				ui.prompt.AddRune(r)
 			}

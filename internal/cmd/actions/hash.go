@@ -7,15 +7,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/opt/ui"
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys"
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/internal/pkg/types/page"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/opt/ui"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/page"
 )
 
 var HashUsage = fox.Fox + `
@@ -25,7 +25,7 @@ Usage:
   fox hash [FLAG ...] PATH ...
 
 Alias:
-  sum, ha
+  ha
 
 Positional arguments:
   Path(s) to open
@@ -56,7 +56,7 @@ var Hash = &cobra.Command{
 	Short:   "display file hash or checksums",
 	Long:    "display file hash or checksums",
 	Args:    cobra.ArbitraryArgs,
-	Aliases: []string{"sum", "ha"},
+	Aliases: []string{"ha"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
 

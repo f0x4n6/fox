@@ -15,8 +15,8 @@ import (
 
 	"github.com/rainu/go-command-chain"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
 )
 
 const Prefix = "fox:"

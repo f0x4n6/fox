@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cuhsat/fox/internal/pkg/files"
-	"github.com/cuhsat/fox/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v3/internal/pkg/files"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
 )
 
 func Detect(path string) bool {

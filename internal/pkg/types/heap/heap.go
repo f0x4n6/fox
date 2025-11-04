@@ -8,10 +8,10 @@ import (
 
 	"github.com/edsrzf/mmap-go"
 
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/smap"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/smap"
 )
 
 type Heap struct {
@@ -207,6 +207,7 @@ func (h *Heap) ThrowAway() {
 
 	clear(h.filters)
 	clear(h.hash)
+	clear(h.tags)
 
 	h.size = 0
 	h.smap = nil

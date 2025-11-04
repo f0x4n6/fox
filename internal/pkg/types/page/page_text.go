@@ -3,8 +3,8 @@ package page
 import (
 	"fmt"
 
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types/smap"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/smap"
 )
 
 type TextPage struct {

@@ -18,7 +18,7 @@ import (
 	"github.com/glaslos/tlsh"
 	"github.com/zeebo/xxh3"
 
-	"github.com/cuhsat/fox/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
 )
 
 type Hash map[string][]byte

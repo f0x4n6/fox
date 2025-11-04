@@ -8,28 +8,28 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/cuhsat/fox/internal"
-	"github.com/cuhsat/fox/internal/cmd/actions"
-	"github.com/cuhsat/fox/internal/opt"
-	"github.com/cuhsat/fox/internal/opt/ai"
-	"github.com/cuhsat/fox/internal/opt/ai/chat"
-	"github.com/cuhsat/fox/internal/opt/ui"
-	"github.com/cuhsat/fox/internal/opt/ui/themes"
-	"github.com/cuhsat/fox/internal/pkg/flags"
-	"github.com/cuhsat/fox/internal/pkg/sys"
-	"github.com/cuhsat/fox/internal/pkg/text"
-	"github.com/cuhsat/fox/internal/pkg/types"
-	"github.com/cuhsat/fox/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/internal/pkg/types/mode"
-	"github.com/cuhsat/fox/internal/pkg/types/page"
-	"github.com/cuhsat/fox/internal/pkg/user/bag"
-	"github.com/cuhsat/fox/internal/pkg/user/config"
+	"github.com/cuhsat/fox/v3/internal"
+	"github.com/cuhsat/fox/v3/internal/cmd/actions"
+	"github.com/cuhsat/fox/v3/internal/opt"
+	"github.com/cuhsat/fox/v3/internal/opt/ai"
+	"github.com/cuhsat/fox/v3/internal/opt/ai/chat"
+	"github.com/cuhsat/fox/v3/internal/opt/ui"
+	"github.com/cuhsat/fox/v3/internal/opt/ui/themes"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/sys"
+	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/mode"
+	"github.com/cuhsat/fox/v3/internal/pkg/types/page"
+	"github.com/cuhsat/fox/v3/internal/pkg/user/bag"
+	"github.com/cuhsat/fox/v3/internal/pkg/user/config"
 )
 
 var Usage = fmt.Sprintf(fox.Fox+`
 The Swiss Army Knife for examining text files (%s)
-Visit https://%s for documentation.
+Visit <https://%s> for documentation.
 
 Usage:
   fox [ACTION] [FLAG ...] [PATH ...]

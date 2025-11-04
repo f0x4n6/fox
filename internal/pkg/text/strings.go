@@ -7,7 +7,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/cuhsat/fox/internal/pkg/flags"
+	"github.com/cuhsat/fox/v3/internal/pkg/flags"
 )
 
 var Classes = []Pattern{

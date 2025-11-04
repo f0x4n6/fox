@@ -7,7 +7,7 @@ fox unique [FLAG ...] PATH ...
 ```
 
 ### Aliases
-`anew`, `un`
+`un`
 
 ### Arguments
 Path(s) to open

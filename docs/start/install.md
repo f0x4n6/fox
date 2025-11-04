@@ -7,7 +7,7 @@ Stable [releases](https://github.com/cuhsat/fox/releases) are available for both
 Simply execute as user the following command:
 
 ```console
-go install github.com/cuhsat/fox@latest
+go install github.com/cuhsat/fox/v3@latest
 ```
 
 ## Install from binaries
