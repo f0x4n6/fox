@@ -17,6 +17,8 @@ Built-in cryptographic hashes *(for chain-of-custody)*:
 - `SHA3-256`
 - `SHA3-384`
 - `SHA3-512`
+- `BLAKE3-256`
+- `BLAKE3-512`
 
 ### Performance Hashes
 Built-in performance hashes *(for large files)*:

@@ -13,11 +13,12 @@ import (
 	"strings"
 
 	"github.com/cespare/xxhash"
-	"github.com/eciavatta/sdhash"
 	"github.com/glaslos/ssdeep"
 	"github.com/glaslos/tlsh"
 	"github.com/zeebo/xxh3"
 
+	"github.com/cuhsat/fox/v3/internal/pkg/algos/blake3"
+	"github.com/cuhsat/fox/v3/internal/pkg/algos/sdhash"
 	"github.com/cuhsat/fox/v3/internal/pkg/types"
 )
 
@@ -51,6 +52,10 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 		imp = sha3.New384()
 	case types.SHA3512:
 		imp = sha3.New512()
+	case types.BLAKE3256:
+		imp = blake3.New256()
+	case types.BLAKE3512:
+		imp = blake3.New512()
 	case types.FNV1:
 		imp = fnv.New64()
 	case types.FNV1A:
@@ -60,7 +65,7 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 	case types.XXH3:
 		imp = xxh3.New()
 	case types.SDHASH:
-		imp = new(SDHash)
+		imp = sdhash.New()
 	case types.SSDEEP:
 		imp = ssdeep.New()
 	case types.TLSH:
@@ -90,36 +95,4 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 	h.Unlock()
 
 	return sum, nil
-}
-
-type SDHash struct {
-	f sdhash.SdbfFactory
-	s sdhash.Sdbf
-}
-
-func (sd *SDHash) Reset() {
-	sd.f = nil
-	sd.s = nil
-}
-
-func (sd *SDHash) BlockSize() int {
-	return sdhash.BlockSize
-}
-
-func (sd *SDHash) Size() int {
-	return int(sd.s.Size())
-}
-
-func (sd *SDHash) Sum(_ []byte) []byte {
-	sd.s = sd.f.Compute()
-
-	return []byte(strings.TrimRight(sd.s.String(), "\n"))
-}
-
-func (sd *SDHash) Write(b []byte) (int, error) {
-	var err error
-
-	sd.f, err = sdhash.CreateSdbfFromBytes(b)
-
-	return len(b), err
 }
