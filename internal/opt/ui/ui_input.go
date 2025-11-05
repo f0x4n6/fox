@@ -38,9 +38,13 @@ func (ui *UI) handleMouse(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventMous
 
 	switch {
 	case b&tcell.ButtonPrimary != 0:
-		ui.view.MarkLine(x, y, true)
+		if ui.state.Mode().IsMarker() {
+			ui.view.MarkLine(x, y, true)
+		}
 	case b&tcell.ButtonSecondary != 0:
-		ui.view.MarkLine(x, y, false)
+		if ui.state.Mode().IsMarker() {
+			ui.view.MarkLine(x, y, false)
+		}
 	case b&tcell.ButtonMiddle != 0:
 		ui.root.GetClipboard()
 	case b&tcell.Button4 != 0:
@@ -266,12 +270,12 @@ func (ui *UI) handleKey(hs *heapset.HeapSet, h *heap.Heap, ev *tcell.EventKey) b
 		}
 
 	case tcell.KeyCtrlA:
-		if !ui.state.Mode().IsStatic() {
+		if ui.state.Mode().IsMarker() {
 			h.TagAll()
 		}
 
 	case tcell.KeyCtrlU:
-		if !ui.state.Mode().IsStatic() {
+		if ui.state.Mode().IsMarker() {
 			h.TagNone()
 		}
 

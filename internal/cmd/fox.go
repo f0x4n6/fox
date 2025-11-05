@@ -57,9 +57,6 @@ Print:
       --no-file            don't print filenames
       --no-line            don't print line numbers
 
-Deflate:
-  -P, --pass=PASSWORD      password for decryption (only RAR, ZIP)
-
 File limits:
   -h, --head               limit head of file by ...
   -t, --tail               limit tail of file by ...
@@ -93,7 +90,7 @@ UI options:
 Evidence bag:
   -N, --case=NAME          evidence bag case name (default: YYYY-MM-DD)
   -F, --file=FILE          evidence bag file name (default: evidence)
-      --mode=MODE          evidence bag file mode (default: plain):
+      --mode=MODE          evidence bag file mode (default: text):
                              none, plain, text, json, jsonl, xml, sqlite
 
 Evidence sign:
@@ -104,6 +101,9 @@ Evidence URL:
   -a, --auth=TOKEN         forward evidence using auth token
       --ecs                use ECS schema for evidence
       --hec                use HEC schema for evidence
+
+Deflate:
+      --pass=PASSWORD      password for decryption (only RAR, ZIP)
 
 Turn off:
   -R, --readonly           don't write any new files
@@ -116,6 +116,7 @@ Turn off:
 Aliases:
   -L, --logstash           short for: --ecs --url=http://localhost:8080
   -S, --splunk             short for: --hec --url=http://localhost:8088/...
+  -P, --plain              short for: --mode=plain
   -T, --text               short for: --mode=text
   -j, --json               short for: --mode=json
   -J, --jsonl              short for: --mode=jsonl
@@ -182,6 +183,10 @@ var Fox = &cobra.Command{
 
 		if len(flg.Evidence.Case) == 0 {
 			flg.Evidence.Case = time.Now().Format("2006-01-02")
+		}
+
+		if flg.Alias.Plain {
+			flg.Evidence.Mode = flags.BagModePlain
 		}
 
 		if flg.Alias.Text {
@@ -260,8 +265,6 @@ func init() {
 	Fox.PersistentFlags().BoolVar(&flg.NoFile, "no-file", false, "don't print filenames")
 	Fox.PersistentFlags().BoolVar(&flg.NoLine, "no-line", false, "don't print line numbers")
 
-	Fox.PersistentFlags().StringVar(&flg.Deflate.Pass, "pass", "P", "password for decryption")
-
 	Fox.PersistentFlags().BoolVarP(&flg.Limits.IsHead, "head", "h", false, "limit head of file by ...")
 	Fox.PersistentFlags().BoolVarP(&flg.Limits.IsTail, "tail", "t", false, "limit tail of file by ...")
 	Fox.PersistentFlags().IntVarP(&flg.Limits.Lines, "lines", "n", 0, "number of lines (default: 10)")
@@ -300,6 +303,8 @@ func init() {
 
 	Fox.PersistentFlags().Lookup("mode").NoOptDefVal = string(flags.BagModeText)
 
+	Fox.PersistentFlags().StringVar(&flg.Deflate.Pass, "pass", "", "password for decryption")
+
 	Fox.PersistentFlags().BoolVarP(&flg.Optional.Raw, "raw", "r", false, "don't process files at all")
 	Fox.PersistentFlags().BoolVarP(&flg.Optional.Readonly, "readonly", "R", false, "don't write any new files")
 	Fox.PersistentFlags().BoolVar(&flg.Optional.NoConvert, "no-convert", false, "don't convert automatically")
@@ -309,6 +314,7 @@ func init() {
 
 	Fox.PersistentFlags().BoolVarP(&flg.Alias.Logstash, "logstash", "L", false, "short for: --ecs --url=http://localhost:8080")
 	Fox.PersistentFlags().BoolVarP(&flg.Alias.Splunk, "splunk", "S", false, "short for: --hec --url=http://localhost:8088/...")
+	Fox.PersistentFlags().BoolVarP(&flg.Alias.Plain, "plain", "P", false, "short for: --mode=plain")
 	Fox.PersistentFlags().BoolVarP(&flg.Alias.Text, "text", "T", false, "short for: --mode=text")
 	Fox.PersistentFlags().BoolVarP(&flg.Alias.Json, "json", "j", false, "short for: --mode=json")
 	Fox.PersistentFlags().BoolVarP(&flg.Alias.Jsonl, "jsonl", "J", false, "short for: --mode=jsonl")

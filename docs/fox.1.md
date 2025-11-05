@@ -75,13 +75,6 @@ Options
 
 :   Prints the current version number.
 
-Options Deflate
----------------
-
-**-P, --pass**=_password_
-
-:   _Password_ for decryption (only _RAR_, _ZIP_).
-
 Options Limits
 --------------
 
@@ -193,7 +186,7 @@ Options Evidence
 
 **--mode**=_mode_
 
-:   Evidence bag file _mode_ (default **plain**):
+:   Evidence bag file _mode_ (default **text**):
 
     Modes are **none**, **plain**, **text**, **json**, **jsonl**, **xml**, **sqlite**.
 
@@ -216,6 +209,13 @@ Options Evidence
 **--hec**
 
 :   Use _HEC_ schema for evidence.
+
+Options Deflate
+---------------
+
+**--pass**=_password_
+
+:   _Password_ for decryption (only _RAR_, _ZIP_).
 
 Options Misc
 ------------
@@ -262,6 +262,10 @@ Aliases
 **-S, --splunk**
 
 :   Short for **--hec --url=http://localhost:8088/services/collector/event**.
+
+**-P, --plain**
+
+:   Short for **--mode=plain**.
 
 **-T, --text**
 
