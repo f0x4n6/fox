@@ -53,6 +53,8 @@ func New() *Bag {
 
 	switch flg.Mode {
 	case flags.BagModeNone:
+		// write nothing
+
 	case flags.BagModeSqlite:
 		ws = append(ws, sqlite.New())
 		path += sqlite.Ext
@@ -72,6 +74,9 @@ func New() *Bag {
 	case flags.BagModeText:
 		ws = append(ws, text.New())
 		path += text.Ext
+
+	case flags.BagModePlain:
+		fallthrough
 
 	default:
 		ws = append(ws, plain.New())

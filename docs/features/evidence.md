@@ -8,8 +8,8 @@ The following evidence bag formats are available:
 
 | Type      | Details                                                                         |
 |-----------|---------------------------------------------------------------------------------|
-| `plain`   | Plain data (*default*)                                                          |
-| `text`    | Plain data with metadata                                                        |
+| `plain`   | Plain text                                                                      |
+| `text`    | Plain text with metadata (*default*)                                            |
 | `json`    | [JSON Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.json) |
 | `jsonl`   | [JSON Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.json) |
 | `xml`     | [XML Schema](https://github.com/cuhsat/fox/blob/main/api/evidence.schema.xsd)   |

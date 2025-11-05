@@ -28,9 +28,6 @@ Path(s) to open or `-` for **STDIN**
 - `--no-file` — don't print filenames
 - `--no-line` — don't print line numbers
 
-### Deflate
-- `-P`, `--pass=PASSWORD` — password for decryption (only **RAR**, **ZIP**)
-
 ### File limits
 - `-h`, `--head` — limit head of file by *...*
 - `-t`, `--tail` — limit tail of file by *...*
@@ -64,7 +61,7 @@ Path(s) to open or `-` for **STDIN**
 ### Evidence bag
 - `-N`, `--case=NAME` — evidence bag case name (*default:* `YYYY-MM-DD`)
 - `-F`, `--file=FILE` — evidence bag file name (*default:* `evidence`)
-- `--mode=MODE` — evidence bag file mode (*default:* `plain`)
+- `--mode=MODE` — evidence bag file mode (*default:* `text`)
 
 Available evidence bag modes:
 > none, plain, text, json, jsonl, xml, sqlite
@@ -78,6 +75,9 @@ Available evidence bag modes:
 - `--ecs` — use **[ECS](https://forensic-examiner.eu/features/evidence.html#ecs-schema)** schema for evidence
 - `--hec` — use **[HEC](https://forensic-examiner.eu/features/evidence.html#hec-schema)** schema for evidence
 
+### Deflate
+- `--pass=PASSWORD` — password for decryption (only **RAR**, **ZIP**)
+
 ### Turn off
 - `-R`, `--readonly` — don't write any new files
 - `-r`, `--raw` — don't process files at all
@@ -89,6 +89,7 @@ Available evidence bag modes:
 ### Aliases
 - `-L`, `--logstash` — short for: `--ecs --url=http://localhost:8080`
 - `-S`, `--splunk` — short for: `--hec --url=http://localhost:8088/...`
+- `-P`, `--plain` — short for: `--mode=plain`
 - `-T`, `--text` — short for: `--mode=text`
 - `-j`, `--json` — short for: `--mode=json`
 - `-J`, `--jsonl` — short for: `--mode=jsonl`

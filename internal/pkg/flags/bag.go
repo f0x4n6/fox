@@ -12,6 +12,7 @@ const (
 
 const (
 	BagModeNone   BagMode = "none"
+	BagModePlain  BagMode = "plain"
 	BagModeText   BagMode = "text"
 	BagModeJson   BagMode = "json"
 	BagModeJsonl  BagMode = "jsonl"
@@ -35,6 +36,8 @@ func (bm *BagMode) Type() string {
 func (bm *BagMode) Set(v string) error {
 	switch v {
 	case string(BagModeNone):
+		fallthrough
+	case string(BagModePlain):
 		fallthrough
 	case string(BagModeText):
 		fallthrough

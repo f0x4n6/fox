@@ -65,6 +65,7 @@ type Flags struct {
 	Alias struct {
 		Logstash bool
 		Splunk   bool
+		Plain    bool
 		Text     bool
 		Json     bool
 		Jsonl    bool
@@ -115,7 +116,10 @@ var flg *Flags = nil // singleton
 func Get() *Flags {
 	if flg == nil {
 		flg = new(Flags)
+
+		// set defaults
 		flg.UI.Mode = mode.Default
+		flg.Evidence.Mode = BagModeText
 	}
 
 	return flg

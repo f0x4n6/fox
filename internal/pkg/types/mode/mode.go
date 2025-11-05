@@ -43,6 +43,15 @@ func (m Mode) IsStatic() bool {
 	}
 }
 
+func (m Mode) IsMarker() bool {
+	switch m {
+	case Less, Grep, Pick, Tag:
+		return true
+	default:
+		return false
+	}
+}
+
 func (m Mode) IsPrompt() bool {
 	switch m {
 	case Less, Hex:

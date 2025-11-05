@@ -180,7 +180,7 @@ func (v *View) MoveUp(delta int) string {
 
 func (v *View) MoveDown(delta int) string {
 	if v.line < v.plane.H-1 {
-		v.line = min(v.line+delta, v.last.Y)
+		v.line = min(v.line+delta, v.plane.H-1, v.last.Y)
 	} else if v.off < (v.last.Y-v.plane.H)+1 {
 		v.off = min(v.off+delta, (v.last.Y-v.plane.H)+1)
 	}
