@@ -36,19 +36,19 @@ Press <kbd>F2</kbd> to switch to the [AI Assistant](../features/ai/assistant.md)
 set embed nomic-embed-text
 ```
 
-Now, we need to specify also a model, that analyses the embedded text for use. Order the assistant to use `mistral` model for that:
+Now, we need to specify also a model, that analyses the embedded text for us. Order the assistant to use the `mistral` model for that:
 
 ```
 set model mistral
 ```
 
-Depending on your network connection, it could take a while to download the two models. After the models have downloaded, type in the prompt below. Then press <kbd>Enter</kbd> and wait for the assistant to answer:
+Depending on your network connection, it could take a while to download the two models. After the models have downloaded, type the text below. Then press <kbd>Enter</kbd> and wait for the assistant to answer:
 
 ```
 analyse this
 ```
 
-If the models are not loaded into memory already, then this could take a few seconds extra. As you can see, the assistant has formed an opinion about the artifact we found earlier. In the next step we will save the artifact into the evidence bag.
+If the models are not loaded into memory already, this could take a few seconds extra. As you can see, the assistant has formed an opinion about the artifact we found earlier. In the next step we will save the artifact into the evidence bag.
 
 ![](../assets/img/tutorial/step_3.png "Analyse the artifacts")
 

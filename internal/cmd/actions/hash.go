@@ -33,17 +33,23 @@ Positional arguments:
 Additional flags:
       --type=ALGORITHM     hash algorithm (default: SHA256)
 
-    Cryptographic hash algorithms:
-      MD5, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512, BLAKE3-256, BLAKE3-512
+Cryptographic hash algorithms:
+  MD5, SHA1, SHA256, SHA3
 
-    Performance hash algorithms:
-      FNV-1, FNV-1A, XXH64, XXH3
+  Sha3 hash algorithms:
+  SHA3-224, SHA3-256, SHA3-384, SHA3-512
 
-    Similarity hash algorithms:
-      SDHASH, SSDEEP, TLSH
+  Blake3 hash algorithms:
+  BLAKE3-256, BLAKE3-512
 
-    Checksum algorithms:
-      CRC32-IEEE, CRC64-ECMA, CRC64-ISO
+Performance hash algorithms:
+  FNV-1, FNV-1A, XXH64, XXH3
+
+Similarity hash algorithms:
+  SDHASH, SSDEEP, TLSH
+
+Checksum algorithms:
+  CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
 Example:
   $ fox hash --type=md5 --type=sha1 artifacts.zip

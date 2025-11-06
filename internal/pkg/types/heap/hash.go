@@ -17,8 +17,8 @@ import (
 	"github.com/glaslos/tlsh"
 	"github.com/zeebo/xxh3"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/algos/blake3"
-	"github.com/cuhsat/fox/v3/internal/pkg/algos/sdhash"
+	"github.com/cuhsat/fox/v3/internal/pkg/hash/blake3"
+	"github.com/cuhsat/fox/v3/internal/pkg/hash/sdhash"
 	"github.com/cuhsat/fox/v3/internal/pkg/types"
 )
 
