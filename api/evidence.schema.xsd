@@ -31,8 +31,8 @@
                     <xs:element name="time">
                       <xs:complexType>
                         <xs:sequence>
-                          <xs:element name="bagged" type="xs:dateTime"/>
                           <xs:element name="modified" type="xs:dateTime"/>
+                          <xs:element name="seized" type="xs:dateTime"/>
                         </xs:sequence>
                       </xs:complexType>
                     </xs:element>

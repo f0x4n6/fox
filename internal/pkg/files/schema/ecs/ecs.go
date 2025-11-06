@@ -75,7 +75,7 @@ func (ecs *Ecs) SetMeta(meta evidence.Meta) {
 	ecs.Labels["case"] = meta.Name
 	ecs.Labels["filters"] = strings.Join(meta.Filters, " > ")
 
-	ecs.Timestamp = meta.Bagged.UTC()
+	ecs.Timestamp = meta.Seized.UTC()
 
 	ecs.File.Path = meta.Path
 	ecs.File.Size = meta.Size

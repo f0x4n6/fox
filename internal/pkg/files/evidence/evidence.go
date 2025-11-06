@@ -28,8 +28,8 @@ type Meta struct {
 	Size     int64      `json:"size"`
 	Hash     []byte     `json:"hash"`
 	Filters  []string   `json:"filters"`
-	Bagged   time.Time  `json:"bagged"`
 	Modified time.Time  `json:"modified"`
+	Seized   time.Time  `json:"seized"`
 }
 
 type Line struct {

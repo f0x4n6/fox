@@ -64,18 +64,18 @@
           "description": "Evidence saving timestamp",
           "type": "object",
           "properties": {
-            "bagged": {
-              "description": "ISO 3338 formated UTC time of bag saving",
-              "type": "string"
-            },
             "modified": {
               "description": "ISO 3338 formated UTC time of last file modification",
+              "type": "string"
+            },
+            "seized": {
+              "description": "ISO 3338 formated UTC time of bag saving",
               "type": "string"
             }
           },
           "required": [
-            "bagged",
-            "modified"
+            "modified",
+            "seized"
           ]
         },
         "hash": {

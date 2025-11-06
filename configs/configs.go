@@ -1,3 +1,4 @@
+// Package configs provides default configurations.
 package configs
 
 import _ "embed"

@@ -22,7 +22,7 @@ type Writer struct {
 }
 
 type entry struct {
-	created time.Time
+	seized time.Time
 
 	// file metadata
 	file struct {
@@ -113,10 +113,10 @@ func (w *Writer) Flush() {
 		)
 	}
 
-	_ = w.insert(`evidence (user_id, file_id, created)`,
+	_ = w.insert(`evidence (user_id, file_id, seized)`,
 		userId,
 		fileId,
-		w.entry.created,
+		w.entry.seized,
 	)
 
 	err = tx.Commit()
@@ -127,7 +127,7 @@ func (w *Writer) Flush() {
 }
 
 func (w *Writer) WriteMeta(meta evidence.Meta) {
-	w.entry.created = meta.Bagged.UTC()
+	w.entry.seized = meta.Seized.UTC()
 
 	w.entry.file.path = meta.Path
 	w.entry.file.size = meta.Size

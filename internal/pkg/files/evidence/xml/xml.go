@@ -39,8 +39,8 @@ type entry struct {
 		} `xml:"User"`
 
 		Time struct {
-			Bagged   string `xml:"Bagged"`
 			Modified string `xml:"Modified"`
+			Seized   string `xml:"Seized"`
 		} `xml:"time"`
 
 		Hash string `xml:"Hash"`
@@ -131,8 +131,8 @@ func (w *Writer) WriteMeta(meta evidence.Meta) {
 
 	w.entry.Metadata.Hash = fmt.Sprintf("%x", meta.Hash)
 
-	w.entry.Metadata.Time.Bagged = evidence.Utc(meta.Bagged)
 	w.entry.Metadata.Time.Modified = evidence.Utc(meta.Modified)
+	w.entry.Metadata.Time.Seized = evidence.Utc(meta.Seized)
 
 	w.entry.Metadata.User.Login = meta.User.Username
 	w.entry.Metadata.User.Name = meta.User.Name

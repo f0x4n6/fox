@@ -155,7 +155,7 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 			Size:     h.Size(),
 			Hash:     sum,
 			Filters:  ptn,
-			Bagged:   now(),
+			Seized:   now(),
 			Modified: mod(h),
 		})
 

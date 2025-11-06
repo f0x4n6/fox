@@ -1,8 +1,7 @@
+// Package api provides evidence schemas.
 package api
 
-import (
-	_ "embed"
-)
+import _ "embed"
 
 var (
 	//go:embed evidence.schema.json

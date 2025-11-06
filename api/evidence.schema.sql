@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS evidence (
     id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL,
     file_id INTEGER NOT NULL,
-    created INTEGER NOT NULL,
+    seized INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (file_id) REFERENCES files (id)
 );

@@ -38,8 +38,8 @@ type entry struct {
 		} `json:"User"`
 
 		Time struct {
-			Bagged   time.Time `json:"Bagged"`
 			Modified time.Time `json:"Modified"`
+			Seized   time.Time `json:"Seized"`
 		} `json:"time"`
 
 		Hash string `json:"Hash"`
@@ -100,8 +100,8 @@ func (w *Writer) WriteMeta(meta evidence.Meta) {
 
 	w.entry.Metadata.Hash = fmt.Sprintf("%x", meta.Hash)
 
-	w.entry.Metadata.Time.Bagged = meta.Bagged.UTC()
 	w.entry.Metadata.Time.Modified = meta.Modified.UTC()
+	w.entry.Metadata.Time.Seized = meta.Seized.UTC()
 
 	w.entry.Metadata.User.Login = meta.User.Username
 	w.entry.Metadata.User.Name = meta.User.Name
