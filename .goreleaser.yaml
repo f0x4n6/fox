@@ -107,11 +107,11 @@ homebrew_casks:
       bash: ./fox.bash
       zsh: ./fox.zsh
     license: GPL-3.0
-    homepage: "https://forensic-examiner.eu/"
+    homepage: https://forensic-examiner.eu/
     description: |-
       Forensic Examiner.
       The Swiss Army Knife for examining text files.
     repository:
       owner: cuhsat
       name: homebrew-fox
-      token: "{{ secrets.FOX_HOMEBREW_PUBLISH }}"
+      token: "{{ .Env.HOMEBREW_TOKEN }}"
