@@ -114,4 +114,4 @@ homebrew_casks:
     repository:
       owner: cuhsat
       name: homebrew-fox
-      token: "{{ .Env.FOX_HOMEBREW_PUBLISH }}"
+      token: "{{ secrets.FOX_HOMEBREW_PUBLISH }}"
