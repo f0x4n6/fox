@@ -35,9 +35,9 @@ go build -o fox -tags minimal main.go
 ```
 
 ## License
-This software is released under the [GPL-3.0](LICENSE.md) 🦊
+This software is released under the [GPL-3.0](LICENSE.md)
 
----
+🦊
 ![Status](https://img.shields.io/github/actions/workflow/status/cuhsat/fox/ci.yaml?style=flat-square&labelColor=%23333&color=%230f88cd&label=Status)
 ![Date](https://img.shields.io/github/release-date/cuhsat/fox.svg?style=flat-square&labelColor=%23333&color=%230f88cd&label=Date)
 ![Release](https://img.shields.io/github/release/cuhsat/fox.svg?style=flat-square&labelColor=%23333&color=%230f88cd&label=Release)
