@@ -63,7 +63,7 @@ signs:
 
 nfpms:
   - vendor: Forensic Examiner
-    homepage: forensic-examiner.eu
+    homepage: https://forensic-examiner.eu
     maintainer: Christian Uhsat <christian@uhsat.de>
     description: |-
       Forensic Examiner.
