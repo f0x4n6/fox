@@ -110,6 +110,8 @@ theme:
   favicon: fox.ico
 
   features:
+    - content.code.copy
+    - content.code.select
     - toc.follow
     - navigation.path
     - navigation.tabs
@@ -134,10 +136,6 @@ extra:
     - icon: fontawesome/brands/linkedin
       link: https://linkedin.com/in/cuhsat
       name: LinkedIn
-
-    - icon: fontawesome/brands/mastodon
-      link: https://infosec.exchange/@cuhsat
-      name: Mastodon
 
     - icon: fontawesome/brands/github
       link: https://github.com/cuhsat

@@ -1,4 +1,4 @@
-![](docs/assets/img/examiner.png "Forensic Examiner")
+[![](docs/assets/img/examiner.png "Forensic Examiner")](https://forensic-examiner.eu)
 
 The Swiss Army Knife for examining text files. Combining the power of many traditional tools like **grep**, **diff**, **hexdump** and **strings** with the abilities of modern Large Language Models, to leverage your forensic examination process. Standalone binaries are available for Windows, Linux and macOS.
 
@@ -23,16 +23,21 @@ Install directly using Go:
 go install github.com/cuhsat/fox/v3@latest
 ```
 
-## Build [![CI](https://github.com/cuhsat/fox/actions/workflows/ci.yaml/badge.svg?style=flat)](https://github.com/cuhsat/fox/actions/workflows/ci.yaml)
+## Build
 Build a full-featured version:
 ```console
 go build -o fox main.go
 ```
 
-Build a minimal version with stripped AI and UI:
+Build a minimal version with stripped AI and UI support:
 ```console
 go build -o fox -tags minimal main.go
 ```
 
 ## License
-🦊 [Forensic Examiner](https://forensic-examiner.eu) is released under the [GPL-3.0](LICENSE.md).
+This software is released under the [GPL-3.0](LICENSE.md) 🦊
+
+---
+![Status](https://img.shields.io/github/actions/workflow/status/cuhsat/fox/ci.yaml?style=flat-square&labelColor=%23333&color=%230f88cd&label=Status)
+![Date](https://img.shields.io/github/release-date/cuhsat/fox.svg?style=flat-square&labelColor=%23333&color=%230f88cd&label=Date)
+![Release](https://img.shields.io/github/release/cuhsat/fox.svg?style=flat-square&labelColor=%23333&color=%230f88cd&label=Release)
