@@ -97,21 +97,18 @@ nfpms:
         file_info:
           mode: 0644
 
-#homebrew_casks:
-#  - name: Forensic Examiner
-#    binaries:
-#      - fox
-#    manpages:
-#      - man/fox.1
-#    completions:
-#      bash: ./fox.bash
-#      zsh: ./fox.zsh
-#    license: GPL-3.0
-#    homepage: https://forensic-examiner.eu/
-#    description: |-
-#      Forensic Examiner.
-#      The Swiss Army Knife for examining text files.
-#    repository:
-#      owner: cuhsat
-#      name: homebrew-fox
-#      token: "{{ .Env.HOMEBREW_TOKEN }}"
+homebrew_casks:
+  - repository:
+      owner: cuhsat
+      name: homebrew-fox
+      token: "{{ .Env.HOMEBREW_TOKEN }}"
+    homepage: https://forensic-examiner.eu
+    description: |-
+      Forensic Examiner.
+      The Swiss Army Knife for examining text files.
+    license: GPL-3.0
+    manpages:
+      - man/fox.1
+    completions:
+      bash: ./fox.bash
+      zsh: ./fox.zsh
