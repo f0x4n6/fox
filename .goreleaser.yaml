@@ -99,6 +99,7 @@ nfpms:
 
 homebrew_casks:
   - repository:
+      branch: main
       owner: cuhsat
       name: homebrew-fox
       token: "{{ .Env.HOMEBREW_TOKEN }}"

@@ -23,7 +23,7 @@ Install directly using Go:
 go install github.com/cuhsat/fox/v3@latest
 ```
 
-## Build
+## Build [![CI](https://github.com/cuhsat/fox/actions/workflows/ci.yaml/badge.svg?style=flat)](https://github.com/cuhsat/fox/actions/workflows/ci.yaml)
 Build a full-featured version:
 ```console
 go build -o fox main.go
