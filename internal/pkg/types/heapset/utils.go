@@ -12,6 +12,7 @@ import (
 	"github.com/zeebo/xxh3"
 
 	"github.com/cuhsat/fox/v3/internal/pkg/files/events"
+	"github.com/cuhsat/fox/v3/internal/pkg/files/events/dissect"
 	"github.com/cuhsat/fox/v3/internal/pkg/files/events/evtx"
 	"github.com/cuhsat/fox/v3/internal/pkg/files/events/journal"
 	"github.com/cuhsat/fox/v3/internal/pkg/files/timeline/cef"
@@ -81,8 +82,12 @@ func (hs *HeapSet) Extract(c bool) (ls []string) {
 	hs.Range(func(_ int, h *heap.Heap) bool {
 		for _, str := range *h.FMap() {
 			for _, ex := range []events.Extract{
+				// native
 				evtx.Extract,
 				journal.Extract,
+
+				// plugins
+				dissect.Extract,
 			} {
 				if e := ex(str.Str); e != nil {
 					ls = append(ls, fn(e))

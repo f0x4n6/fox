@@ -4,7 +4,7 @@ A combined **Super Timeline** of all open log files can be created using the [`f
 > In the Terminal UI, the timeline of all open files will be created.
 
 ## Common Event Format
-A super timeline using the [Common Event Format](https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%201%20What%20is%20CEF.htm), can be created for [Linux Systemd Journals](../files/logs/linux.md) or [Windows Event Logs](../files/logs/windows.md).
+A super timeline using the [Common Event Format](https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%201%20What%20is%20CEF.htm), can be created for [Linux Systemd Journals](../files/logs/linux.md) and [Windows Event Logs](../files/logs/windows.md) (using the built-in parser or the `target-query` [plugin](../plugins/ready/dissect.md)).
 
 ## Example
 ```console

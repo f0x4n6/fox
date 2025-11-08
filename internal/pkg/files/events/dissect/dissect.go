@@ -1,4 +1,4 @@
-package evtx
+package dissect
 
 import (
 	"regexp"
@@ -7,7 +7,7 @@ import (
 	"github.com/cuhsat/fox/v3/internal/pkg/files/events"
 )
 
-var re = regexp.MustCompile(`"Computer":\s*"(?P<host>.*?)".*"(EventID|Value)":\s*"(?P<data>.*?)".*"SystemTime":\s*"(?P<time>.+?)"`)
+var re = regexp.MustCompile(`"hostname":\s*"(?P<host>.+?)".*"ts":\s*"(?P<time>.+?)".*"EventID":\s*(?P<data>.+?),`)
 
 func Extract(line string) *events.Event {
 	m := re.FindStringSubmatch(line)
@@ -20,7 +20,7 @@ func Extract(line string) *events.Event {
 	y := re.SubexpIndex("host")
 	z := re.SubexpIndex("data")
 
-	ts, err := time.Parse(time.RFC3339, m[x])
+	ts, err := time.Parse(time.RFC3339Nano, m[x])
 
 	if err != nil {
 		return nil
