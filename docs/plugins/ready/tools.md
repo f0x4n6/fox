@@ -17,3 +17,12 @@ name = 'objdump'
 path = '.*\.(bin|dll|exe|scr|sys)'
 exec = 'objdump --disassemble "FILE"'
 ```
+
+## [RepCheck](https://github.com/riotsecurity/RepCheck)
+A reputation checker for IPs, URLs, hosts or domains.
+```toml
+[auto.repcheck]
+name = 'RepCheck'
+path = '.*check\.txt'
+exec = 'python3 repcheck.py -b -I "FILE"'
+```
