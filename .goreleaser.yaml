@@ -103,7 +103,7 @@ homebrew_casks:
       owner: cuhsat
       name: homebrew-fox
       token: "{{ .Env.HOMEBREW_TOKEN }}"
-    homepage: https://forensic-examiner.eu
+    #homepage: https://forensic-examiner.eu
     description: |-
       Forensic Examiner.
       The Swiss Army Knife for examining text files.
