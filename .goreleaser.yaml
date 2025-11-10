@@ -100,43 +100,23 @@ nfpms:
 # ====================================
 # Deactivated: Because of an auth bug.
 # ====================================
-#homebrew_casks:
-#  - repository:
-#      branch: main
-#      owner: cuhsat
-#      name: homebrew-fox
-#      token: "{{ .Env.HOMEBREW_TOKEN }}"
-#    homepage: https://forensic-examiner.eu
-#    description: |-
-#      Forensic Examiner.
-#      The Swiss Army Knife for examining text files.
-#    license: GPL-3.0
-#    manpages:
-#      - man/fox.1
-#    completions:
-#      bash: ./fox.bash
-#      zsh: ./fox.zsh
-
-brews:
-  -
-    name: fox
-    commit_author:
-      name: cuhsat
-      email: christian@uhsat.de
-    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-    directory: Formula
-    description: |-
-      Forensic Examiner.
-      The Swiss Army Knife for examining text files.
-    homepage: https://forensic-examiner.eu
-    license: GPL-3.0
-    install: |
-      bin.install "fox"
-    test: |
-      system "#{bin}/fox --version"
-    # Repository to push the generated files to.
+homebrew_casks:
+  - name: fox
     repository:
       owner: cuhsat
       name: homebrew-fox
       branch: main
       token: "{{ .Env.HOMEBREW_TOKEN }}"
+    url:
+      verified: github.com/cuhsat/homebrew-fox
+    directory: Casks
+    homepage: https://forensic-examiner.eu
+    description: |-
+      Forensic Examiner.
+      The Swiss Army Knife for examining text files.
+    license: GPL-3.0
+    manpages:
+      - man/fox.1
+    completions:
+      bash: ./fox.bash
+      zsh: ./fox.zsh
