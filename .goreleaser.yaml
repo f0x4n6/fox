@@ -116,3 +116,26 @@ nfpms:
 #    completions:
 #      bash: ./fox.bash
 #      zsh: ./fox.zsh
+
+brews:
+  -
+    name: Forensic Examiner
+    commit_author:
+      name: cuhsat
+      email: christian@uhsat.de
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    directory: Formula
+    description: |-
+      Forensic Examiner.
+      The Swiss Army Knife for examining text files.
+    license: GPL-3.0
+    install: |
+      bin.install "fox"
+    test: |
+      system "#{bin}/fox --version"
+    # Repository to push the generated files to.
+    repository:
+      owner: cuhsat
+      name: homebrew-fox
+      branch: main
+      token: "{{ .Env.GITHUB_TOKEN }}"
