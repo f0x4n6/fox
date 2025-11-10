@@ -119,7 +119,7 @@ nfpms:
 
 brews:
   -
-    name: Forensic Examiner
+    name: fox
     commit_author:
       name: cuhsat
       email: christian@uhsat.de
@@ -128,6 +128,7 @@ brews:
     description: |-
       Forensic Examiner.
       The Swiss Army Knife for examining text files.
+    homepage: https://forensic-examiner.eu
     license: GPL-3.0
     install: |
       bin.install "fox"
@@ -138,4 +139,4 @@ brews:
       owner: cuhsat
       name: homebrew-fox
       branch: main
-      token: "{{ .Env.GITHUB_TOKEN }}"
+      token: "{{ .Env.HOMEBREW_TOKEN }}"
