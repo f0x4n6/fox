@@ -3,14 +3,21 @@ Stable [releases](https://github.com/cuhsat/fox/releases) are available for both
 
 > To use the [AI Assistant](../features/ai/assistant.md), a connection to a local or remote running [Ollama](https://ollama.com) server is required.
 
-## Install from source
-Simply execute as user the following command:
+## Install using Make
+Execute the following command:
+
+```console
+sudo make install
+```
+
+## Install using Go
+Execute the following command as user:
 
 ```console
 go install github.com/cuhsat/fox/v3@latest
 ```
 
-## Install from binaries
+## Install binary
 > No installation is required, as the binaries are standalone native executables.
 
 Standalone binaries are available for the following operating systems:
@@ -19,27 +26,27 @@ Standalone binaries are available for the following operating systems:
 - macOS
 - Windows
 
-## Install from packages
+## Install packages
 Linux packages are available for:
 
 ### Alpine Linux
 ```console
-# sudo apk add --allow-untrusted fox*.apk
+sudo apk add --allow-untrusted fox*.apk
 ```
 
 ### Arch Linux
 ```console
-# sudo pacman -U fox*.pkg.tar.zst
+sudo pacman -U fox*.pkg.tar.zst
 ```
 
 ### Debian Linux
 ```console
-# sudo dpkg -i fox*.deb
+sudo dpkg -i fox*.deb
 ```
 
 ### Red Hat Linux
 ```console
-# sudo rpm -i fox*.rpm
+sudo rpm -i fox*.rpm
 ```
 
 ## Dependencies
