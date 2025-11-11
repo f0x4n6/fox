@@ -1,4 +1,4 @@
-% FOX(1) Version 2.0 | Forensic Examiner Documentation
+% FOX(1) Version 3.0 | Forensic Examiner Documentation
 
 NAME
 ====
@@ -318,22 +318,22 @@ ENVIRONMENT
 EXAMPLES
 ========
 
-% fox -be "login" ./**/*.log
+fox -be "login" ./**/*.log
 
 :   Search for occurrences in all logs.
 
-% fox -pxhc=512 image.dd > mbr
+fox -pxhc=512 image.dd > mbr
 
 :   Export the disk MBR in hex format.
 
-% fox -pq="analyse this" log.evtx
+fox -pq="analyse this" log.evtx
 
 :   Analyse the given event log.
 
 BUGS
 ====
 
-See GitHub Issues: <https://github.com/cuhsat/fox/issues>
+See GitHub Issues: <_https://github.com/cuhsat/fox/issues_>
 
 AUTHOR
 ======

@@ -30,7 +30,7 @@ Positional arguments:
 
 Additional flags:
   -l, --list               don't deflate, only list files
-  -o, --out[=PATH]         output into directory (default: .)
+  -o, --out[=PATH]         output to path (default: .)
 
 Example:
   $ fox deflate --pass=infected ioc.zip
@@ -132,7 +132,7 @@ func init() {
 
 	Deflate.SetHelpTemplate(DeflateUsage)
 	Deflate.Flags().BoolVarP(&flg.Deflate.List, "list", "l", false, "don't deflate, only list files")
-	Deflate.Flags().StringVarP(&flg.Deflate.Path, "out", "o", "", "output into directory")
+	Deflate.Flags().StringVarP(&flg.Deflate.Path, "out", "o", "", "output to path")
 	Deflate.Flags().Lookup("out").NoOptDefVal = "."
 	_ = Deflate.MarkFlagDirname("out")
 }

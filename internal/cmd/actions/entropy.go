@@ -28,8 +28,8 @@ Positional arguments:
   Path(s) to open
 
 Additional flags:
-      --min[=DECIMAL]      minimum score (default: 0.8)
-      --max[=DECIMAL]      maximum score (default: 0.8)
+      --min[=SCORE]        minimum score (default: 0.8)
+      --max[=SCORE]        maximum score (default: 0.8)
 
 Example:
   $ fox entropy --min ./**/*
