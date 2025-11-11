@@ -14,7 +14,7 @@ Path(s) to open
 
 ### Additional flags
 - `-l`, `--list` — don't deflate, only list files
-- `-o`, `--out[=PATH]` — output into directory (*default:* `.`)
+- `-o`, `--out[=PATH]` — output to path (*default:* `.`)
 
 ## Example
 ```console

@@ -13,8 +13,8 @@ fox strings [FLAG ...] PATH ...
 Path(s) to open
 
 ### Additional flags
-- `--min=NUMBER` — minimum length (*default:* `3`)
-- `--max=NUMBER` — maximum length (*default:* Unlimited)
+- `--min=LENGTH` — minimum length (*default:* `3`)
+- `--max=LENGTH` — maximum length (*default:* unlimited)
 - `--ascii` — carve only ASCII strings
 - `--class` — run built-in classification
 
