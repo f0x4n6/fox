@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/cuhsat/fox/v3/internal/pkg/types/mode"
 	"github.com/spf13/cobra"
 
 	"github.com/cuhsat/fox/v3/internal"
@@ -21,7 +22,6 @@ import (
 	"github.com/cuhsat/fox/v3/internal/pkg/types"
 	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/mode"
 	"github.com/cuhsat/fox/v3/internal/pkg/types/page"
 	"github.com/cuhsat/fox/v3/internal/pkg/user/bag"
 	"github.com/cuhsat/fox/v3/internal/pkg/user/config"
@@ -146,16 +146,16 @@ var Fox = &cobra.Command{
 	Args:    cobra.ArbitraryArgs,
 	Version: fox.Version,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		if flags.Get().Print {
-			go log()
-		}
-	},
-	PreRun: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
 
 		// print if output is piped
 		if sys.Piped(os.Stdout) {
 			flg.Print = true
+		}
+
+		// print errors
+		if flg.Print {
+			go log()
 		}
 
 		// print implied by follow
@@ -219,11 +219,6 @@ var Fox = &cobra.Command{
 			flg.Evidence.Hec = true
 		}
 
-		// explicit set UI mode
-		if flg.Hex {
-			flg.UI.Mode = mode.Hex
-		}
-
 		// implicit set UI mode
 		if len(flg.Filters.Patterns) > 0 {
 			flg.UI.Mode = mode.Grep
@@ -237,6 +232,14 @@ var Fox = &cobra.Command{
 			re := regexp.MustCompile("[^-nwyrNWYR]+")
 
 			flg.UI.State = re.ReplaceAllString(flg.UI.State, "")
+		}
+	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		flg := flags.Get()
+
+		// explicit set UI mode
+		if flg.Hex {
+			flg.UI.Mode = mode.Hex
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
