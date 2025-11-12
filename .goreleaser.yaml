@@ -5,15 +5,7 @@ before:
     - go generate ./...
     - go mod tidy
     - go mod download
-    - pandoc -s -t man docs/mans/fox.md -o fox.1
-    - pandoc -s -t man docs/mans/sub/compare.md -o fox-compare.1
-    - pandoc -s -t man docs/mans/sub/counts.md -o fox-counts.1
-    - pandoc -s -t man docs/mans/sub/deflate.md -o fox-deflate.1
-    - pandoc -s -t man docs/mans/sub/entropy.md -o fox-entropy.1
-    - pandoc -s -t man docs/mans/sub/hash.md -o fox-hash.1
-    - pandoc -s -t man docs/mans/sub/strings.md -o fox-strings.1
-    - pandoc -s -t man docs/mans/sub/timeline.md -o fox-timeline.1
-    - pandoc -s -t man docs/mans/sub/unique.md -o fox-unique.1
+    - pandoc -s -t man docs/fox.md -o fox.1
 
 builds:
   - env:
@@ -39,14 +31,6 @@ archives:
         formats: [zip]
     files:
       - fox.1
-      - fox-compare.1
-      - fox-counts.1
-      - fox-deflate.1
-      - fox-entropy.1
-      - fox-hash.1
-      - fox-strings.1
-      - fox-timeline.1
-      - fox-unique.1
       - fox.ps1
       - fox.zsh
       - fox.bash
@@ -104,38 +88,6 @@ nfpms:
         dst: /usr/share/man/man1/fox.1
         file_info:
           mode: 0644
-      - src: ./fox-compare.1
-        dst: /usr/share/man/man1/fox-compare.1
-        file_info:
-          mode: 0644
-      - src: ./fox-counts.1
-        dst: /usr/share/man/man1/fox-counts.1
-        file_info:
-          mode: 0644
-      - src: ./fox-deflate.1
-        dst: /usr/share/man/man1/fox-deflate.1
-        file_info:
-          mode: 0644
-      - src: ./fox-entropy.1
-        dst: /usr/share/man/man1/fox-entropy.1
-        file_info:
-          mode: 0644
-      - src: ./fox-hash.1
-        dst: /usr/share/man/man1/fox-hash.1
-        file_info:
-          mode: 0644
-      - src: ./fox-strings.1
-        dst: /usr/share/man/man1/fox-strings.1
-        file_info:
-          mode: 0644
-      - src: ./fox-timeline.1
-        dst: /usr/share/man/man1/fox-timeline.1
-        file_info:
-          mode: 0644
-      - src: ./fox-unique.1
-        dst: /usr/share/man/man1/fox-unique.1
-        file_info:
-          mode: 0644
       - src: ./fox.bash
         dst: /etc/bash_completion.d/fox
         file_info:
@@ -144,35 +96,3 @@ nfpms:
         dst: /usr/local/share/zsh/site-functions/_fox
         file_info:
           mode: 0644
-
-# ====================================
-# Deactivated: Because of an auth bug.
-# ====================================
-#homebrew_casks:
-#  - name: fox
-#    repository:
-#      owner: cuhsat
-#      name: homebrew-fox
-#      branch: main
-#      token: "{{ .Env.HOMEBREW_TOKEN }}"
-#    url:
-#      verified: github.com/cuhsat/homebrew-fox
-#    directory: Casks
-#    homepage: https://forensic-examiner.eu
-#    description: |-
-#      Forensic Examiner.
-#      The Swiss Army Knife for examining text files.
-#    license: GPL-3.0
-#    manpages:
-#      - man/fox.1
-#      - man/fox-compare.1
-#      - man/fox-counts.1
-#      - man/fox-deflate.1
-#      - man/fox-entropy.1
-#      - man/fox-hash.1
-#      - man/fox-strings.1
-#      - man/fox-timeline.1
-#      - man/fox-unique.1
-#    completions:
-#      bash: ./fox.bash
-#      zsh: ./fox.zsh

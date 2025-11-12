@@ -3,9 +3,8 @@ package heap
 import (
 	"math"
 	"regexp"
-	"strings"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v4/internal/pkg/text"
 )
 
 func (h *Heap) Entropy(n, m float64) float64 {
@@ -66,33 +65,4 @@ func (h *Heap) stream(ch chan<- byte) {
 	h.RUnlock()
 
 	close(ch)
-}
-
-func (h *Heap) parse(lines string) (nrs []int) {
-	for _, t := range strings.Split(lines, ",") {
-		r := strings.Split(t, "-")
-
-		if strings.HasPrefix(t, "%") {
-			n := text.Int(strings.TrimPrefix(t, "%"))
-
-			for i := n; i <= h.Length(); i += n {
-				nrs = append(nrs, i)
-			}
-		} else if len(r) > 1 {
-			a := text.Int(r[0])
-			b := text.Int(r[1])
-
-			if a > 0 && b > 0 && a <= b {
-				for i := a; i <= b; i++ {
-					nrs = append(nrs, i)
-				}
-			}
-		} else {
-			if nr := text.Int(t); nr > 0 {
-				nrs = append(nrs, nr)
-			}
-		}
-	}
-
-	return
 }

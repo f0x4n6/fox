@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/schema"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/schema"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 )
 
 type Url struct {

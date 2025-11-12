@@ -9,7 +9,4 @@ var (
 
 	//go:embed plugins.toml
 	Plugins string
-
-	//go:embed themes.toml
-	Themes string
 )

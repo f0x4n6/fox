@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"slices"
 	"testing"
 
 	"github.com/edsrzf/mmap-go"
@@ -132,30 +131,6 @@ func BenchmarkGrep(b *testing.B) {
 	}
 }
 
-func BenchmarkPick(b *testing.B) {
-	f, m, err := fixture("test.txt")
-
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	defer func(f *os.File) {
-		_ = f.Close()
-	}(f)
-
-	defer func(m *mmap.MMap) {
-		_ = m.Unmap()
-	}(m)
-
-	s := Map(m)
-
-	b.ResetTimer()
-
-	for b.Loop() {
-		s.Pick([]int{1, 12, 123, 1234, 12345})
-	}
-}
-
 func TestMap(t *testing.T) {
 	f, m, err := fixture("test.txt")
 
@@ -245,30 +220,6 @@ func TestGrep(t *testing.T) {
 
 	if s.String() != v {
 		t.Fatal("wrong string")
-	}
-}
-
-func TestPick(t *testing.T) {
-	f, m, err := fixture("test.txt")
-	v := []int{1, 12, 123, 1234, 12345}
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	s := Map(m).Pick(v)
-
-	_ = m.Unmap()
-	_ = f.Close()
-
-	if len(*s) != 5 {
-		t.Fatal("wrong length")
-	}
-
-	for _, str := range *s {
-		if !slices.Contains(v, str.Nr) {
-			t.Fatal("wrong number")
-		}
 	}
 }
 

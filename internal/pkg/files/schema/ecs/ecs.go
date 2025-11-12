@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cuhsat/fox/v3/internal"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v4/internal"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence"
 )
 
 const Version = "9.1.0"

@@ -12,11 +12,9 @@ const (
 
 const (
 	BagModeNone   BagMode = "none"
-	BagModePlain  BagMode = "plain"
 	BagModeText   BagMode = "text"
 	BagModeJson   BagMode = "json"
 	BagModeJsonl  BagMode = "jsonl"
-	BagModeXml    BagMode = "xml"
 	BagModeSqlite BagMode = "sqlite"
 )
 
@@ -37,15 +35,11 @@ func (bm *BagMode) Set(v string) error {
 	switch v {
 	case string(BagModeNone):
 		fallthrough
-	case string(BagModePlain):
-		fallthrough
 	case string(BagModeText):
 		fallthrough
 	case string(BagModeJson):
 		fallthrough
 	case string(BagModeJsonl):
-		fallthrough
-	case string(BagModeXml):
 		fallthrough
 	case string(BagModeSqlite):
 		*bm = BagMode(v)

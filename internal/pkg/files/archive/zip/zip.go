@@ -8,9 +8,9 @@ import (
 
 	"github.com/cuhsat/zip/pkg/zip"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/files"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/files"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 func Detect(path string) bool {

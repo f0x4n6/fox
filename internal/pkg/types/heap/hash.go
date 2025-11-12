@@ -17,27 +17,15 @@ import (
 	"github.com/glaslos/tlsh"
 	"github.com/zeebo/xxh3"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/hash/blake3"
-	"github.com/cuhsat/fox/v3/internal/pkg/hash/sdhash"
-	"github.com/cuhsat/fox/v3/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/hash/blake3"
+	"github.com/cuhsat/fox/v4/internal/pkg/hash/sdhash"
+	"github.com/cuhsat/fox/v4/internal/pkg/types"
 )
 
-type Hash map[string][]byte
-
 func (h *Heap) HashSum(algo string) ([]byte, error) {
-	algo = strings.ToLower(algo)
-
-	h.RLock()
-	sum, ok := h.hash[algo]
-	h.RUnlock()
-
-	if ok {
-		return sum, nil
-	}
-
 	var imp hash.Hash
 
-	switch algo {
+	switch strings.ToLower(algo) {
 	case types.MD5:
 		imp = md5.New()
 	case types.SHA1:
@@ -88,11 +76,5 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 		return nil, err
 	}
 
-	sum = imp.Sum(nil)
-
-	h.Lock()
-	h.hash[algo] = sum
-	h.Unlock()
-
-	return sum, nil
+	return imp.Sum(nil), nil
 }

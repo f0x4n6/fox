@@ -14,7 +14,7 @@ sudo make install
 Execute the following command as user:
 
 ```console
-go install github.com/cuhsat/fox/v3@latest
+go install github.com/cuhsat/fox/v4@latest
 ```
 
 ## Install binary

@@ -9,28 +9,25 @@ import (
 
 	"github.com/bmatcuk/doublestar/v4"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/files"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/archive/cab"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/archive/rar"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/archive/tar"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/archive/zip"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/compress/br"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/compress/bzip2"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/compress/gzip"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/compress/lz4"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/compress/xz"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/compress/zlib"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/compress/zstd"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/format/csv"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/parser/evtx"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/parser/fortinet"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/parser/journal"
-	"github.com/cuhsat/fox/v3/internal/pkg/flags"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
-	"github.com/cuhsat/fox/v3/internal/pkg/text"
-	"github.com/cuhsat/fox/v3/internal/pkg/types"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/v3/internal/pkg/user/plugins"
+	"github.com/cuhsat/fox/v4/internal/pkg/files"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/cab"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/rar"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/tar"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/zip"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/compress/br"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/compress/bzip2"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/compress/gzip"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/compress/lz4"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/compress/xz"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/compress/zlib"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/compress/zstd"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/parser/evtx"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/parser/journal"
+	"github.com/cuhsat/fox/v4/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys"
+	"github.com/cuhsat/fox/v4/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v4/internal/pkg/user/plugins"
 )
 
 const Stdin = "-"
@@ -213,7 +210,7 @@ func (l *Loader) addItem(path, base string) {
 
 func (l *Loader) addPlugin(path, base, name string) {
 	l.heaps = append(l.heaps, heap.New(
-		text.Title(base, name, !flags.Get().UI.Legacy),
+		name,
 		path,
 		base,
 		types.Plugin,
@@ -260,7 +257,6 @@ func (l *Loader) deflate(path, base string) string {
 
 func (l *Loader) process(path, base string) string {
 	if !flags.Get().Optional.NoPlugins {
-		// check for plugin
 		for _, p := range l.plugins {
 			if p.Match(path) {
 				p.Execute(path, base, func(path, base, dir string) {
@@ -277,22 +273,12 @@ func (l *Loader) process(path, base string) string {
 	}
 
 	if !flags.Get().Optional.NoConvert {
-		// check for parser
 		if evtx.Detect(path) {
 			path = evtx.Parse(path)
 		}
 
 		if journal.Detect(path) {
 			path = journal.Parse(path)
-		}
-
-		if fortinet.Detect(path) {
-			path = fortinet.Parse(path)
-		}
-
-		// check for format
-		if csv.Detect(path) {
-			path = csv.Format(path)
 		}
 	}
 

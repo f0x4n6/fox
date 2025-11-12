@@ -2,58 +2,44 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
-	"regexp"
 	"time"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/types/mode"
 	"github.com/spf13/cobra"
 
-	"github.com/cuhsat/fox/v3/internal"
-	"github.com/cuhsat/fox/v3/internal/cmd/actions"
-	"github.com/cuhsat/fox/v3/internal/opt"
-	"github.com/cuhsat/fox/v3/internal/opt/ai"
-	"github.com/cuhsat/fox/v3/internal/opt/ai/chat"
-	"github.com/cuhsat/fox/v3/internal/opt/ui"
-	"github.com/cuhsat/fox/v3/internal/opt/ui/themes"
-	"github.com/cuhsat/fox/v3/internal/pkg/flags"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
-	"github.com/cuhsat/fox/v3/internal/pkg/text"
-	"github.com/cuhsat/fox/v3/internal/pkg/types"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/page"
-	"github.com/cuhsat/fox/v3/internal/pkg/user/bag"
-	"github.com/cuhsat/fox/v3/internal/pkg/user/config"
+	"github.com/cuhsat/fox/v4/internal"
+	"github.com/cuhsat/fox/v4/internal/opt/ai"
+	"github.com/cuhsat/fox/v4/internal/opt/ai/chat"
+	"github.com/cuhsat/fox/v4/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys"
+	"github.com/cuhsat/fox/v4/internal/pkg/text"
+	"github.com/cuhsat/fox/v4/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/page"
+	"github.com/cuhsat/fox/v4/internal/pkg/user/bag"
+	"github.com/cuhsat/fox/v4/internal/pkg/user/config"
 )
 
-var Usage = fmt.Sprintf(fox.Fox+`
+var Usage = fmt.Sprintf(
+	` ___ ___  ___ ___ _  _ ___ ___ ___   _____  __  _   __  __ ___ _  _ ___ ___
+| __/ _ \| _ \ __| \| / __|_ _/ __| | __\ \/ / /_\ |  \/  |_ _| \| | __| _ \
+| _| (_) |   / _||  ' \__ \| | (__  | _| >  < / _ \| |\/| || ||  ' | _||   /
+|_| \___/|_|_\___|_|\_|___/___\___| |___/_/\_\_/ \_\_|  |_|___|_|\_|___|_|_\
+
 The Swiss Army Knife for examining text files (%s)
-Visit <https://%s> for documentation.
+Visit <https://%s>.
 
 Usage:
-  fox [ACTION] [FLAG ...] [PATH ...]
+  fox [FLAG ...] [PATH ...]
 
 Positional arguments:
   Path(s) to open or '-' for STDIN
 
-Actions:
-  compare                  compare two files
-  counts                   display line and byte counts
-  deflate                  deflate compressed files
-  entropy                  display file entropy
-  hash                     display file hash or checksums
-  strings                  display ASCII and Unicode strings
-  timeline                 display super timeline
-  unique                   display unique lines
-
-Local:
+Flags:
   -b, --bag                save into evidence bag
   -x, --hex                show file in canonical hex
-
-Print:
-  -p, --print              print only to console
-  -f, --follow             print follows file end
       --no-file            don't print filenames
       --no-line            don't print line numbers
 
@@ -81,17 +67,11 @@ AI options:
       --topk=NUMBER        option for model top_k (default: 10)
       --seed=NUMBER        option for random seed (default: 8211)
 
-UI options:
-      --state={N|W|Y|R|-}  sets the used UI state flags
-      --theme=THEME        sets the used UI theme
-      --space=NUMBER       sets the used indentation space (default: 2)
-      --legacy             don't use any unicode decorations (ISO 8859-1)
-
 Evidence bag:
   -N, --case=NAME          evidence bag case name (default: YYYY-MM-DD)
   -F, --file=FILE          evidence bag file name (default: evidence)
       --mode=MODE          evidence bag file mode (default: text):
-                             none, plain, text, json, jsonl, xml, sqlite
+                             none, text, json, jsonl, sqlite
 
 Evidence sign:
   -s, --sign=PHRASE        key phrase to sign evidence bag via HMAC-SHA256
@@ -105,30 +85,35 @@ Evidence URL:
 Deflate:
       --pass=PASSWORD      password for decryption (only RAR, ZIP)
 
+Strings:
+
+Entropy:
+
+Hashsum:
+
+Counts:
+
 Turn off:
   -R, --readonly           don't write any new files
   -r, --raw                don't process files at all
       --no-convert         don't convert automatically
       --no-deflate         don't deflate automatically
       --no-plugins         don't run any plugins
-      --no-mouse           don't use the mouse
 
 Aliases:
   -L, --logstash           short for: --ecs --url=http://localhost:8080
   -S, --splunk             short for: --hec --url=http://localhost:8088/...
-  -P, --plain              short for: --mode=plain
   -T, --text               short for: --mode=text
   -j, --json               short for: --mode=json
   -J, --jsonl              short for: --mode=jsonl
   -Q, --sqlite             short for: --mode=sqlite
-  -X, --xml                short for: --mode=xml
 
 Standard:
       --help               prints this message
       --version            prints the version
 
 Example: search for occurrences in all logs
-  $ fox -be "login" ./**/*.log
+  $ fox -pe "login" ./**/*.log
 
 Example: export the disk MBR in hex format
   $ fox -pxhc=512 image.dd > mbr
@@ -136,7 +121,7 @@ Example: export the disk MBR in hex format
 Example: analyse the given event log
   $ fox -pq="analyse this" log.evtx
 
-Type "fox help COMMAND" for more help...
+Type "man fox" for more help...
 `, fox.Version, fox.Website)
 
 var Fox = &cobra.Command{
@@ -145,23 +130,8 @@ var Fox = &cobra.Command{
 	Long:    "The Swiss Army Knife for examining text files",
 	Args:    cobra.ArbitraryArgs,
 	Version: fox.Version,
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+	PreRun: func(cmd *cobra.Command, args []string) {
 		flg := flags.Get()
-
-		// print if output is piped
-		if sys.Piped(os.Stdout) {
-			flg.Print = true
-		}
-
-		// print errors
-		if flg.Print {
-			go log()
-		}
-
-		// print implied by follow
-		if flg.Follow {
-			flg.Print = true
-		}
 
 		if flg.Filters.Context > 0 {
 			flg.Filters.Before = flg.Filters.Context
@@ -185,10 +155,6 @@ var Fox = &cobra.Command{
 			flg.Evidence.Case = time.Now().Format("2006-01-02")
 		}
 
-		if flg.Alias.Plain {
-			flg.Evidence.Mode = flags.BagModePlain
-		}
-
 		if flg.Alias.Text {
 			flg.Evidence.Mode = flags.BagModeText
 		}
@@ -199,10 +165,6 @@ var Fox = &cobra.Command{
 
 		if flg.Alias.Jsonl {
 			flg.Evidence.Mode = flags.BagModeJsonl
-		}
-
-		if flg.Alias.Xml {
-			flg.Evidence.Mode = flags.BagModeXml
 		}
 
 		if flg.Alias.Sqlite {
@@ -219,35 +181,12 @@ var Fox = &cobra.Command{
 			flg.Evidence.Hec = true
 		}
 
-		// implicit set UI mode
-		if len(flg.Filters.Patterns) > 0 {
-			flg.UI.Mode = mode.Grep
-		}
-
-		if len(flg.AI.Query) > 0 && !flg.Print {
+		if len(flg.AI.Query) > 0 {
 			sys.Exit("query requires print")
-		}
-
-		if len(flg.UI.State) > 0 {
-			re := regexp.MustCompile("[^-nwyrNWYR]+")
-
-			flg.UI.State = re.ReplaceAllString(flg.UI.State, "")
-		}
-	},
-	PreRun: func(cmd *cobra.Command, args []string) {
-		flg := flags.Get()
-
-		// explicit set UI mode
-		if flg.Hex {
-			flg.UI.Mode = mode.Hex
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		flg := flags.Get()
-
-		if !flg.Print && !flg.Bag {
-			ui.Start(args, types.None)
-		} else if len(args) == 0 {
+		if len(args) == 0 {
 			fmt.Print(Usage)
 			os.Exit(2)
 		} else {
@@ -263,69 +202,92 @@ func init() {
 	Fox.Flags().BoolVarP(&flg.Bag, "bag", "b", false, "save into evidence bag")
 	Fox.Flags().BoolVarP(&flg.Hex, "hex", "x", false, "show file in canonical hex")
 
-	Fox.PersistentFlags().BoolVarP(&flg.Print, "print", "p", false, "print only to console")
-	Fox.PersistentFlags().BoolVarP(&flg.Follow, "follow", "f", false, "print follows file end")
-	Fox.PersistentFlags().BoolVar(&flg.NoFile, "no-file", false, "don't print filenames")
-	Fox.PersistentFlags().BoolVar(&flg.NoLine, "no-line", false, "don't print line numbers")
+	Fox.Flags().BoolVar(&flg.NoFile, "no-file", false, "don't print filenames")
+	Fox.Flags().BoolVar(&flg.NoLine, "no-line", false, "don't print line numbers")
 
-	Fox.PersistentFlags().BoolVarP(&flg.Limits.IsHead, "head", "h", false, "limit head of file by ...")
-	Fox.PersistentFlags().BoolVarP(&flg.Limits.IsTail, "tail", "t", false, "limit tail of file by ...")
-	Fox.PersistentFlags().IntVarP(&flg.Limits.Lines, "lines", "n", 0, "number of lines (default: 10)")
-	Fox.PersistentFlags().IntVarP(&flg.Limits.Bytes, "bytes", "c", 0, "number of bytes (default: 16)")
+	Fox.Flags().BoolVarP(&flg.Limits.IsHead, "head", "h", false, "limit head of file by ...")
+	Fox.Flags().BoolVarP(&flg.Limits.IsTail, "tail", "t", false, "limit tail of file by ...")
+	Fox.Flags().IntVarP(&flg.Limits.Lines, "lines", "n", 0, "number of lines (default: 10)")
+	Fox.Flags().IntVarP(&flg.Limits.Bytes, "bytes", "c", 0, "number of bytes (default: 16)")
 
-	Fox.PersistentFlags().Lookup("lines").NoOptDefVal = "10"
-	Fox.PersistentFlags().Lookup("bytes").NoOptDefVal = "16"
+	Fox.Flags().Lookup("lines").NoOptDefVal = "10"
+	Fox.Flags().Lookup("bytes").NoOptDefVal = "16"
 
-	Fox.PersistentFlags().VarP(&flg.Filters, "regexp", "e", "filter for lines that match pattern")
-	Fox.PersistentFlags().IntVarP(&flg.Filters.Context, "context", "C", 0, "number of lines surrounding context of match")
-	Fox.PersistentFlags().IntVarP(&flg.Filters.Before, "before", "B", 0, "number of lines leading context before match")
-	Fox.PersistentFlags().IntVarP(&flg.Filters.After, "after", "A", 0, "number of lines trailing context after match")
+	Fox.Flags().VarP(&flg.Filters, "regexp", "e", "filter for lines that match pattern")
+	Fox.Flags().IntVarP(&flg.Filters.Context, "context", "C", 0, "number of lines surrounding context of match")
+	Fox.Flags().IntVarP(&flg.Filters.Before, "before", "B", 0, "number of lines leading context before match")
+	Fox.Flags().IntVarP(&flg.Filters.After, "after", "A", 0, "number of lines trailing context after match")
 
-	Fox.PersistentFlags().StringVarP(&flg.AI.Query, "query", "q", "", "query for the assistant to process")
-	Fox.PersistentFlags().StringVarP(&flg.AI.Model, "model", "m", "", "model for the assistant to use")
-	Fox.PersistentFlags().StringVar(&flg.AI.Embed, "embed", "", "embedding model used for RAG")
-	Fox.PersistentFlags().IntVar(&flg.AI.NumCtx, "num-ctx", 4096, "context window length")
-	Fox.PersistentFlags().Float64Var(&flg.AI.Temp, "temp", 0.2, "option for temperature")
-	Fox.PersistentFlags().Float64Var(&flg.AI.TopP, "topp", 0.5, "option for model top_p")
-	Fox.PersistentFlags().IntVar(&flg.AI.TopK, "topk", 10, "option for model top_k")
-	Fox.PersistentFlags().IntVar(&flg.AI.Seed, "seed", 8211, "option for random seed")
+	Fox.Flags().StringVarP(&flg.AI.Query, "query", "q", "", "query for the assistant to process")
+	Fox.Flags().StringVarP(&flg.AI.Model, "model", "m", "", "model for the assistant to use")
+	Fox.Flags().StringVar(&flg.AI.Embed, "embed", "", "embedding model used for RAG")
+	Fox.Flags().IntVar(&flg.AI.NumCtx, "num-ctx", 4096, "context window length")
+	Fox.Flags().Float64Var(&flg.AI.Temp, "temp", 0.2, "option for temperature")
+	Fox.Flags().Float64Var(&flg.AI.TopP, "topp", 0.5, "option for model top_p")
+	Fox.Flags().IntVar(&flg.AI.TopK, "topk", 10, "option for model top_k")
+	Fox.Flags().IntVar(&flg.AI.Seed, "seed", 8211, "option for random seed")
 
-	Fox.PersistentFlags().StringVar(&flg.UI.State, "state", "", "sets the used UI state flags")
-	Fox.PersistentFlags().StringVar(&flg.UI.Theme, "theme", themes.Default, "sets the used UI theme")
-	Fox.PersistentFlags().IntVar(&flg.UI.Space, "space", 2, "sets the used indentation space")
-	Fox.PersistentFlags().BoolVar(&flg.UI.Legacy, "legacy", false, "don't use any unicode decorations")
+	Fox.Flags().StringVarP(&flg.Evidence.Case, "case", "N", "", "evidence bag case name")
+	Fox.Flags().StringVarP(&flg.Evidence.File, "file", "F", flags.BagFile, "evidence bag file name")
+	Fox.Flags().Var(&flg.Evidence.Mode, "mode", "evidence bag file mode")
+	Fox.Flags().StringVarP(&flg.Evidence.Sign, "sign", "s", "", "key phrase to sign evidence bag via HMAC-SHA256")
+	Fox.Flags().StringVarP(&flg.Evidence.Url, "url", "u", "", "forward evidence to server address")
+	Fox.Flags().StringVarP(&flg.Evidence.Auth, "auth", "a", "", "forward evidence using auth token")
+	Fox.Flags().BoolVar(&flg.Evidence.Ecs, "ecs", false, "use ECS schema for evidence")
+	Fox.Flags().BoolVar(&flg.Evidence.Hec, "hec", false, "use HEC schema for evidence")
 
-	Fox.PersistentFlags().StringVarP(&flg.Evidence.Case, "case", "N", "", "evidence bag case name")
-	Fox.PersistentFlags().StringVarP(&flg.Evidence.File, "file", "F", flags.BagFile, "evidence bag file name")
-	Fox.PersistentFlags().Var(&flg.Evidence.Mode, "mode", "evidence bag file mode")
-	Fox.PersistentFlags().StringVarP(&flg.Evidence.Sign, "sign", "s", "", "key phrase to sign evidence bag via HMAC-SHA256")
-	Fox.PersistentFlags().StringVarP(&flg.Evidence.Url, "url", "u", "", "forward evidence to server address")
-	Fox.PersistentFlags().StringVarP(&flg.Evidence.Auth, "auth", "a", "", "forward evidence using auth token")
-	Fox.PersistentFlags().BoolVar(&flg.Evidence.Ecs, "ecs", false, "use ECS schema for evidence")
-	Fox.PersistentFlags().BoolVar(&flg.Evidence.Hec, "hec", false, "use HEC schema for evidence")
+	Fox.Flags().Lookup("mode").NoOptDefVal = string(flags.BagModeText)
 
-	Fox.PersistentFlags().Lookup("mode").NoOptDefVal = string(flags.BagModeText)
+	Fox.Flags().StringVar(&flg.Deflate.Pass, "pass", "", "password for decryption")
 
-	Fox.PersistentFlags().StringVar(&flg.Deflate.Pass, "pass", "", "password for decryption")
+	///
+	//
+	//Fox.Flags().Float64Var(&flg.Entropy.Min, "min", 0.0, "minimum score")
+	//Fox.Flags().Float64Var(&flg.Entropy.Max, "max", 1.0, "maximum score")
+	//Fox.Flags().Lookup("min").NoOptDefVal = "0.8"
+	//Fox.Flags().Lookup("max").NoOptDefVal = "0.8"
+	//
+	//Fox.Flags().IntVar(&flg.Strings.Min, "min", 3, "minimum length")
+	//Fox.Flags().IntVar(&flg.Strings.Max, "max", math.MaxInt, "maximum length")
+	//Fox.Flags().BoolVar(&flg.Strings.Class, "class", false, "run built-in classification")
+	//
+	//Fox.Flags().Var(&flg.Hash.Algos, "type", "hash algorithm")
+	//
+	//Cryptographic hash algorithms:
+	//MD5, SHA1, SHA256, SHA3
+	//
+	//Sha3 hash algorithms:
+	//SHA3-224, SHA3-256, SHA3-384, SHA3-512
+	//
+	//Blake3 hash algorithms:
+	//BLAKE3-256, BLAKE3-512
+	//
+	//Performance hash algorithms:
+	//FNV-1, FNV-1A, XXH64, XXH3
+	//
+	//Similarity hash algorithms:
+	//SDHASH, SSDEEP, TLSH
+	//
+	//Checksum algorithms:
+	//CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
-	Fox.PersistentFlags().BoolVarP(&flg.Optional.Raw, "raw", "r", false, "don't process files at all")
-	Fox.PersistentFlags().BoolVarP(&flg.Optional.Readonly, "readonly", "R", false, "don't write any new files")
-	Fox.PersistentFlags().BoolVar(&flg.Optional.NoConvert, "no-convert", false, "don't convert automatically")
-	Fox.PersistentFlags().BoolVar(&flg.Optional.NoDeflate, "no-deflate", false, "don't deflate automatically")
-	Fox.PersistentFlags().BoolVar(&flg.Optional.NoPlugins, "no-plugins", false, "don't run any plugins")
-	Fox.PersistentFlags().BoolVar(&flg.Optional.NoMouse, "no-mouse", false, "don't use the mouse")
+	///
 
-	Fox.PersistentFlags().BoolVarP(&flg.Alias.Logstash, "logstash", "L", false, "short for: --ecs --url=http://localhost:8080")
-	Fox.PersistentFlags().BoolVarP(&flg.Alias.Splunk, "splunk", "S", false, "short for: --hec --url=http://localhost:8088/...")
-	Fox.PersistentFlags().BoolVarP(&flg.Alias.Plain, "plain", "P", false, "short for: --mode=plain")
-	Fox.PersistentFlags().BoolVarP(&flg.Alias.Text, "text", "T", false, "short for: --mode=text")
-	Fox.PersistentFlags().BoolVarP(&flg.Alias.Json, "json", "j", false, "short for: --mode=json")
-	Fox.PersistentFlags().BoolVarP(&flg.Alias.Jsonl, "jsonl", "J", false, "short for: --mode=jsonl")
-	Fox.PersistentFlags().BoolVarP(&flg.Alias.Sqlite, "sqlite", "Q", false, "short for: --mode=sqlite")
-	Fox.PersistentFlags().BoolVarP(&flg.Alias.Xml, "xml", "X", false, "short for: --mode=xml")
+	Fox.Flags().BoolVarP(&flg.Optional.Raw, "raw", "r", false, "don't process files at all")
+	Fox.Flags().BoolVarP(&flg.Optional.Readonly, "readonly", "R", false, "don't write any new files")
+	Fox.Flags().BoolVar(&flg.Optional.NoConvert, "no-convert", false, "don't convert automatically")
+	Fox.Flags().BoolVar(&flg.Optional.NoDeflate, "no-deflate", false, "don't deflate automatically")
+	Fox.Flags().BoolVar(&flg.Optional.NoPlugins, "no-plugins", false, "don't run any plugins")
 
-	Fox.PersistentFlags().Bool("version", false, "prints the version")
-	Fox.PersistentFlags().Bool("help", false, "prints this message")
+	Fox.Flags().BoolVarP(&flg.Alias.Logstash, "logstash", "L", false, "short for: --ecs --url=http://localhost:8080")
+	Fox.Flags().BoolVarP(&flg.Alias.Splunk, "splunk", "S", false, "short for: --hec --url=http://localhost:8088/...")
+	Fox.Flags().BoolVarP(&flg.Alias.Text, "text", "T", false, "short for: --mode=text")
+	Fox.Flags().BoolVarP(&flg.Alias.Json, "json", "j", false, "short for: --mode=json")
+	Fox.Flags().BoolVarP(&flg.Alias.Jsonl, "jsonl", "J", false, "short for: --mode=jsonl")
+	Fox.Flags().BoolVarP(&flg.Alias.Sqlite, "sqlite", "Q", false, "short for: --mode=sqlite")
+
+	Fox.Flags().Bool("version", false, "prints the version")
+	Fox.Flags().Bool("help", false, "prints this message")
 
 	Fox.MarkFlagsRequiredTogether("hec", "auth")
 
@@ -338,24 +300,15 @@ func init() {
 
 	Fox.CompletionOptions.HiddenDefaultCmd = true
 
-	Fox.AddCommand(actions.Compare)
-	Fox.AddCommand(actions.Counts)
-	Fox.AddCommand(actions.Deflate)
-	Fox.AddCommand(actions.Entropy)
-	Fox.AddCommand(actions.Hash)
-	Fox.AddCommand(actions.Strings)
-	Fox.AddCommand(actions.Timeline)
-	Fox.AddCommand(actions.Unique)
-
 	config.Load(Fox.Flags())
-
-	cobra.MousetrapHelpText = "" // disable
+	cobra.MousetrapHelpText = "Usage: fox [FLAG ...] [PATH ...]"
 }
 
 func run(args []string) {
-	var ctx = opt.NewState(nil)
 	var flg = flags.Get()
 	var b *bag.Bag
+
+	log.SetPrefix(sys.Prefix)
 
 	if len(flg.AI.Query) > 0 && !ai.Check() {
 		sys.Exit("assistant is not available")
@@ -368,39 +321,96 @@ func run(args []string) {
 	hs := heapset.New(args)
 	defer hs.ThrowAway()
 
-	if flg.Follow {
-		tail(hs)
-	}
-
 	hs.Range(func(_ int, h *heap.Heap) bool {
 		if h.Type != types.Stdin {
-			buf := page.NewContext(h)
-
 			if hs.Len() > 1 && !flg.NoFile {
 				fmt.Println(text.Block(h.String(), page.TermW))
 			}
 
-			if flg.Bag {
-				h.TagAll()
+			///
 
+			//fmt.Printf("%8dL %8dB  %s\n", h.Length(), len(*h.MMap()), h.String())
+			//
+			//if v := h.Entropy(
+			//	flg.Entropy.Min,
+			//	flg.Entropy.Max,
+			//); v != -1 {
+			//	fmt.Printf("%.10f  %s\n", v, h.String())
+			//}
+			//
+			//fmt.Print(text.Diff(
+			//	a[0].String(),
+			//	a[1].String(),
+			//	a[0].SMap().Lines(),
+			//	a[1].SMap().Lines(),
+			//	false,
+			//))
+			//
+			//hs.Unique().CloseOther()
+			//
+			//for l := range page.Text(hs.LoadHeap(), 2).Lines {
+			//	fmt.Println(l)
+			//}
+			//
+			//if !flg.NoFile {
+			//	fmt.Println(text.Block(h.String(), page.TermW))
+			//}
+			//
+			//for s := range h.Strings(
+			//	flg.Strings.Min,
+			//	flg.Strings.Max,
+			//	flg.Strings.Class,
+			//	flg.Strings.Re,
+			//) {
+			//	if !flg.NoLine {
+			//		fmt.Printf("%08x  %s\n", s.Off, strings.TrimSpace(s.Str))
+			//	} else {
+			//		fmt.Println(strings.TrimSpace(s.Str))
+			//	}
+			//}
+			//
+			//for _, algo := range algos {
+			//	if len(algos) > 1 {
+			//		fmt.Println(text.Block(strings.ToUpper(algo), page.TermW))
+			//	}
+			//
+			//	hs.Range(func(_ int, h *heap.Heap) bool {
+			//		sum, err := h.HashSum(algo)
+			//
+			//		if err != nil {
+			//			sys.Exit(fmt.Sprintf("could not compute hash: %s", err.Error()))
+			//			return false
+			//		}
+			//
+			//		switch algo {
+			//		case types.SDHASH:
+			//			fmt.Printf("%s  %s\n", sum, h.String())
+			//		default:
+			//			fmt.Printf("%x  %s\n", sum, h.String())
+			//		}
+			//		return true
+			//	})
+			//}
+
+			///
+
+			if flg.Bag {
 				b.Put(h)
 			} else if len(flg.AI.Query) > 0 {
-				c := chat.New(ctx, h)
+				c := chat.New(h)
 				defer c.Close()
 
-				c.Query(flg.AI.Query, false)
+				c.Query(flg.AI.Query)
 			} else if flg.Hex {
-				buf.W = page.TermW
-
-				for l := range page.Hex(buf).Lines {
+				for l := range page.Hex(h).Lines {
 					fmt.Println(l)
 				}
 			} else {
-				if buf.Heap.Size() == 0 {
+				if h.Size() == 0 {
 					return true // ignore empty files
 				}
 
-				for l := range page.Text(buf).Lines {
+				for l := range page.Text(h, 2).Lines {
 					if l.Nr == "--" {
 						if !flg.NoLine {
 							fmt.Println("--")
@@ -417,25 +427,4 @@ func run(args []string) {
 		}
 		return true
 	})
-}
-
-func tail(hs *heapset.HeapSet) {
-	hs.WatchFiles()
-
-	hs.SetChanged(func(h *heap.Heap) {
-		fmt.Print(string(h.Read()))
-	})
-
-	hs.Range(func(_ int, h *heap.Heap) bool {
-		fmt.Print(string(h.Read()))
-		return true
-	})
-
-	sys.Wait()
-}
-
-func log() {
-	for {
-		_, _ = fmt.Fprintf(os.Stderr, sys.Prefix+" %s\n", <-sys.Logs)
-	}
 }

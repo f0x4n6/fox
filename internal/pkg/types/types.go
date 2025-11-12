@@ -31,25 +31,10 @@ type Heap int
 const (
 	Regular Heap = iota
 	Deflate
-	Ignore
 	Stdin
 	Stdout
-	Stderr
 	Plugin
 	Chat
-)
-
-type Invoke int
-
-const (
-	None Invoke = iota
-	Compare
-	Counts
-	Entropy
-	HashSum
-	Strings
-	Timeline
-	Unique
 )
 
 type Null struct{}

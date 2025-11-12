@@ -10,7 +10,6 @@
 * ~~Done~~
 
 ## 4. Optimizations
-* Add current screenshots and a main video
 * Add integration tests
   * https://lucapette.me/writing/writing-integration-tests-for-a-go-cli-application/
 * SMap speed
@@ -22,9 +21,5 @@
 * Colorize CLI output?
   * https://github.com/logrusorgru/aurora
   * https://github.com/cyucelen/marker
-* Add search to Hex mode?
 * Use reflow algos?
   * https://github.com/muesli/reflow
-* Generic syntax highlighting?
-  * `Start Color [ … ] End Color`
-  * `{}[]<>()““‘‘:;`

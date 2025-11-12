@@ -5,9 +5,9 @@ import (
 
 	"github.com/0xrawsec/golang-evtx/evtx"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/files"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/files"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 const (

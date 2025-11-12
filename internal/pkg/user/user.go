@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 func LoadConfig(cfg *viper.Viper, name string) bool {
@@ -34,24 +34,6 @@ func LoadConfig(cfg *viper.Viper, name string) bool {
 	}
 
 	return ok
-}
-
-func SaveConfig(cfg *viper.Viper, name string) bool {
-	path := Config(name)
-
-	err := os.MkdirAll(filepath.Dir(path), 0700)
-
-	if err != nil {
-		return false
-	}
-
-	err = cfg.WriteConfigAs(path)
-
-	if err != nil {
-		return false
-	}
-
-	return true
 }
 
 func TempDir(prefix string) string {
@@ -90,16 +72,6 @@ func Persist(name string) string {
 	}
 
 	return f.Name()
-}
-
-func Config(name string) string {
-	dir, err := os.UserHomeDir()
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	return filepath.Join(dir, ".config", "fox", name)
 }
 
 func Cache() string {

@@ -4,10 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"unicode"
-	"unicode/utf8"
-
-	"github.com/cuhsat/fox/v3/internal/pkg/flags"
 )
 
 var Classes = []Pattern{
@@ -71,54 +67,16 @@ func Carve(in <-chan byte, out chan<- String, n, m int) {
 	defer close(out)
 	defer flush()
 
-	flg := flags.Get().Strings
 	buf := make([]byte, 4)
 
 	for b := range in {
 		buf[0] = b
 		off++
 
-		if flg.Ascii {
-			if b >= MinASCII && b <= MaxASCII {
-				rs = append(rs, rune(b))
-			} else {
-				flush()
-			}
+		if b >= MinASCII && b <= MaxASCII {
+			rs = append(rs, rune(b))
 		} else {
-			l := 1
-			k := 1
-
-			if b&0x80 == 0 {
-				k = 1
-			} else if b&0xE0 == 0xC0 {
-				k = 2
-			} else if b&0xF0 == 0xE0 {
-				k = 3
-			} else if b&0xF8 == 0xF0 {
-				k = 4
-			}
-
-			if k > 1 {
-				for i := 1; i < k; i++ {
-					off++
-
-					if b, ok := <-in; ok {
-						buf[i] = b
-					} else {
-						break
-					}
-
-					l++
-				}
-			}
-
-			r, _ := utf8.DecodeRune(buf[:l])
-
-			if r != utf8.RuneError && unicode.IsPrint(r) {
-				rs = append(rs, r)
-			} else {
-				flush()
-			}
+			flush()
 		}
 	}
 }

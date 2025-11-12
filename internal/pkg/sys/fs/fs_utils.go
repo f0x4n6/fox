@@ -2,9 +2,6 @@ package fs
 
 import (
 	"io"
-	"os"
-	"path"
-	"strings"
 )
 
 func Map(file File) ([]byte, error) {
@@ -21,26 +18,6 @@ func Map(file File) ([]byte, error) {
 	}
 
 	return b, nil
-}
-
-func Find(name string) string {
-	dir := path.Dir(name)
-
-	files, err := os.ReadDir(dir)
-
-	if err != nil {
-		return ""
-	}
-
-	for _, file := range files {
-		s := path.Join(dir, file.Name())
-
-		if strings.HasPrefix(s, name) {
-			return s
-		}
-	}
-
-	return ""
 }
 
 func Open(path string) File {

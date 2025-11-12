@@ -14,19 +14,6 @@ The currently filtered lines will be embedded into an in-memory only **Vector Da
 
 > Embedding large chunks of text can take a certain amount of time.
 
-## Commands
-Several commands can be directly issued from the chat prompt. This also includes administrating the used LLM and RAG models on-the-fly:
-
-| Command          | Description                            |
-|------------------|----------------------------------------|
-| `stop`           | Stops the current activity             |
-| `list`           | Lists locally available models         |
-| `set model NAME` | Pulls and sets the LLM analysing model |
-| `set embed NAME` | Pulls and sets the RAG embedding model |
-| `get model`      | Shows the current LLM analysing model  |
-| `get embed`      | Shows the current RAG embedding model  |
-| `del NAME`       | Deletes a local model                  |
-
 ## Example
 ```console
 $ fox testdata/test.evtx -pe="winlogon" -q="analyse this" 

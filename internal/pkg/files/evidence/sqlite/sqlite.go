@@ -10,8 +10,8 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"github.com/cuhsat/fox/v3/api"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v4/api"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence"
 )
 
 const Ext = ".sqlite"

@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/cuhsat/fox/v3/configs"
-	"github.com/cuhsat/fox/v3/internal/pkg/user"
+	"github.com/cuhsat/fox/v4/configs"
+	"github.com/cuhsat/fox/v4/internal/pkg/user"
 )
 
 func Get() *viper.Viper {
@@ -28,14 +28,7 @@ func Load(flg *pflag.FlagSet) {
 	_ = cfg.BindPFlag("ai.topp", flg.Lookup("topp"))
 	_ = cfg.BindPFlag("ai.topk", flg.Lookup("topk"))
 	_ = cfg.BindPFlag("ai.seed", flg.Lookup("seed"))
-	_ = cfg.BindPFlag("ui.theme", flg.Lookup("theme"))
 	_ = cfg.BindPFlag("ui.space", flg.Lookup("space"))
-
-	// setup default values
-	cfg.SetDefault("ui.state.n", true)
-	cfg.SetDefault("ui.state.w", false)
-	cfg.SetDefault("ui.state.y", false)
-	cfg.SetDefault("ui.state.r", false)
 
 	// setup environment
 	cfg.AutomaticEnv()
@@ -43,10 +36,4 @@ func Load(flg *pflag.FlagSet) {
 	cfg.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	user.LoadConfig(cfg, "foxrc")
-}
-
-func Save() {
-	cfg := Get()
-
-	user.SaveConfig(cfg, "foxrc")
 }

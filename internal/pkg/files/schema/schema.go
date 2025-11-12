@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence"
 )
 
 type Schema interface {

@@ -4,7 +4,7 @@ import (
 	"log"
 	"regexp"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/types/smap"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/smap"
 )
 
 type Pattern struct {
@@ -34,34 +34,6 @@ func (f *Filter) Len() int {
 	} else {
 		return len(*f.fmap)
 	}
-}
-
-func (h *Heap) AddLines(lines string, b, a int) {
-	fmap := h.FMap()
-	last := h.LastFilter()
-
-	// use only the base of the context for filtering
-	if last.Context.base != nil {
-		fmap = last.Context.base
-	}
-
-	fmap = fmap.Pick(h.parse(lines))
-
-	ptn := &Pattern{lines, nil}
-	ctx := &Context{b, a, fmap}
-
-	// add global context
-	if b+a > 0 {
-		fmap = h.addContext(fmap, ctx)
-	}
-
-	h.Lock()
-
-	h.filters = append(h.filters, &Filter{
-		ptn, ctx, fmap,
-	})
-
-	h.Unlock()
 }
 
 func (h *Heap) AddFilter(pattern string, b, a int) {
@@ -99,18 +71,6 @@ func (h *Heap) AddFilter(pattern string, b, a int) {
 	h.Unlock()
 }
 
-func (h *Heap) DelFilter() {
-	h.Lock()
-
-	l := len(h.filters)
-
-	if l > 1 {
-		h.filters = h.filters[:l-1]
-	}
-
-	h.Unlock()
-}
-
 func (h *Heap) Filters() []*Filter {
 	h.RLock()
 	defer h.RUnlock()
@@ -141,39 +101,6 @@ func (h *Heap) LastFilter() *Filter {
 	h.RLock()
 	defer h.RUnlock()
 	return h.filters[max(len(h.filters)-1, 0)]
-}
-
-func (h *Heap) HasContext() bool {
-	last := h.LastFilter()
-
-	return last.Context.B+last.Context.A > 0
-}
-
-func (h *Heap) ModContext(delta int) bool {
-	last := h.LastFilter()
-
-	if last.Context.base == nil {
-		return false // not filtered
-	}
-
-	m := len(*h.SMap())
-
-	// modify current context
-	ctx := &Context{
-		min(max(last.Context.B+delta, 0), m),
-		min(max(last.Context.A+delta, 0), m),
-		last.Context.base,
-	}
-
-	// readd current context
-	fmap := h.addContext(last.Context.base, ctx)
-
-	h.Lock()
-	last.Context = ctx
-	last.fmap = fmap
-	h.Unlock()
-
-	return true
 }
 
 func (h *Heap) addContext(s *smap.SMap, ctx *Context) *smap.SMap {

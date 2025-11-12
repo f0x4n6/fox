@@ -6,19 +6,11 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 func (hs *HeapSet) SetChanged(fn Changed) {
 	hs.changed = fn
-}
-
-func (hs *HeapSet) WatchFiles() {
-	hs.Range(func(_ int, h *heap.Heap) bool {
-		hs.watchFile(h.Path)
-		return true
-	})
 }
 
 func (hs *HeapSet) watchFile(path string) {

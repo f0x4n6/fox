@@ -2,16 +2,12 @@ package flags
 
 import (
 	"regexp"
-
-	"github.com/cuhsat/fox/v3/internal/pkg/types/mode"
 )
 
 type Flags struct {
 	Bag bool
 	Hex bool
 
-	Print  bool
-	Follow bool
 	NoFile bool
 	NoLine bool
 
@@ -42,13 +38,8 @@ type Flags struct {
 		Seed   int
 	}
 
-	// ui flags
-	UI struct {
-		Theme  string
-		State  string
-		Space  int
-		Legacy bool
-		Mode   mode.Mode
+	Deflate struct {
+		Pass string
 	}
 
 	// optional flags
@@ -58,31 +49,16 @@ type Flags struct {
 		NoConvert bool
 		NoDeflate bool
 		NoPlugins bool
-		NoMouse   bool
 	}
 
 	// alias flags
 	Alias struct {
 		Logstash bool
 		Splunk   bool
-		Plain    bool
 		Text     bool
 		Json     bool
 		Jsonl    bool
 		Sqlite   bool
-		Xml      bool
-	}
-
-	// compare command
-	Compare struct {
-		Git bool
-	}
-
-	// deflate command
-	Deflate struct {
-		List bool
-		Path string
-		Pass string
 	}
 
 	// entropy command
@@ -101,13 +77,7 @@ type Flags struct {
 		Re    *regexp.Regexp
 		Min   int
 		Max   int
-		Ascii bool
 		Class bool
-	}
-
-	// timeline command
-	Timeline struct {
-		Cef bool
 	}
 }
 
@@ -118,7 +88,6 @@ func Get() *Flags {
 		flg = new(Flags)
 
 		// set defaults
-		flg.UI.Mode = mode.Default
 		flg.Evidence.Mode = BagModeText
 	}
 

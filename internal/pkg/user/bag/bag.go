@@ -12,21 +12,19 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/cuhsat/fox/v3/internal"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence/json"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence/plain"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence/sqlite"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence/text"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence/url"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence/xml"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/schema/ecs"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/schema/hec"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/schema/raw"
-	"github.com/cuhsat/fox/v3/internal/pkg/flags"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/v3/internal/pkg/types"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v4/internal"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence/json"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence/sqlite"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence/text"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence/url"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/ecs"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/hec"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/raw"
+	"github.com/cuhsat/fox/v4/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
 
 type Bag struct {
@@ -52,9 +50,6 @@ func New() *Bag {
 	}
 
 	switch flg.Mode {
-	case flags.BagModeNone:
-		// write nothing
-
 	case flags.BagModeSqlite:
 		ws = append(ws, sqlite.New())
 		path += sqlite.Ext
@@ -67,20 +62,12 @@ func New() *Bag {
 		ws = append(ws, json.New(true))
 		path += json.Ext
 
-	case flags.BagModeXml:
-		ws = append(ws, xml.New())
-		path += xml.Ext
-
 	case flags.BagModeText:
 		ws = append(ws, text.New())
 		path += text.Ext
 
-	case flags.BagModePlain:
-		fallthrough
-
 	default:
-		ws = append(ws, plain.New())
-		path += plain.Ext
+		// write nothing
 	}
 
 	if len(flg.Url) > 0 {
@@ -160,9 +147,7 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 		})
 
 		for _, str := range *h.SMap() {
-			if h.IsTagged(str.Nr) {
-				w.WriteLine(str.Nr, str.Grp, str.Str)
-			}
+			w.WriteLine(str.Nr, str.Grp, str.Str)
 		}
 
 		w.Flush()

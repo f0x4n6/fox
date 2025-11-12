@@ -20,7 +20,7 @@ The Swiss Army Knife for examining text files. Combining the power of many tradi
 ## Install
 Install directly using Go:
 ```console
-go install github.com/cuhsat/fox/v3@latest
+go install github.com/cuhsat/fox/v4@latest
 ```
 
 ## Build

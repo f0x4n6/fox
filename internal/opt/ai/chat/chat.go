@@ -6,89 +6,57 @@ import (
 	"log"
 	"path"
 	"strings"
-	"sync/atomic"
 	"time"
 
 	"github.com/ollama/ollama/api"
 
-	"github.com/cuhsat/fox/v3/internal/opt"
-	"github.com/cuhsat/fox/v3/internal/opt/ai/chat/llm"
-	"github.com/cuhsat/fox/v3/internal/opt/ai/chat/rag"
-	"github.com/cuhsat/fox/v3/internal/pkg/flags"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/v3/internal/pkg/user/config"
+	"github.com/cuhsat/fox/v4/internal/opt/ai/chat/llm"
+	"github.com/cuhsat/fox/v4/internal/opt/ai/chat/rag"
+	"github.com/cuhsat/fox/v4/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v4/internal/pkg/user/config"
 )
-
-const banner = "How may I help you today?"
 
 type Chat struct {
 	File fs.File
-
-	state *opt.State
-	heap  *heap.Heap
+	heap *heap.Heap
 
 	llm *llm.LLM
 	rag *rag.RAG
 
 	resp chan string
-	done context.CancelFunc
-	down atomic.Uint32
-	busy atomic.Bool
 }
 
-func New(state *opt.State, heap *heap.Heap) *Chat {
+func New(heap *heap.Heap) *Chat {
+	flg := flags.Get()
+
 	c := &Chat{
 		File: fs.Create(path.Join(heap.Path, "chat")),
 
-		state: state,
-		heap:  heap,
+		heap: heap,
 
-		llm: llm.New(state.Model(), time.Minute*30),
+		llm: llm.New(flg.AI.Model, time.Minute*30),
 		rag: rag.New(),
 
 		resp: make(chan string, 64),
 	}
-
-	c.stderr(fmt.Sprintln(banner))
-
-	c.busy.Store(false)
 
 	go c.listen()
 
 	return c
 }
 
-func (c *Chat) Query(query string, echo bool) {
-	var ctx context.Context
-
-	if echo {
-		c.stderr(fmt.Sprintf("\n%c %s\n", c.state.Icon.Ps1, query))
-	}
-
-	if c.done != nil {
-		c.done() // stop current activity
-	}
-
-	ctx, c.done = context.WithCancel(context.Background())
-
-	query = strings.TrimSpace(query)
-
-	if !c.parse(ctx, query) {
-		c.process(ctx, query)
-	}
+func (c *Chat) Query(query string) {
+	c.process(context.Background(), strings.TrimSpace(query))
 }
 
 func (c *Chat) Close() {
-	if c.done != nil {
-		c.done()
-	}
-
 	close(c.resp)
 }
 
 func (c *Chat) process(ctx context.Context, query string) {
-	col := c.rag.Embed(ctx, c.state.Embed(), c.heap)
+	col := c.rag.Embed(ctx, flags.Get().AI.Embed, c.heap)
 
 	if col == nil {
 		return
@@ -100,11 +68,8 @@ func (c *Chat) process(ctx context.Context, query string) {
 		return
 	}
 
-	c.busy.Store(true)
-
-	err := c.llm.Query(ctx, c.state.Model(), query, lines, func(res api.ChatResponse) error {
+	err := c.llm.Query(ctx, flags.Get().AI.Model, query, lines, func(res api.ChatResponse) error {
 		if len(res.Message.Content) == 0 {
-			c.busy.Store(false)
 			c.resp <- "\r\n"
 		} else {
 			c.resp <- res.Message.Content
@@ -114,7 +79,6 @@ func (c *Chat) process(ctx context.Context, query string) {
 	})
 
 	if err != nil {
-		c.busy.Store(false)
 		log.Println(err)
 	}
 }
@@ -151,11 +115,7 @@ func (c *Chat) listen() {
 }
 
 func (c *Chat) stdout(s string) {
-	if flags.Get().Print {
-		_, _ = fmt.Print(s)
-	} else {
-		c.stderr(s)
-	}
+	_, _ = fmt.Print(s)
 }
 
 func (c *Chat) stderr(s string) {
@@ -164,11 +124,11 @@ func (c *Chat) stderr(s string) {
 
 func (c *Chat) source() string {
 	cfg := config.Get()
+	flg := flags.Get()
 
 	return fmt.Sprintf(
-		"\n%c Generated with %s:%d:%d:%.1f:%d:%.1f\n",
-		c.state.Icon.HSep,
-		c.state.Model(),
+		"\n- Generated with %s:%d:%d:%.1f:%d:%.1f\n",
+		flg.AI.Model,
 		cfg.GetInt("ai.num_ctx"),
 		cfg.GetInt("ai.seed"),
 		cfg.GetFloat64("ai.temp"),

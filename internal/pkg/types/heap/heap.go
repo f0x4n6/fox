@@ -8,16 +8,14 @@ import (
 
 	"github.com/edsrzf/mmap-go"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/flags"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/v3/internal/pkg/types"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/smap"
+	"github.com/cuhsat/fox/v4/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/smap"
 )
 
 type Heap struct {
 	sync.RWMutex
-
-	Cache sync.Map // render cache
 
 	Title string // heap title
 	Path  string // file path
@@ -30,10 +28,7 @@ type Heap struct {
 
 	filters []*Filter // filters
 
-	tags Tags    // tagged lines
-	hash Hash    // file hash sums
 	size int64   // file size
-	seek int64   // file seek
 	file fs.File // file handle
 }
 
@@ -70,18 +65,6 @@ func (h *Heap) Size() int64 {
 	h.RLock()
 	defer h.RUnlock()
 	return h.size
-}
-
-func (h *Heap) Read() []byte {
-	h.RLock()
-	defer h.RUnlock()
-	start := h.seek
-	h.seek = h.size
-	return (*h.mmap)[min(start, h.size):]
-}
-
-func (h *Heap) Bytes() []byte {
-	return []byte(h.FMap().String())
 }
 
 func (h *Heap) Length() int {
@@ -139,16 +122,6 @@ func (h *Heap) Reload() {
 
 	h.size = fi.Size()
 
-	// invalidate hashes
-	if h.hash != nil {
-		clear(h.hash)
-	}
-
-	h.hash = make(Hash, 20)
-
-	// invalidate cache
-	h.Cache.Clear()
-
 	if h.mmap != nil {
 		_ = h.mmap.Unmap()
 	}
@@ -184,9 +157,6 @@ func (h *Heap) Reload() {
 	// reduce smap
 	h.smap = limit.ReduceSMap(smap.Map(h.mmap))
 
-	// resets tags
-	h.tags = make(Tags, len(*h.smap))
-
 	// resets filters
 	h.filters = h.filters[:0]
 	h.filters = append(h.filters, &Filter{
@@ -203,11 +173,7 @@ func (h *Heap) Reload() {
 func (h *Heap) ThrowAway() {
 	h.Lock()
 
-	h.Cache.Clear()
-
 	clear(h.filters)
-	clear(h.hash)
-	clear(h.tags)
 
 	h.size = 0
 	h.smap = nil

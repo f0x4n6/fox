@@ -23,8 +23,6 @@ Path(s) to open or `-` for **STDIN**
 - `-x`, `--hex` — show file in canonical hex
 
 ### Print
-- `-p`, `--print` — print only to console
-- `-f`, `--follow` — print follows file end
 - `--no-file` — don't print filenames
 - `--no-line` — don't print line numbers
 
@@ -52,19 +50,13 @@ Path(s) to open or `-` for **STDIN**
 - `--topk=NUMBER` — option for model top_k (*default:* `10`)
 - `--seed=NUMBER` — option for random seed (*default:* `8211`)
 
-### UI flags
-- `--state={N|W|Y|R|-}` — sets the used UI state flags
-- `--theme=THEME` — sets the used UI theme
-- `--space=NUMBER` — sets the used indentation space (*default:* `2`)
-- `--legacy` — don't use any unicode decorations (**ISO 8859-1**)
-
 ### Evidence bag
 - `-N`, `--case=NAME` — evidence bag case name (*default:* `YYYY-MM-DD`)
 - `-F`, `--file=FILE` — evidence bag file name (*default:* `evidence`)
 - `--mode=MODE` — evidence bag file mode (*default:* `text`)
 
 Available evidence bag modes:
-> none, plain, text, json, jsonl, xml, sqlite
+> none, text, json, jsonl, sqlite
 
 ### Evidence sign
 - `-s, --sign=PHRASE` — key phrase to sign evidence bag via **HMAC-SHA256**
@@ -84,17 +76,14 @@ Available evidence bag modes:
 - `--no-convert` — don't convert automatically
 - `--no-deflate` — don't deflate automatically
 - `--no-plugins` — don't run any plugins
-- `--no-mouse` — don't use the mouse
 
 ### Aliases
 - `-L`, `--logstash` — short for: `--ecs --url=http://localhost:8080`
 - `-S`, `--splunk` — short for: `--hec --url=http://localhost:8088/...`
-- `-P`, `--plain` — short for: `--mode=plain`
 - `-T`, `--text` — short for: `--mode=text`
 - `-j`, `--json` — short for: `--mode=json`
 - `-J`, `--jsonl` — short for: `--mode=jsonl`
 - `-Q`, `--sqlite` — short for: `--mode=sqlite`
-- `-X`, `--xml` — short for: `--mode=xml`
 
 ### Standard
 - `--help` — prints this message
@@ -103,7 +92,7 @@ Available evidence bag modes:
 ## Examples
 Search for occurrences in all logs:
 ```console
-$ fox -be "login" ./**/*.log
+$ fox -pe "login" ./**/*.log
 ```
 
 Export the disk MBR in hex format:

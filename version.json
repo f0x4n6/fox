@@ -1,13 +1,13 @@
 {
     "FixedFileInfo": {
         "FileVersion": {
-            "Major": 3,
+            "Major": 4,
             "Minor": 0,
             "Patch": 0,
             "Build": 0
         },
         "ProductVersion": {
-            "Major": 3,
+            "Major": 4,
             "Minor": 0,
             "Patch": 0,
             "Build": 0
@@ -22,14 +22,14 @@
         "Comments": "",
         "CompanyName": "Forensic Examiner",
         "FileDescription": "The Swiss Army Knife for examining text files.",
-        "FileVersion": "v3.0.0",
+        "FileVersion": "v4",
         "InternalName": "fox",
         "LegalCopyright": "GPL-3.0",
         "LegalTrademarks": "",
         "OriginalFilename": "fox.exe",
         "PrivateBuild": "",
         "ProductName": "Forensic Examiner",
-        "ProductVersion": "v3.0.0",
+        "ProductVersion": "v4",
         "SpecialBuild": ""
     },
     "VarFileInfo": {

@@ -8,31 +8,25 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
-	"github.com/cuhsat/fox/v3/internal/pkg/user"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys"
+	"github.com/cuhsat/fox/v4/internal/pkg/user"
 )
-
-var Input chan string
 
 type Callback func(path, base, dir string)
 
 type Plugins struct {
-	Auto   map[string]Plugin `mapstructure:"auto"`
-	Hotkey map[string]Plugin `mapstructure:"hotkey"`
+	Auto map[string]Plugin `mapstructure:"auto"`
 }
 
 type Plugin struct {
 	re *regexp.Regexp
 
 	Name string
-	Mode string
 	Path string
 	Exec []string
 }
 
 func New() *Plugins {
-	Input = make(chan string)
-
 	ps := new(Plugins)
 
 	cfg := viper.New()
@@ -49,10 +43,6 @@ func New() *Plugins {
 	}
 
 	return ps
-}
-
-func Close() {
-	close(Input)
 }
 
 func (ps *Plugins) Autos() []Plugin {
@@ -77,12 +67,7 @@ func (p *Plugin) Match(path string) bool {
 }
 
 func (p *Plugin) Execute(file, base string, fn Callback) {
-	var val, dir string
-
-	// blocking call
-	if len(p.Mode) > 0 {
-		val = <-Input
-	}
+	var dir string
 
 	// create temp dir if necessary
 	if slices.ContainsFunc(p.Exec, func(s string) bool {
@@ -96,7 +81,6 @@ func (p *Plugin) Execute(file, base string, fn Callback) {
 		"BASE", user.Persist(base),
 		"FILE", user.Persist(file),
 		"TEMP", dir,
-		"INPUT", val,
 	)
 
 	cmds := make([]string, 0)

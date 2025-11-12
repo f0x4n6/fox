@@ -90,7 +90,6 @@ nav:
     - Mouse: reference/mouse.md
 
   - Resources:
-    - Benchmark: resources/benchmark.md
     - Building: resources/building.md
     - License: resources/license.md
 

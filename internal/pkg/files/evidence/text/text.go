@@ -6,8 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cuhsat/fox/v3/internal"
-	"github.com/cuhsat/fox/v3/internal/pkg/files/evidence"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence"
 )
 
 const Ext = ".bag"
@@ -26,7 +25,7 @@ func (w *Writer) Open(f *os.File, old bool, title string) {
 	w.file = f
 
 	if !old {
-		w.write("%s\n%s", fox.Fox, title)
+		w.write("%s", title)
 	}
 }
 

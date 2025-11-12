@@ -1,16 +1,14 @@
 package heapset
 
 import (
-	"fmt"
 	"slices"
 	"sync"
 	"sync/atomic"
 
-	"github.com/cuhsat/fox/v3/internal"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/v3/internal/pkg/types"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/loader"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/loader"
 )
 
 type Changed func(*heap.Heap)
@@ -40,10 +38,6 @@ func New(paths []string) *HeapSet {
 		hs.atomicAdd(h)
 	}
 
-	if hs.Len() == 0 {
-		hs.OpenHelp()
-	}
-
 	// load first heap
 	hs.LoadHeap()
 
@@ -68,45 +62,6 @@ func (hs *HeapSet) Range(fn Range) {
 	hs.RUnlock()
 }
 
-func (hs *HeapSet) Heap() (int32, *heap.Heap) {
-	idx := atomic.LoadInt32(hs.index)
-	return idx + 1, hs.atomicGet(idx)
-}
-
-func (hs *HeapSet) Open(path string) {
-	idx := hs.Len()
-
-	for _, h := range hs.loader.Open(path) {
-		hs.atomicAdd(h)
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.atomicGet(idx).Reload()
-}
-
-func (hs *HeapSet) OpenHelp() {
-	idx, ok := hs.findByName("Welcome")
-
-	if !ok {
-		idx = hs.Len()
-
-		f := fs.Create("/fox/help")
-		_, _ = f.WriteString(fmt.Sprintf(fox.Fox+fox.Help, fox.Version, fox.Website))
-
-		hs.atomicAdd(heap.New(
-			"Welcome",
-			f.Name(),
-			f.Name(),
-			types.Ignore,
-		))
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.atomicGet(idx).Reload()
-}
-
 func (hs *HeapSet) OpenFile(path, base, title string, tp types.Heap) {
 	if !fs.Exists(path) {
 		return
@@ -125,60 +80,6 @@ func (hs *HeapSet) OpenFile(path, base, title string, tp types.Heap) {
 	hs.LoadHeap()
 }
 
-func (hs *HeapSet) OpenChat(path, base, title string) {
-	idx, ok := hs.findByName(title)
-
-	if !ok {
-		idx = hs.Len()
-
-		hs.atomicAdd(heap.New(title, path, base, types.Chat))
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.LoadHeap()
-}
-
-func (hs *HeapSet) OpenPlugin(path, base, title string) {
-	idx, ok := hs.findByName(title)
-
-	if !ok {
-		idx = hs.Len()
-
-		hs.atomicAdd(heap.New(title, path, base, types.Plugin))
-	} else {
-		old := hs.atomicGet(idx)
-
-		hs.atomicAdd(heap.New(title, path, base, types.Plugin))
-
-		old.ThrowAway()
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.LoadHeap()
-}
-
-func (hs *HeapSet) PrevHeap() *heap.Heap {
-	idx := atomic.AddInt32(hs.index, -1)
-
-	if idx < 0 {
-		atomic.StoreInt32(hs.index, hs.Len()-1)
-	}
-
-	return hs.LoadHeap()
-}
-
-func (hs *HeapSet) NextHeap() *heap.Heap {
-	idx := atomic.AddInt32(hs.index, 1)
-
-	if idx >= hs.Len() {
-		atomic.StoreInt32(hs.index, 0)
-	}
-
-	return hs.LoadHeap()
-}
-
 func (hs *HeapSet) LoadHeap() *heap.Heap {
 	h := hs.atomicGet(atomic.LoadInt32(hs.index))
 
@@ -187,24 +88,6 @@ func (hs *HeapSet) LoadHeap() *heap.Heap {
 	}
 
 	return h
-}
-
-func (hs *HeapSet) CloseHeap() *heap.Heap {
-	if hs.Len() == 1 {
-		return nil // close program
-	}
-
-	idx := atomic.LoadInt32(hs.index)
-
-	h := hs.atomicGet(idx)
-
-	hs.atomicDel(idx)
-
-	h.ThrowAway()
-
-	atomic.AddInt32(hs.index, -1)
-
-	return hs.NextHeap()
 }
 
 func (hs *HeapSet) CloseOther() {

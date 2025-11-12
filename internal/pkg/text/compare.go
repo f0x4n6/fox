@@ -6,7 +6,7 @@ import (
 
 	"github.com/atombender/go-diff"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/flags"
 )
 
 func Diff(f1, f2 string, l1, l2 []string, git bool) string {

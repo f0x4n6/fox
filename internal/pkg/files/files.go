@@ -5,8 +5,8 @@ import (
 	"io"
 	"log"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys"
+	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 type Item struct {

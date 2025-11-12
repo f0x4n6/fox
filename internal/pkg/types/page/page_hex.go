@@ -3,12 +3,12 @@ package page
 import (
 	"fmt"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/flags"
-	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v4/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/text"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
 
 type HexPage struct {
-	Page
 	Lines chan HexLine
 }
 
@@ -22,42 +22,32 @@ func (hl HexLine) String() string {
 	return fmt.Sprintf("%s %s|%-16s|", hl.Nr, hl.Hex, hl.Str)
 }
 
-func Hex(ctx *Context) (page *HexPage) {
+func Hex(h *heap.Heap) (page *HexPage) {
 	var tail int
 
 	page = new(HexPage)
 
-	mmap := *ctx.Heap.MMap()
+	mmap := *h.MMap()
 
 	limit := flags.Get().Limits
 
 	if limit.IsTail && limit.Bytes > 0 {
-		tail = max(int(ctx.Heap.Size())-limit.Bytes, 0)
-	}
-
-	page.W, page.H = ctx.W, len(mmap)/16
-
-	if len(mmap)%16 > 0 {
-		page.H++
+		tail = max(int(h.Size())-limit.Bytes, 0)
 	}
 
 	page.Lines = make(chan HexLine, Size)
 
 	// stream lines
-	go hexStream(ctx, page, tail, mmap[ctx.Y*16:])
+	go hexStream(page, tail, mmap[:])
 
 	return
 }
 
-func hexStream(ctx *Context, page *HexPage, t int, b []byte) {
+func hexStream(page *HexPage, t int, b []byte) {
 	defer close(page.Lines)
 
 	for i := 0; i < len(b); i += 16 {
-		if i/16 >= ctx.H {
-			return // page filled
-		}
-
-		nr := fmt.Sprintf("%08x ", t+i+(ctx.Y*16))
+		nr := fmt.Sprintf("%08x ", t+i)
 
 		line := HexLine{
 			Line: Line{Nr: nr, Str: ""},
