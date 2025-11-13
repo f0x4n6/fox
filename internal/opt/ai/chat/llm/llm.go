@@ -71,22 +71,6 @@ func (llm *LLM) Query(ctx context.Context, model, query, lines string, fn api.Ch
 	return llm.client.Chat(ctx, req, fn)
 }
 
-func (llm *LLM) Models(ctx context.Context) (*api.ListResponse, error) {
-	return llm.client.List(ctx)
-}
-
-func (llm *LLM) AddModel(ctx context.Context, model string, fn api.PullProgressFunc) error {
-	return llm.client.Pull(ctx, &api.PullRequest{
-		Model: model,
-	}, fn)
-}
-
-func (llm *LLM) DelModel(ctx context.Context, model string) error {
-	return llm.client.Delete(ctx, &api.DeleteRequest{
-		Model: model,
-	})
-}
-
 func (llm *LLM) AddUser(content string) {
 	llm.addMessage("user", content)
 }

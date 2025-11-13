@@ -12,10 +12,10 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/user"
 )
 
-type Callback func(path, base, dir string)
+type Callback func(path, dir string)
 
 type Plugins struct {
-	Auto map[string]Plugin `mapstructure:"auto"`
+	plugins map[string]Plugin `mapstructure:"plugin"`
 }
 
 type Plugin struct {
@@ -45,17 +45,17 @@ func New() *Plugins {
 	return ps
 }
 
-func (ps *Plugins) Autos() []Plugin {
-	as := make([]Plugin, len(ps.Auto))
+func (ps *Plugins) Plugins() []Plugin {
+	rs := make([]Plugin, len(ps.plugins))
 
-	for key := range ps.Auto {
-		p := ps.Auto[key]
+	for key := range ps.plugins {
+		p := ps.plugins[key]
 		p.re = regexp.MustCompile(p.Path)
 
-		as = append(as, p)
+		rs = append(rs, p)
 	}
 
-	return as
+	return rs
 }
 
 func (p *Plugin) Match(path string) bool {
@@ -66,7 +66,7 @@ func (p *Plugin) Match(path string) bool {
 	}
 }
 
-func (p *Plugin) Execute(file, base string, fn Callback) {
+func (p *Plugin) Execute(file string, fn Callback) {
 	var dir string
 
 	// create temp dir if necessary
@@ -78,7 +78,6 @@ func (p *Plugin) Execute(file, base string, fn Callback) {
 
 	// replace and persist
 	rep := strings.NewReplacer(
-		"BASE", user.Persist(base),
 		"FILE", user.Persist(file),
 		"TEMP", dir,
 	)
@@ -89,5 +88,5 @@ func (p *Plugin) Execute(file, base string, fn Callback) {
 		cmds = append(cmds, rep.Replace(cmd))
 	}
 
-	fn(sys.Exec(cmds).Name(), base, dir)
+	fn(sys.Exec(cmds).Name(), dir)
 }

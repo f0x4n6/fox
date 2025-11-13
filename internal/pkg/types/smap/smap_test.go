@@ -81,30 +81,6 @@ func BenchmarkFormat(b *testing.B) {
 	}
 }
 
-func BenchmarkWrap(b *testing.B) {
-	f, m, err := fixture("test.txt")
-
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	defer func(f *os.File) {
-		_ = f.Close()
-	}(f)
-
-	defer func(m *mmap.MMap) {
-		_ = m.Unmap()
-	}(m)
-
-	s := Map(m)
-
-	b.ResetTimer()
-
-	for b.Loop() {
-		s.Wrap(2, 80)
-	}
-}
-
 func BenchmarkGrep(b *testing.B) {
 	f, m, err := fixture("test.txt")
 
@@ -138,14 +114,12 @@ func TestMap(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	w, h := Map(m).Size()
+	if len(*Map(m)) != 31107 {
+		t.Fatal("wrong size")
+	}
 
 	_ = m.Unmap()
 	_ = f.Close()
-
-	if w != 545 || h != 31107 {
-		t.Fatal("wrong size")
-	}
 }
 
 func TestRender(t *testing.T) {
@@ -154,9 +128,7 @@ func TestRender(t *testing.T) {
 
 	s := Map((*mmap.MMap)(&b)).Render(2)
 
-	w, h := s.Size()
-
-	if w != 6 || h != 1 {
+	if len(*s) != 1 {
 		t.Fatal("wrong length")
 	}
 
@@ -171,26 +143,7 @@ func TestFormat(t *testing.T) {
 
 	s := Map((*mmap.MMap)(&b)).Format(2)
 
-	w, h := s.Size()
-
-	if w != 15 || h != 5 {
-		t.Fatal("wrong length")
-	}
-
-	if s.String() != v {
-		t.Fatal("wrong string")
-	}
-}
-
-func TestWrap(t *testing.T) {
-	b := []byte(`testtest`)
-	v := "test\ntest\n"
-
-	s := Map((*mmap.MMap)(&b)).Wrap(2, 4)
-
-	w, h := s.Size()
-
-	if w != 4 || h != 2 {
+	if len(*s) != 5 {
 		t.Fatal("wrong length")
 	}
 

@@ -16,11 +16,6 @@ type Writer interface {
 	WriteLine(nr, grp int, str string)
 }
 
-type Evidence struct {
-	Meta  Meta   `json:"meta"`
-	Lines []Line `json:"lines"`
-}
-
 type Meta struct {
 	User     *user.User `json:"user"`
 	Name     string     `json:"name"`

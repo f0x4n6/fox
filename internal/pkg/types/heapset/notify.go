@@ -9,10 +9,6 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
-func (hs *HeapSet) SetChanged(fn Changed) {
-	hs.changed = fn
-}
-
 func (hs *HeapSet) watchFile(path string) {
 	err := fs.Watcher.Add(filepath.Dir(path))
 
@@ -30,13 +26,7 @@ func (hs *HeapSet) notify() {
 			}
 
 			if idx, ok := hs.findByPath(ev.Name); ok {
-				h := hs.atomicGet(idx)
-				h.Reload()
-
-				if hs.changed != nil {
-					hs.changed(h) // raise changed
-				}
-
+				hs.atomicGet(idx).Reload()
 				continue
 			}
 

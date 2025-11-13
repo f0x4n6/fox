@@ -1,10 +1,9 @@
 # available variables:
 #
 #  FILE path
-#  BASE path
 #  TEMP folder (will be created)
 #
-[auto.info]
+[plugin.info]
 name = 'target-info'
 path = '.*\.(dd|img|raw|ad1|asdf|E0?|00?)'
 exec = 'target-info "FILE"'

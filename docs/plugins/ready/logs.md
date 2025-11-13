@@ -3,7 +3,7 @@
 ## [FortiAnalyzer](https://github.com/GDATAAdvancedAnalytics/FortilogDecoder)
 Script to decode Fortinet binary firewall logs.
 ```toml
-[auto.fortilog]
+[plugin.fortilog]
 name = 'fortilog'
 path = '.*\.log.(gz|zst)'
 exec = 'python fortilog_decoder.py "FILE"'

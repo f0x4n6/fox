@@ -11,16 +11,12 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/types/loader"
 )
 
-type Changed func(*heap.Heap)
-
 type Range func(int, *heap.Heap) bool
 
 type HeapSet struct {
 	sync.RWMutex
 
 	loader *loader.Loader // file loader
-
-	changed Changed // file changed
 
 	heaps []*heap.Heap // set heaps
 	index *int32       // set index
@@ -88,26 +84,6 @@ func (hs *HeapSet) LoadHeap() *heap.Heap {
 	}
 
 	return h
-}
-
-func (hs *HeapSet) CloseOther() {
-	hs.RLock()
-
-	var v []*heap.Heap
-
-	for _, h := range hs.heaps {
-		if h.Type == types.Stdout {
-			v = append(v, h)
-		} else {
-			h.ThrowAway()
-		}
-	}
-
-	hs.heaps = v
-
-	hs.RUnlock()
-
-	atomic.StoreInt32(hs.index, 0)
 }
 
 func (hs *HeapSet) ThrowAway() {

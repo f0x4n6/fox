@@ -28,7 +28,6 @@ func Load(flg *pflag.FlagSet) {
 	_ = cfg.BindPFlag("ai.topp", flg.Lookup("topp"))
 	_ = cfg.BindPFlag("ai.topk", flg.Lookup("topk"))
 	_ = cfg.BindPFlag("ai.seed", flg.Lookup("seed"))
-	_ = cfg.BindPFlag("ui.space", flg.Lookup("space"))
 
 	// setup environment
 	cfg.AutomaticEnv()

@@ -10,7 +10,6 @@ import (
 	"github.com/bmatcuk/doublestar/v4"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
-	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/cab"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/rar"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/tar"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/zip"
@@ -43,7 +42,7 @@ func New() *Loader {
 	ps := plugins.New()
 
 	if ps != nil {
-		l.plugins = ps.Autos()
+		l.plugins = ps.Plugins()
 	}
 
 	return l
@@ -72,14 +71,6 @@ func (l *Loader) Load(paths []string) []*heap.Heap {
 	if len(l.heaps) == 0 && len(paths) > 0 {
 		sys.Exit("could not load any files")
 	}
-
-	return l.heaps
-}
-
-func (l *Loader) Open(path string) []*heap.Heap {
-	l.heaps = l.heaps[:0] // reset
-
-	l.loadPath(path)
 
 	return l.heaps
 }
@@ -133,7 +124,7 @@ func (l *Loader) loadFile(path string) {
 		}
 	}
 
-	path = l.process(path, base)
+	path = l.process(path)
 
 	if len(path) == 0 {
 		return
@@ -163,7 +154,7 @@ func (l *Loader) loadArchive(path, base string, fn files.Deflate) {
 			continue
 		}
 
-		i.Path = l.process(i.Path, base)
+		i.Path = l.process(i.Path)
 
 		if len(i.Path) == 0 {
 			continue
@@ -208,11 +199,11 @@ func (l *Loader) addItem(path, base string) {
 	))
 }
 
-func (l *Loader) addPlugin(path, base, name string) {
+func (l *Loader) addPlugin(path, name string) {
 	l.heaps = append(l.heaps, heap.New(
 		name,
 		path,
-		base,
+		path,
 		types.Plugin,
 	))
 }
@@ -238,9 +229,6 @@ func (l *Loader) deflate(path, base string) string {
 
 	// check for archive
 	switch {
-	case cab.Detect(path):
-		l.loadArchive(path, base, cab.Deflate)
-		return ""
 	case rar.Detect(path):
 		l.loadArchive(path, base, rar.Deflate)
 		return ""
@@ -255,16 +243,16 @@ func (l *Loader) deflate(path, base string) string {
 	return path
 }
 
-func (l *Loader) process(path, base string) string {
+func (l *Loader) process(path string) string {
 	if !flags.Get().Optional.NoPlugins {
 		for _, p := range l.plugins {
 			if p.Match(path) {
-				p.Execute(path, base, func(path, base, dir string) {
+				p.Execute(path, func(path, dir string) {
 					if len(dir) > 0 {
 						l.loadDir(dir) // load dir results
 					}
 
-					l.addPlugin(path, base, p.Name)
+					l.addPlugin(path, p.Name)
 				})
 
 				return ""

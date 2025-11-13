@@ -11,7 +11,6 @@ import (
 	"sync"
 
 	"github.com/edsrzf/mmap-go"
-	"github.com/mattn/go-runewidth"
 )
 
 type action func(ch chan<- String, c *chunk)
@@ -102,25 +101,6 @@ func (s *SMap) Format(e int) *SMap {
 	}, len(*s))
 }
 
-func (s *SMap) Wrap(e, w int) *SMap {
-	tab := strings.Repeat(" ", e)
-	return apply(func(ch chan<- String, c *chunk) {
-		var i = 0
-		var l string
-
-		for _, s := range (*s)[c.min:c.max] {
-			i, l = 0, expand(s.Str, tab)
-
-			for i < runewidth.StringWidth(l)-w {
-				ch <- String{s.Nr, s.Grp, l[i : i+w]}
-				i += w
-			}
-
-			ch <- String{s.Nr, s.Grp, l[i:]}
-		}
-	}, len(*s))
-}
-
 func (s *SMap) Grep(re *regexp.Regexp) *SMap {
 	return apply(func(ch chan<- String, c *chunk) {
 		for _, s := range (*s)[c.min:c.max] {
@@ -129,34 +109,6 @@ func (s *SMap) Grep(re *regexp.Regexp) *SMap {
 			}
 		}
 	}, len(*s))
-}
-
-func (s *SMap) Find(nr int) (int, bool) {
-	if s == nil {
-		return 0, false
-	}
-
-	for i, str := range *s {
-		if str.Nr == nr {
-			return i, true
-		}
-	}
-
-	return 0, false
-}
-
-func (s *SMap) Size() (w, h int) {
-	if s == nil {
-		return 0, 0
-	}
-
-	for _, str := range *s {
-		w = max(w, runewidth.StringWidth(str.Str))
-	}
-
-	h = len(*s)
-
-	return
 }
 
 func (s *SMap) CanFormat() bool {

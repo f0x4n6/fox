@@ -19,18 +19,8 @@ nav:
 
   - Getting started:
     - Tutorial: start/tutorial.md
-    - Installation: start/install.md
-
-    - Usage:
-      - fox: start/usage/fox.md
-      - fox compare: start/usage/compare.md
-      - fox counts: start/usage/counts.md
-      - fox deflate: start/usage/deflate.md
-      - fox entropy: start/usage/entropy.md
-      - fox hash: start/usage/hash.md
-      - fox strings: start/usage/strings.md
-      - fox timeline: start/usage/timeline.md
-      - fox unique: start/usage/unique.md
+    - Install: start/install.md
+    - Usage: start/usage/usage.md
 
   - Features:
     - Filesystem: features/filesystem.md
@@ -39,37 +29,15 @@ nav:
     - AI:
       - Assistant: features/ai/assistant.md
 
-    - UI:
-      - Terminal: features/ui/terminal.md
-      - Unicode: features/ui/unicode.md
-
-    - Mode:
-      - Open: features/ui/open.md
-      - Less: features/ui/less.md
-      - Grep: features/ui/grep.md
-      - Hex: features/ui/hex.md
-      - Tag: features/ui/tag.md
-
   - Files:
     - Loader: files/loader.md
 
     - Text:
-      - CSV: files/text/csv.md
       - JSON: files/text/json.md
 
     - Logs:
       - Linux: files/logs/linux.md
       - Windows: files/logs/windows.md
-
-  - Utils:
-    - Deflate: utils/deflate.md
-    - Compare: utils/compare.md
-    - Counts: utils/counts.md
-    - Entropy: utils/entropy.md
-    - Hashes: utils/hashes.md
-    - Strings: utils/strings.md
-    - Timeline: utils/timeline.md
-    - Unique: utils/unique.md
 
   - Plugins:
     - Configuration: plugins/config.md
@@ -80,14 +48,6 @@ nav:
       - Sleuth Kit: plugins/ready/sleuth.md
       - Various logs: plugins/ready/logs.md
       - Various tools: plugins/ready/tools.md
-
-  - Themes:
-    - Built-in: themes/builtin.md
-    - Custom: themes/custom.md
-
-  - Reference:
-    - Keyboard: reference/keyboard.md
-    - Mouse: reference/mouse.md
 
   - Resources:
     - Building: resources/building.md

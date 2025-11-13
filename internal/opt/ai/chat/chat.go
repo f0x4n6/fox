@@ -118,10 +118,6 @@ func (c *Chat) stdout(s string) {
 	_, _ = fmt.Print(s)
 }
 
-func (c *Chat) stderr(s string) {
-	_, _ = c.File.WriteString(s)
-}
-
 func (c *Chat) source() string {
 	cfg := config.Get()
 	flg := flags.Get()

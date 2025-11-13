@@ -1,8 +1,8 @@
-[![](docs/assets/img/examiner.png "Forensic Examiner")](https://forensic-examiner.eu)
+[![](docs/assets/img/title.png "Forensic Examiner")](https://forensic-examiner.eu)
 
 The Swiss Army Knife for examining text files. Combining the power of many traditional tools like **grep**, **diff**, **hexdump** and **strings** with the abilities of modern Large Language Models, to leverage your forensic examination process. Standalone binaries are available for Windows, Linux and macOS.
 
-![](docs/assets/img/terminal.png)
+![](docs/assets/img/term.png)
 
 ## Key Features
 * Read-only [forensic filesystem](https://forensic-examiner.eu/features/filesystem) abstraction
@@ -13,7 +13,6 @@ The Swiss Army Knife for examining text files. Combining the power of many tradi
 * Extraction and deflation of many [archive](https://forensic-examiner.eu/files/loader) formats
 * Evidence bag with [Chain of Custody](https://forensic-examiner.eu/features/evidence) signing
 * Evidence streaming using [Splunk HEC](https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTinput) or [ECS](https://www.elastic.co/docs/reference/ecs)
-* Integrated super timeline in [Common Event Format](https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%201%20What%20is%20CEF.htm)
 * Integrated plugin support for e.g. [The Sleuth Kit](https://www.sleuthkit.org/) or [Eric Zimmerman's tools](https://ericzimmerman.github.io/)
 * Integrated assistant using local [Ollama LLMs](https://ollama.com/search) like *Mistral* or *DeepSeek R1*
 
@@ -29,7 +28,7 @@ Build a full-featured version:
 go build -o fox main.go
 ```
 
-Build a minimal version with stripped AI and UI support:
+Build a minimal version with stripped AI support:
 ```console
 go build -o fox -tags minimal main.go
 ```

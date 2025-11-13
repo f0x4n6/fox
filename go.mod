@@ -15,10 +15,8 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/glaslos/ssdeep v0.4.0
 	github.com/glaslos/tlsh v0.4.0
-	github.com/google/go-cabfile v0.0.0-20220815135208-f9ac3a87fd26
 	github.com/josephspurrier/goversioninfo v1.5.0
 	github.com/klauspost/compress v1.18.1
-	github.com/mattn/go-runewidth v0.0.19
 	github.com/nwaples/rardecode v1.1.3
 	github.com/philippgille/chromem-go v0.7.0
 	github.com/pierrec/lz4 v2.6.1+incompatible
@@ -38,8 +36,6 @@ require (
 	github.com/Velocidex/ordereddict v0.0.0-20250821063524-02dc06e46238 // indirect
 	github.com/Velocidex/yaml/v2 v2.2.8 // indirect
 	github.com/akavel/rsrc v0.10.2 // indirect
-	github.com/clipperhouse/stringish v0.1.1 // indirect
-	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

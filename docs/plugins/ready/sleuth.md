@@ -4,7 +4,7 @@
 ## [blkcalc](https://www.sleuthkit.org/sleuthkit/man/blkcalc.html)
 Converts between unallocated disk unit numbers and regular disk unit numbers.
 ```toml
-[auto.blkcalc]
+[plugin.blkcalc]
 name = 'blkcalc'
 path = '.*\.(dd|img|raw|afd|aff|afflib|afm|ewf|vhd|vmdk|00?)'
 exec = 'blkcalc "FILE"'
@@ -22,7 +22,7 @@ exec = 'blkcat "BASE" "INPUT"'
 ## [blkls](https://www.sleuthkit.org/sleuthkit/man/blkls.html)
 List or output file system data units.
 ```toml
-[auto.blkls]
+[plugin.blkls]
 name = 'blkls'
 path = '.*\.(dd|img|raw|afd|aff|afflib|afm|ewf|vhd|vmdk|00?)'
 exec = 'blkls "FILE"'
@@ -66,7 +66,7 @@ exec = 'fls "BASE"'
 ## [fsstat](https://www.sleuthkit.org/sleuthkit/man/fsstat.html)
 Display general details of a file system.
 ```toml
-[auto.fsstat]
+[plugin.fsstat]
 name = 'fsstat'
 path = '.*\.(dd|img|raw|afd|aff|afflib|afm|ewf|vhd|vmdk|00?)'
 exec = 'fsstat "FILE"'
@@ -102,7 +102,7 @@ exec = 'ifind -n "INPUT" "BASE"'
 ## [ils](https://www.sleuthkit.org/sleuthkit/man/ils.html)
 List inode information.
 ```toml
-[auto.img_cat]
+[plugin.img_cat]
 name = 'ils'
 path = '.*\.(dd|img|raw|afd|aff|afflib|afm|ewf|vhd|vmdk|00?)'
 exec = 'ils "FILE"'
@@ -111,7 +111,7 @@ exec = 'ils "FILE"'
 ## [img_cat](https://www.sleuthkit.org/sleuthkit/man/img_cat.html)
 Output contents of an image file.
 ```toml
-[auto.img_cat]
+[plugin.img_cat]
 name = 'img_cat'
 path = '.*\.(dd|img|raw|afd|aff|afflib|afm|ewf|vhd|vmdk|00?)'
 exec = 'img_cat "FILE"'
@@ -120,7 +120,7 @@ exec = 'img_cat "FILE"'
 ## [img_stat](https://www.sleuthkit.org/sleuthkit/man/img_stat.html)
 Display details of an image file.
 ```toml
-[auto.img_stat]
+[plugin.img_stat]
 name = 'img_stat'
 path = '.*\.(dd|img|raw|afd|aff|afflib|afm|ewf|vhd|vmdk|00?)'
 exec = 'img_stat "FILE"'
@@ -147,7 +147,7 @@ exec = 'jcat "BASE" "INPUT"'
 ## [jls](https://www.sleuthkit.org/sleuthkit/man/jls.html)
 List the contents of a file system journal.
 ```toml
-[auto.jls]
+[plugin.jls]
 name = 'jls'
 path = '.*\.(dd|img|raw|afd|aff|afflib|afm|ewf|vhd|vmdk|00?)'
 exec = 'jls "FILE"'
@@ -165,7 +165,7 @@ exec = 'mactime -b "BASE" -dhm -z "INPUT"'
 ## [mmcat](https://www.sleuthkit.org/sleuthkit/man/mmcat.html)
 Output the contents of a partition to stdout.
 ```toml
-[auto.mmcat]
+[plugin.mmcat]
 name = 'mmcat'
 path = '.*\.(dd|img|raw|afd|aff|afflib|afm|ewf|vhd|vmdk|00?)'
 exec = 'mmcat "FILE"'
@@ -174,7 +174,7 @@ exec = 'mmcat "FILE"'
 ## [mmls](https://www.sleuthkit.org/sleuthkit/man/mmls.html)
 Display the partition layout of a volume system (partition tables).
 ```toml
-[auto.mmls]
+[plugin.mmls]
 name = 'mmls'
 path = '.*\.(dd|img|raw|afd|aff|afflib|afm|ewf|vhd|vmdk|00?)'
 exec = 'mmls "FILE"'
@@ -183,7 +183,7 @@ exec = 'mmls "FILE"'
 ## [mmstat](https://www.sleuthkit.org/sleuthkit/man/mmstat.html)
 Display details about the volume system (partition tables).
 ```toml
-[auto.mmstat]
+[plugin.mmstat]
 name = 'mmstat'
 path = '.*\.(dd|img|raw|afd|aff|afflib|afm|ewf|vhd|vmdk|00?)'
 exec = 'mmstat "FILE"'
