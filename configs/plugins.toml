@@ -1,9 +1,0 @@
-# available variables:
-#
-#  FILE path
-#  TEMP folder (will be created)
-#
-[plugin.info]
-name = 'target-info'
-path = '.*\.(dd|img|raw|ad1|asdf|E0?|00?)'
-exec = 'target-info "FILE"'

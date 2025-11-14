@@ -44,13 +44,6 @@ jobs:
           go build -o fox main.go
           go build -o fox -tags minimal main.go
       -
-        name: Run setup
-        run: |
-          chmod +x fox
-          ./fox completion powershell > fox.ps1
-          ./fox completion bash > fox.bash
-          ./fox completion zsh > fox.zsh
-      -
         name: Run clean
         run: rm fox
       -
@@ -62,7 +55,6 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HOMEBREW_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
 
   deploy:
     runs-on: ubuntu-latest

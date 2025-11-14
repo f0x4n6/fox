@@ -12,12 +12,12 @@ import (
 func Diff(f1, f2 string, l1, l2 []string, git bool) string {
 	var sb strings.Builder
 
-	flg := flags.Get()
+	cli := &flags.CLI
 
 	if git {
 		sb.WriteString(fmt.Sprintf("--- %s\n", f1))
 		sb.WriteString(fmt.Sprintf("+++ %s\n", f2))
-	} else if !flg.NoFile {
+	} else if !cli.NoFile {
 		sb.WriteString(fmt.Sprintln(f1))
 		sb.WriteString(fmt.Sprintln(f2))
 	}
@@ -54,7 +54,7 @@ func Diff(f1, f2 string, l1, l2 []string, git bool) string {
 				sb.WriteString(fmt.Sprintf("@@ %c%d @@\n", r, h.LineNum+1))
 				sb.WriteString(fmt.Sprintf("%c%s\n", r, h.Line))
 			}
-		} else if !flg.NoLine {
+		} else if !cli.NoLine {
 			sb.WriteString(fmt.Sprintf("%c %s %s\n", r, nr, h.Line))
 		} else {
 			sb.WriteString(fmt.Sprintf("%c %s\n", r, h.Line))

@@ -5,6 +5,7 @@ go 1.25.1
 require (
 	github.com/0xrawsec/golang-evtx v1.2.9
 	github.com/Velocidex/go-journalctl v0.0.0-20250902002606-881a5f66df10
+	github.com/alecthomas/kong v1.12.1
 	github.com/andybalholm/brotli v1.2.0
 	github.com/atombender/go-diff v0.0.0-20201106145027-97f7540bc01a
 	github.com/bmatcuk/doublestar/v4 v4.9.1
@@ -20,11 +21,7 @@ require (
 	github.com/nwaples/rardecode v1.1.3
 	github.com/philippgille/chromem-go v0.7.0
 	github.com/pierrec/lz4 v2.6.1+incompatible
-	github.com/rainu/go-command-chain v0.5.1
 	github.com/spf13/afero v1.15.0
-	github.com/spf13/cobra v1.10.1
-	github.com/spf13/pflag v1.0.10
-	github.com/spf13/viper v1.21.0
 	github.com/ulikunitz/xz v0.5.15
 	github.com/zeebo/blake3 v0.2.4
 	github.com/zeebo/xxh3 v1.0.2
@@ -37,19 +34,13 @@ require (
 	github.com/Velocidex/yaml/v2 v2.2.8 // indirect
 	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
-	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/frankban/quicktest v1.14.6 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
-	github.com/sagikazarmark/locafero v0.12.0 // indirect
-	github.com/spf13/cast v1.10.0 // indirect
-	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/rogpeppe/go-internal v1.14.1 // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/tmthrgd/go-popcount v0.0.0-20190904054823-afb1ace8b04f // indirect
-	go.uber.org/mock v0.6.0 // indirect
-	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.43.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
-	mvdan.cc/sh/v3 v3.12.0 // indirect
 )
 
 require (

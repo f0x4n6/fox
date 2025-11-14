@@ -31,9 +31,6 @@ archives:
         formats: [zip]
     files:
       - fox.1
-      - fox.ps1
-      - fox.zsh
-      - fox.bash
       - README.md
       - LICENSE.md
 
@@ -86,13 +83,5 @@ nfpms:
           mode: 0644
       - src: ./fox.1
         dst: /usr/share/man/man1/fox.1
-        file_info:
-          mode: 0644
-      - src: ./fox.bash
-        dst: /etc/bash_completion.d/fox
-        file_info:
-          mode: 0644
-      - src: ./fox.zsh
-        dst: /usr/local/share/zsh/site-functions/_fox
         file_info:
           mode: 0644

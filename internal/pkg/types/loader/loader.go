@@ -26,26 +26,16 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/v4/internal/pkg/user/plugins"
 )
 
 const Stdin = "-"
 
 type Loader struct {
-	plugins []plugins.Plugin // auto plugins
-	heaps   []*heap.Heap     // temp heaps
+	heaps []*heap.Heap // temp heaps
 }
 
 func New() *Loader {
-	l := new(Loader)
-
-	ps := plugins.New()
-
-	if ps != nil {
-		l.plugins = ps.Plugins()
-	}
-
-	return l
+	return new(Loader)
 }
 
 func (l *Loader) Load(paths []string) []*heap.Heap {
@@ -116,7 +106,7 @@ func (l *Loader) loadDir(path string) {
 func (l *Loader) loadFile(path string) {
 	base := path
 
-	if !flags.Get().Optional.NoDeflate {
+	if !flags.CLI.NoDeflate {
 		path = l.deflate(path, base)
 
 		if len(path) == 0 {
@@ -141,7 +131,7 @@ func (l *Loader) loadArchive(path, base string, fn files.Deflate) {
 		}
 	}()
 
-	items := fn(path, flags.Get().Deflate.Pass)
+	items := fn(path, flags.CLI.Pass)
 
 	if len(items) == 0 {
 		panic("no item(s)")
@@ -244,23 +234,23 @@ func (l *Loader) deflate(path, base string) string {
 }
 
 func (l *Loader) process(path string) string {
-	if !flags.Get().Optional.NoPlugins {
-		for _, p := range l.plugins {
-			if p.Match(path) {
-				p.Execute(path, func(path, dir string) {
-					if len(dir) > 0 {
-						l.loadDir(dir) // load dir results
-					}
+	//if !flags.CLI.NoPlugins {
+	//for _, p := range l.plugins {
+	//	if p.Match(path) {
+	//		p.Execute(path, func(path, dir string) {
+	//			if len(dir) > 0 {
+	//				l.loadDir(dir) // load dir results
+	//			}
+	//
+	//			l.addPlugin(path, p.Name)
+	//		})
+	//
+	//		return ""
+	//	}
+	//}
+	//}
 
-					l.addPlugin(path, p.Name)
-				})
-
-				return ""
-			}
-		}
-	}
-
-	if !flags.Get().Optional.NoConvert {
+	if !flags.CLI.NoConvert {
 		if evtx.Detect(path) {
 			path = evtx.Parse(path)
 		}

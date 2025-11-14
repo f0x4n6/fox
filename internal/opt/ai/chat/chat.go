@@ -15,7 +15,6 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/flags"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/v4/internal/pkg/user/config"
 )
 
 type Chat struct {
@@ -29,14 +28,12 @@ type Chat struct {
 }
 
 func New(heap *heap.Heap) *Chat {
-	flg := flags.Get()
-
 	c := &Chat{
 		File: fs.Create(path.Join(heap.Path, "chat")),
 
 		heap: heap,
 
-		llm: llm.New(flg.AI.Model, time.Minute*30),
+		llm: llm.New(flags.CLI.Model, time.Minute*30),
 		rag: rag.New(),
 
 		resp: make(chan string, 64),
@@ -56,7 +53,7 @@ func (c *Chat) Close() {
 }
 
 func (c *Chat) process(ctx context.Context, query string) {
-	col := c.rag.Embed(ctx, flags.Get().AI.Embed, c.heap)
+	col := c.rag.Embed(ctx, flags.CLI.Embed, c.heap)
 
 	if col == nil {
 		return
@@ -68,7 +65,7 @@ func (c *Chat) process(ctx context.Context, query string) {
 		return
 	}
 
-	err := c.llm.Query(ctx, flags.Get().AI.Model, query, lines, func(res api.ChatResponse) error {
+	err := c.llm.Query(ctx, flags.CLI.Model, query, lines, func(res api.ChatResponse) error {
 		if len(res.Message.Content) == 0 {
 			c.resp <- "\r\n"
 		} else {
@@ -119,16 +116,15 @@ func (c *Chat) stdout(s string) {
 }
 
 func (c *Chat) source() string {
-	cfg := config.Get()
-	flg := flags.Get()
+	cli := &flags.CLI
 
 	return fmt.Sprintf(
 		"\n- Generated with %s:%d:%d:%.1f:%d:%.1f\n",
-		flg.AI.Model,
-		cfg.GetInt("ai.num_ctx"),
-		cfg.GetInt("ai.seed"),
-		cfg.GetFloat64("ai.temp"),
-		cfg.GetInt("ai.topk"),
-		cfg.GetFloat64("ai.topp"),
+		cli.Model,
+		cli.NumCtx,
+		cli.Seed,
+		cli.Temp,
+		cli.TopK,
+		cli.TopP,
 	)
 }

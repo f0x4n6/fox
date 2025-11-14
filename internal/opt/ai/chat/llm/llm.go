@@ -10,7 +10,7 @@ import (
 	"github.com/ollama/ollama/api"
 
 	"github.com/cuhsat/fox/v4/internal"
-	"github.com/cuhsat/fox/v4/internal/pkg/user/config"
+	"github.com/cuhsat/fox/v4/internal/pkg/flags"
 )
 
 type LLM struct {
@@ -52,17 +52,17 @@ func (llm *LLM) Query(ctx context.Context, model, query, lines string, fn api.Ch
 
 	llm.RLock()
 
-	cfg := config.Get()
+	cli := &flags.CLI
 	req := &api.ChatRequest{
 		Model:     model,
 		KeepAlive: llm.alive,
 		Messages:  llm.history,
 		Options: map[string]any{
-			"num_ctx":     cfg.GetInt("ai.num_ctx"),
-			"temperature": cfg.GetFloat64("ai.temp"),
-			"seed":        cfg.GetInt("ai.seed"),
-			"top_k":       cfg.GetInt("ai.top_k"),
-			"top_p":       cfg.GetFloat64("ai.top_p"),
+			"num_ctx":     cli.NumCtx,
+			"temperature": cli.Temp,
+			"seed":        cli.Seed,
+			"top_k":       cli.TopK,
+			"top_p":       cli.TopP,
 		},
 	}
 

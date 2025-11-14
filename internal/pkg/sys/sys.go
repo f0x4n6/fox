@@ -8,8 +8,6 @@ import (
 	"os"
 	"runtime/debug"
 
-	"github.com/rainu/go-command-chain"
-
 	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
@@ -18,23 +16,6 @@ const Prefix = "fox:"
 func Exit(v ...any) {
 	_, _ = fmt.Fprintf(os.Stderr, Prefix+" %s\n", v...)
 	os.Exit(1)
-}
-
-func Exec(cmds []string) fs.File {
-	f := fs.Create("/fox/exec")
-	defer Handler(f.Close)
-
-	for _, cmd := range cmds {
-		err := cmdchain.Builder().JoinShellCmd(cmd).
-			Finalize().WithOutput(f).Run()
-
-		if err != nil {
-			log.Println(err)
-			break
-		}
-	}
-
-	return f
 }
 
 func Stdin() fs.File {

@@ -28,8 +28,8 @@ import (
 )
 
 type Bag struct {
-	Path string        // file path
-	Mode flags.BagMode // file mode
+	Path string // file path
+	Mode string // file mode
 
 	file *os.File          // file handle
 	name string            // case name
@@ -41,28 +41,28 @@ type Bag struct {
 func New() *Bag {
 	var ws []evidence.Writer
 
-	flg := flags.Get().Evidence
+	cli := &flags.CLI
 
-	path := flg.File
+	path := cli.File
 
 	if len(path) == 0 {
-		path = flags.BagFile
+		path = cli.File
 	}
 
-	switch flg.Mode {
-	case flags.BagModeSqlite:
+	switch cli.Mode {
+	case types.SQLITE:
 		ws = append(ws, sqlite.New())
 		path += sqlite.Ext
 
-	case flags.BagModeJsonl:
+	case types.JSONL:
 		ws = append(ws, json.New(false))
 		path += json.ExtPretty
 
-	case flags.BagModeJson:
+	case types.JSON:
 		ws = append(ws, json.New(true))
 		path += json.Ext
 
-	case flags.BagModeText:
+	case types.TEXT:
 		ws = append(ws, text.New())
 		path += text.Ext
 
@@ -70,22 +70,22 @@ func New() *Bag {
 		// write nothing
 	}
 
-	if len(flg.Url) > 0 {
-		if flg.Ecs {
-			ws = append(ws, url.New(flg.Url, ecs.New()))
-		} else if flg.Hec {
-			ws = append(ws, url.New(flg.Url, hec.New()))
+	if len(cli.Url) > 0 {
+		if cli.Ecs {
+			ws = append(ws, url.New(cli.Url, ecs.New()))
+		} else if cli.Hec {
+			ws = append(ws, url.New(cli.Url, hec.New()))
 		} else {
-			ws = append(ws, url.New(flg.Url, raw.New()))
+			ws = append(ws, url.New(cli.Url, raw.New()))
 		}
 	}
 
 	return &Bag{
 		Path: path,
-		Mode: flg.Mode,
-		name: flg.Case,
-		key:  flg.Sign,
-		url:  flg.Url,
+		Mode: cli.Mode,
+		name: cli.Case,
+		key:  cli.Sign,
+		url:  cli.Url,
 		file: nil,
 		ws:   ws,
 	}
@@ -163,7 +163,7 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 func (bag *Bag) init() {
 	old := fs.Exists(bag.Path)
 
-	if bag.Mode != flags.BagModeNone {
+	if bag.Mode != types.NONE {
 		var err error
 
 		bag.file, err = os.OpenFile(bag.Path, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)

@@ -10,6 +10,9 @@ const (
 )
 
 var (
+	//go:embed res/banner.txt
+	Banner string
+
 	//go:embed res/prompt.txt
 	Prompt string
 

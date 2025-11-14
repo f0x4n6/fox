@@ -1,95 +1,74 @@
 package flags
 
-import (
-	"regexp"
-)
+var CLI struct {
+	// File infos
+	Hex     bool    `short:"x"`
+	Count   bool    `short:"w"`
+	Hash    string  `short:"a" sep:"," default:"SHA256"`
+	Entropy float32 `short:"y" sep:":"`
+	Strings int     `short:"s" sep:":" default:"3"`
 
-type Flags struct {
-	Bag bool
-	Hex bool
+	// File limits
+	Head  bool `short:"h" xor:"head,tail"`
+	Tail  bool `short:"t" xor:"head,tail"`
+	Lines int  `short:"n" default:"10"`
+	Bytes int  `short:"c" default:"16"`
 
-	NoFile bool
-	NoLine bool
+	// File loader
+	Pass string `short:"p"`
 
-	Limits  Limits
-	Filters Filters
+	// Line filter
+	Regex   string `short:"e"`
+	Context int    `short:"C"`
+	Before  int    `short:"B"`
+	After   int    `short:"A"`
 
-	// evidence bag
-	Evidence struct {
-		Case string
-		File string
-		Mode BagMode
-		Sign string
-		Url  string
-		Auth string
-		Ecs  bool
-		Hec  bool
-	}
+	// LLM parser
+	Query string `short:"q" default:"analyse"`
+	Model string `short:"m"`
+	Embed string
 
-	// ai flags
-	AI struct {
-		Query  string
-		Model  string
-		Embed  string
-		NumCtx int
-		Temp   float64
-		TopP   float64
-		TopK   int
-		Seed   int
-	}
+	// LLM options
+	NumCtx int     `default:"4096"`
+	Temp   float32 `default:"0.2"`
+	TopP   float32 `default:"0.5"`
+	TopK   int     `default:"10"`
+	Seed   int     `default:"8211"`
 
-	Deflate struct {
-		Pass string
-	}
+	// Evidence bag
+	Case string `short:"N"`
+	File string `short:"F" default:"evidence"`
+	Mode string `default:"text"`
 
-	// optional flags
-	Optional struct {
-		Raw       bool
-		Readonly  bool
-		NoConvert bool
-		NoDeflate bool
-		NoPlugins bool
-	}
+	// Evidence sign
+	Sign string
 
-	// alias flags
-	Alias struct {
-		Logstash bool
-		Splunk   bool
-		Text     bool
-		Json     bool
-		Jsonl    bool
-		Sqlite   bool
-	}
+	// Evidence URL
+	Url  string `short:"u"`
+	Auth string
+	Ecs  bool `xor:"ecs,hec"`
+	Hec  bool `xor:"ecs,hec" and:"hec,auth"`
 
-	// entropy command
-	Entropy struct {
-		Min float64
-		Max float64
-	}
+	// Turn off
+	Readonly  bool `short:"R"`
+	Raw       bool `short:"r"`
+	NoFile    bool `long:"no-file"`
+	NoLine    bool `long:"no-line"`
+	NoConvert bool `long:"no-convert"`
+	NoDeflate bool `long:"no-deflate"`
 
-	// hash command
-	Hash struct {
-		Algos Algorithms
-	}
+	// Alias
+	Logstash bool `short:"L"`
+	Splunk   bool `short:"S"`
+	Text     bool `short:"T"`
+	Json     bool `short:"j"`
+	Jsonl    bool `short:"J"`
+	Sqlite   bool `short:"Q"`
 
-	// strings command
-	Strings struct {
-		Re    *regexp.Regexp
-		Min   int
-		Max   int
-		Class bool
-	}
-}
+	// Standard
+	Help    bool
+	Version bool
 
-var flg *Flags = nil // singleton
-
-func Get() *Flags {
-	if flg == nil {
-		flg = new(Flags)
-
-		// set defaults
-		flg.Evidence.Mode = BagModeText
-	}
-
-	return flg
+	// Positional arguments
+	Paths []string `arg:"" name:"path" type:"path" optional:""`
 }
