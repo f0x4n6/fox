@@ -7,7 +7,6 @@ require (
 	github.com/Velocidex/go-journalctl v0.0.0-20250902002606-881a5f66df10
 	github.com/alecthomas/kong v1.12.1
 	github.com/andybalholm/brotli v1.2.0
-	github.com/atombender/go-diff v0.0.0-20201106145027-97f7540bc01a
 	github.com/bmatcuk/doublestar/v4 v4.9.1
 	github.com/cespare/xxhash v1.1.0
 	github.com/cuhsat/zip v0.5.2
@@ -19,7 +18,6 @@ require (
 	github.com/josephspurrier/goversioninfo v1.5.0
 	github.com/klauspost/compress v1.18.1
 	github.com/nwaples/rardecode v1.1.3
-	github.com/philippgille/chromem-go v0.7.0
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/spf13/afero v1.15.0
 	github.com/ulikunitz/xz v0.5.15
@@ -35,6 +33,7 @@ require (
 	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/frankban/quicktest v1.14.6 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
@@ -48,7 +47,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
-	github.com/ollama/ollama v0.12.9
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/sys v0.37.0 // indirect

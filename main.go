@@ -10,8 +10,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"os"
 
 	"github.com/alecthomas/kong"
 	"github.com/cuhsat/fox/v4/internal"
@@ -24,18 +24,17 @@ The Swiss Army Knife for examining text files (%s)
 Visit <https://%s>.
 
 Usage:
-  fox [COMMAND] [FLAG ...] [PATH ...]
+  fox [COMMAND] [FLAG ...] <PATH> ...
 
 Positional arguments:
   Path(s) to open or '-' for STDIN
 
 Commands:
-  hunt                     hunt down suspicious files
-  hash                     show file content hashes
-  stat                     show file content stats
-  text                     show file ASCII strings
-  dump                     show file in canonical hex
-  show                     show file content (default)
+  HUNT     hunt down suspicious files
+  HASH     show file content hashes
+  STAT     show file content stats
+  TEXT     show file ASCII strings
+  DUMP     show file in canonical hex
 
 Hash flags:
   -a, --type=ALGO[,ALGO]   use algorithm
@@ -134,30 +133,29 @@ func main() {
 	defer sys.Recover()
 
 	log.SetPrefix(sys.Prefix)
+	log.SetFlags(0)
 
 	cli := new(Cli)
-
 	ctx := kong.Parse(cli,
 		kong.NoDefaultHelp(),
-		kong.UsageOnError(),
+		kong.DefaultEnvars("FOX"),
+		kong.ConfigureHelp(kong.HelpOptions{}),
 	)
-
-	err := ctx.Run(&cli.Globals)
-
-	if err != nil {
-		fmt.Printf(Usage, fox.Version, fox.Website)
-	}
-
-	ctx.FatalIfErrorf(err)
-
-	sys.Exit("x")
 
 	switch {
 	case cli.Version:
-		fmt.Printf("%s %s\n", fox.Product, fox.Version)
-	case ctx.Error != nil:
-		fallthrough
+		log.Printf("%s %s\n", fox.Product, fox.Version)
+	case cli.Help || ctx.Error != nil || len(ctx.Args) == 0:
+		log.Printf(Usage, fox.Version, fox.Website)
 	default:
-		fmt.Printf(Usage, fox.Version, fox.Website)
+		log.Print("init")
+		err := ctx.Run(&cli.Globals)
+
+		if err != nil {
+			log.Panic(err)
+		}
+
+		log.Print("exit")
+		os.Exit(0)
 	}
 }

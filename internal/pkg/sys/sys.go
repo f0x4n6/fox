@@ -11,10 +11,10 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
-const Prefix = "fox:"
+const Prefix = "fox: "
 
 func Exit(v ...any) {
-	_, _ = fmt.Fprintf(os.Stderr, Prefix+" %s\n", v...)
+	_, _ = fmt.Fprintf(os.Stderr, Prefix+"%s\n", v...)
 	os.Exit(1)
 }
 
@@ -69,6 +69,6 @@ func Handler(fn func() error) {
 
 func Recover() {
 	if err := recover(); err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, Prefix+" %+v\n\n%s\n", err, debug.Stack())
+		_, _ = fmt.Fprintf(os.Stderr, Prefix+"%+v\n\n%s\n", err, debug.Stack())
 	}
 }

@@ -1,13 +1,12 @@
 package run
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/alecthomas/kong"
 	"github.com/cuhsat/fox/v4/internal/pkg/text"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
-	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heapset"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/loader"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/page"
@@ -204,7 +203,7 @@ func (cmd *Dump) Run(ctx *kong.Context) error {
 }
 
 type Show struct {
-	Paths []string `arg:"" name:"path" type:"path"`
+	Paths []string `arg:"" name:"path" type:"path" optional:""`
 }
 
 func (cmd *Show) Run(ctx *kong.Context, cli *Globals) error {
@@ -216,33 +215,34 @@ func (cmd *Show) Run(ctx *kong.Context, cli *Globals) error {
 
 	defer hs.ThrowAway()
 
-	hs.Range(func(_ int, h *heap.Heap) bool {
-		if h.Type != types.Stdin {
-			if hs.Len() > 1 && !cli.NoFile {
-				fmt.Println(text.Block(h.String(), page.TermW))
-			}
+	for _, h := range hs.Get() {
+		if h.Type == types.Stdin {
+			continue // TODO
+		}
 
-			if h.Size() == 0 {
-				return true // ignore empty files
-			}
+		if hs.Len() > 1 && !cli.NoFile {
+			log.Println(text.Block(h.String(), page.TermW))
+		}
 
-			for l := range page.Text(h, 2).Lines {
-				switch l.Nr {
-				case "--":
-					if !cli.NoLine {
-						fmt.Println("--")
-					}
-				default:
-					if !cli.NoLine {
-						fmt.Printf("%s %s\n", l.Nr, l)
-					} else {
-						fmt.Println(l)
-					}
+		if h.Size() == 0 {
+			continue // ignore empty files
+		}
+
+		for l := range page.Text(h, 2).Lines {
+			switch l.Nr {
+			case "--":
+				if !cli.NoLine {
+					log.Println("--")
+				}
+			default:
+				if !cli.NoLine {
+					log.Printf("%s %s\n", l.Nr, l)
+				} else {
+					log.Println(l)
 				}
 			}
 		}
-		return true
-	})
+	}
 
 	return nil
 }

@@ -5,13 +5,10 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/loader"
 )
-
-type Rangeable func(int, *heap.Heap) bool
 
 type HeapSet struct {
 	sync.RWMutex
@@ -44,34 +41,10 @@ func (hs *HeapSet) Len() int32 {
 	return int32(len(hs.heaps))
 }
 
-func (hs *HeapSet) Range(fn Rangeable) {
+func (hs *HeapSet) Get() []*heap.Heap {
 	hs.RLock()
-
-	for i, h := range hs.heaps {
-		if !fn(i, h.Ensure()) {
-			break
-		}
-	}
-
-	hs.RUnlock()
-}
-
-func (hs *HeapSet) OpenFile(path, base, title string, tp types.Heap) {
-	if !fs.Exists(path) {
-		return
-	}
-
-	idx, ok := hs.findByPath(path)
-
-	if !ok {
-		idx = hs.Len()
-
-		hs.atomicAdd(heap.New(title, path, base, tp))
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.LoadHeap()
+	defer hs.RUnlock()
+	return hs.heaps[:]
 }
 
 func (hs *HeapSet) LoadHeap() *heap.Heap {
@@ -104,19 +77,6 @@ func (hs *HeapSet) findByPath(path string) (int32, bool) {
 
 	for i, h := range hs.heaps {
 		if h.Base == path {
-			return int32(i), true
-		}
-	}
-
-	return 0, false
-}
-
-func (hs *HeapSet) findByName(name string) (int32, bool) {
-	hs.RLock()
-	defer hs.RUnlock()
-
-	for i, h := range hs.heaps {
-		if h.Title == name {
 			return int32(i), true
 		}
 	}

@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"sync"
 
+	"github.com/cuhsat/fox/v4/internal/pkg/run"
 	"github.com/edsrzf/mmap-go"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
@@ -104,7 +105,7 @@ func (h *Heap) Ensure() *Heap {
 	return h
 }
 
-func (h *Heap) Reload() {
+func (h *Heap) Reload(limit run.Limits) {
 	var err error
 
 	h.Lock()
@@ -148,13 +149,11 @@ func (h *Heap) Reload() {
 		h.mmap = &m
 	}
 
-	//limit := flags.CLI.Limits
-
 	// reduce mmap
-	//h.mmap = limit.ReduceMMap(h.mmap)
+	h.mmap = limit.ReduceMMap(h.mmap)
 
 	// reduce smap
-	//h.smap = limit.ReduceSMap(smap.Map(h.mmap))
+	h.smap = limit.ReduceSMap(smap.Map(h.mmap))
 
 	// resets filters
 	h.filters = h.filters[:0]
