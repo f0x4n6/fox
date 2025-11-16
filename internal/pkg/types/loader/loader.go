@@ -22,7 +22,7 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/compress/zstd"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/parser/evtx"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/parser/journal"
-	"github.com/cuhsat/fox/v4/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/run"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
@@ -106,7 +106,7 @@ func (l *Loader) loadDir(path string) {
 func (l *Loader) loadFile(path string) {
 	base := path
 
-	if !flags.CLI.NoDeflate {
+	if !run.CLI.NoDeflate {
 		path = l.deflate(path, base)
 
 		if len(path) == 0 {
@@ -131,7 +131,7 @@ func (l *Loader) loadArchive(path, base string, fn files.Deflate) {
 		}
 	}()
 
-	items := fn(path, flags.CLI.Pass)
+	items := fn(path, run.CLI.Pass)
 
 	if len(items) == 0 {
 		panic("no item(s)")
@@ -250,7 +250,7 @@ func (l *Loader) process(path string) string {
 	//}
 	//}
 
-	if !flags.CLI.NoConvert {
+	if !run.CLI.NoConvert {
 		if evtx.Detect(path) {
 			path = evtx.Parse(path)
 		}

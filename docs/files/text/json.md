@@ -1,10 +1,6 @@
 # JSON & JSON Lines
 JavaScript Object Notation files will automatically be detected by evaluating their first line for JSON specification validity.
 
-!!! tip "Tip"
-
-    Use <kbd>Ctrl</kbd> + <kbd>W</kbd> to wrap and indent [JSON Lines](https://jsonlines.org/) while in the [Terminal UI](../../features/ui/terminal.md).
-
 ## Example
 ```console
 $ fox -p testdata/test.json

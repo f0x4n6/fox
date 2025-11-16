@@ -1,4 +1,4 @@
-package flags
+package run
 
 import (
 	"fmt"

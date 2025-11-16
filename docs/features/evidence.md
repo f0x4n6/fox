@@ -1,7 +1,5 @@
 # Evidence handling
-File contents, including [AI Assistant](ai/assistant.md) or [Plugin](../plugins/config.md) output, can be saved as digital evidence along with metadata into an **Evidence Bag**. Please refer to the specific schema for details about the applied data and file format. Timestamps will be normalized to **Coordinated Universal Time (UTC)**.
-
-Using the [Terminal UI](ui/terminal.md), all filtered lines of the current file will be saved into an evidence bag by pressing <kbd>Ctrl</kbd> + <kbd>S</kbd>. The evidence bag then can be viewed by pressing <kbd>Ctrl</kbd> + <kbd>B</kbd>.
+File contents can be saved as digital evidence along with metadata into an **Evidence Bag**. Please refer to the specific schema for details about the applied data and file format. Timestamps will be normalized to **Coordinated Universal Time (UTC)**.
 
 ## Evidence bag
 The following evidence bag formats are available:
@@ -57,10 +55,6 @@ The evidence can also be streamed as `application/json` to a given URL using the
 {
   "@timestamp": "2025-12-24T12:34:56.789000Z",
   "message": "Hello World\n",
-  "labels": {
-    "case": "demo-case",
-    "filters": ""
-  },
   "agent": {
     "type": "Forensic Examiner",
     "version": "1.2.3"
@@ -95,7 +89,7 @@ The evidence can also be streamed as `application/json` to a [Splunk HTTP Event 
   "time": 1766576096000,
   "source": "Forensic Examiner",
   "sourcetype": "_json",
-  "index": "demo-case",
+  "index": "TODO",
   "event": {
     "user": "jd (John Doe)",
     "path": "/hello.txt",

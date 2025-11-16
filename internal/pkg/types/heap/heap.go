@@ -8,7 +8,6 @@ import (
 
 	"github.com/edsrzf/mmap-go"
 
-	"github.com/cuhsat/fox/v4/internal/pkg/flags"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/smap"
@@ -90,15 +89,15 @@ func (h *Heap) Ensure() *Heap {
 
 		// apply global filters once
 		if h.Type != types.Chat {
-			filters := flags.Get().Filters
+			//			filters := flags.CLI.Filters
 
-			for _, filter := range filters.Patterns {
-				h.AddFilter(
-					filter,
-					filters.Before,
-					filters.After,
-				)
-			}
+			//			for _, filter := range filters.Patterns {
+			//				h.AddFilter(
+			//					filter,
+			//					filters.Before,
+			//					filters.After,
+			//				)
+			//			}
 		}
 	}
 
@@ -149,13 +148,13 @@ func (h *Heap) Reload() {
 		h.mmap = &m
 	}
 
-	limit := flags.Get().Limits
+	//limit := flags.CLI.Limits
 
 	// reduce mmap
-	h.mmap = limit.ReduceMMap(h.mmap)
+	//h.mmap = limit.ReduceMMap(h.mmap)
 
 	// reduce smap
-	h.smap = limit.ReduceSMap(smap.Map(h.mmap))
+	//h.smap = limit.ReduceSMap(smap.Map(h.mmap))
 
 	// resets filters
 	h.filters = h.filters[:0]

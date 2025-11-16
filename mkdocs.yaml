@@ -20,14 +20,11 @@ nav:
   - Getting started:
     - Tutorial: start/tutorial.md
     - Install: start/install.md
-    - Usage: start/usage/usage.md
+    - Usage: start/usage.md
 
   - Features:
     - Filesystem: features/filesystem.md
     - Evidence: features/evidence.md
-
-    - AI:
-      - Assistant: features/ai/assistant.md
 
   - Files:
     - Loader: files/loader.md
@@ -38,16 +35,6 @@ nav:
     - Logs:
       - Linux: files/logs/linux.md
       - Windows: files/logs/windows.md
-
-  - Plugins:
-    - Configuration: plugins/config.md
-
-    - Ready-made:
-      - Dissect: plugins/ready/dissect.md
-      - Eric Zimmerman: plugins/ready/eztools.md
-      - Sleuth Kit: plugins/ready/sleuth.md
-      - Various logs: plugins/ready/logs.md
-      - Various tools: plugins/ready/tools.md
 
   - Resources:
     - Building: resources/building.md

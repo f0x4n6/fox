@@ -4,7 +4,6 @@ package ecs
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/cuhsat/fox/v4/internal"
@@ -72,9 +71,6 @@ func (ecs *Ecs) Headers() map[string]string {
 }
 
 func (ecs *Ecs) SetMeta(meta evidence.Meta) {
-	ecs.Labels["case"] = meta.Name
-	ecs.Labels["filters"] = strings.Join(meta.Filters, " > ")
-
 	ecs.Timestamp = meta.Seized.UTC()
 
 	ecs.File.Path = meta.Path

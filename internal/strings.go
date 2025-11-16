@@ -13,9 +13,6 @@ var (
 	//go:embed res/banner.txt
 	Banner string
 
-	//go:embed res/prompt.txt
-	Prompt string
-
 	//go:embed res/version.txt
 	Version string
 )

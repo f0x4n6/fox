@@ -12,20 +12,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/alecthomas/kong"
-
 	"github.com/cuhsat/fox/v4/internal"
-	"github.com/cuhsat/fox/v4/internal/opt/ai"
-	"github.com/cuhsat/fox/v4/internal/opt/ai/chat"
-	"github.com/cuhsat/fox/v4/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/run"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
-	"github.com/cuhsat/fox/v4/internal/pkg/text"
-	"github.com/cuhsat/fox/v4/internal/pkg/types"
-	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/v4/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/v4/internal/pkg/types/page"
 )
 
 var Usage = fox.Banner + `
@@ -33,17 +24,29 @@ The Swiss Army Knife for examining text files (%s)
 Visit <https://%s>.
 
 Usage:
-  fox [ACTION] [FLAG ...] PATH ...
+  fox [COMMAND] [FLAG ...] [PATH ...]
 
 Positional arguments:
   Path(s) to open or '-' for STDIN
 
-File infos:
-  -x, --hex                show file in canonical hex
-  -w, --count              show file counts
-  -a, --hash=ALGO[,ALGO]   show file hashes
-  -y, --entropy[=MIN:MAX]  show file entropy
-  -s, --strings[=MIN:MAX]  show carved strings (only ASCII)
+Commands:
+  hunt                     hunt down suspicious files
+  hash                     show file content hashes
+  stat                     show file content stats
+  text                     show file ASCII strings
+  dump                     show file in canonical hex
+  show                     show file content (default)
+
+Hash flags:
+  -a, --type=ALGO[,ALGO]   use algorithm
+
+Stat flags:
+      --min=DECIMAL        minimum entropy value
+      --max=DECIMAL        maximal entropy value
+
+Text flags:
+      --min=NUMBER         minimum string length
+      --max=NUMBER         maximal string length
 
 File limits:
   -h, --head               limit head of file by ...
@@ -60,29 +63,16 @@ Line filter:
   -B, --before=NUMBER      number of lines leading context before match
   -A, --after=NUMBER       number of lines trailing context after match
 
-LLM parser:
-  -q, --query=QUERY        assistant query to process
-  -m, --model=MODEL        assistant model (https://ollama.com/library)
-      --embed=MODEL        embedding model (https://ollama.com/library)
-
-LLM options:
-      --num-ctx=SIZE       context window length (default: 4096)
-      --temp=DECIMAL       option for temperature (default: 0.2)
-      --topp=DECIMAL       option for model top_p (default: 0.5)
-      --topk=NUMBER        option for model top_k (default: 10)
-      --seed=NUMBER        option for random seed (default: 8211)
-
 Evidence bag:
-  -N, --case=NAME          evidence bag case name (default: YYYY-MM-DD)
-  -F, --file=FILE          evidence bag file name (default: evidence)
-      --mode=MODE          evidence bag file mode (default: text)
+  -f, --file=FILE          evidence bag file name (default: YYYY-MM-DD)
+  -m, --mode=MODE          evidence bag file mode (default: text)
 
 Evidence sign:
-      --sign=PHRASE        key phrase to sign evidence bag via HMAC-SHA256
+  -s, --sign=PHRASE        key phrase to sign evidence bag via HMAC-SHA256
 
 Evidence URL:
   -u, --url=SERVER         forward evidence to server address
-      --auth=TOKEN         forward evidence using auth token
+  -a, --auth=TOKEN         forward evidence using auth token
       --ecs                use ECS schema for evidence
       --hec                use HEC schema for evidence
 
@@ -91,17 +81,15 @@ Turn off:
   -R, --readonly           don't write anything at all
       --no-file            don't print filenames
       --no-line            don't print line numbers
-      --no-convert         don't convert automatically
       --no-deflate         don't deflate automatically
-      --no-plugins         don't run any plugins
+      --no-convert         don't convert automatically
 
 Aliases:
   -L, --logstash           short for: --ecs --url=http://localhost:8080
   -S, --splunk             short for: --hec --url=http://localhost:8088/...
-  -T, --text               short for: --mode=text
-  -j, --json               short for: --mode=json
-  -J, --jsonl              short for: --mode=jsonl
   -Q, --sqlite             short for: --mode=sqlite
+  -J, --jsonl              short for: --mode=jsonl
+  -j, --json               short for: --mode=json
 
 Standard:
       --help               prints this message
@@ -123,17 +111,25 @@ Hashes (similarity):
 Checksums:
   CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
-Example: search for occurrences in all logs
+Example: dump the image MBR in hex format
+  $ fox dump -hc=512 image.dd > mbr
+
+Example: find occurrences in all logs
   $ fox -e "login" ./**/*.log
 
-Example: export the disk MBR in hex format
-  $ fox -xhc=512 image.dd > mbr
-
-Example: analyse the given event log
-  $ fox -q="analyse this" log.evtx
+Example: hunt down suspicious files
+  $ fox hunt .
 
 Type "man fox" for more help...
 `
+
+type Cli struct {
+	run.Globals
+
+	// Standard
+	Help    bool
+	Version bool
+}
 
 // Main start and catch.
 func main() {
@@ -141,58 +137,22 @@ func main() {
 
 	log.SetPrefix(sys.Prefix)
 
-	cli := flags.CLI
+	cli := new(Cli)
 
-	ctx := kong.Parse(&cli,
+	ctx := kong.Parse(cli,
 		kong.NoDefaultHelp(),
 		kong.UsageOnError(),
 	)
 
-	if cli.Context > 0 {
-		cli.Before = cli.Context
-		cli.After = cli.Context
+	err := ctx.Run(&cli.Globals)
+
+	if err != nil {
+		fmt.Printf(Usage, fox.Version, fox.Website)
 	}
 
-	if cli.Raw {
-		cli.NoFile = true
-		cli.NoLine = true
-		cli.NoConvert = true
-		cli.NoDeflate = true
-	}
+	ctx.FatalIfErrorf(err)
 
-	if cli.Readonly {
-		cli.Mode = types.NONE
-	}
-
-	if len(cli.Case) == 0 {
-		cli.Case = time.Now().Format("2006-01-02")
-	}
-
-	if cli.Logstash {
-		cli.Url = types.LOGSTASH
-		cli.Ecs = true
-	}
-
-	if cli.Splunk {
-		cli.Url = types.SPLUNK
-		cli.Hec = true
-	}
-
-	if cli.Text {
-		cli.Mode = types.TEXT
-	}
-
-	if cli.Json {
-		cli.Mode = types.JSON
-	}
-
-	if cli.Jsonl {
-		cli.Mode = types.JSONL
-	}
-
-	if cli.Sqlite {
-		cli.Mode = types.SQLITE
-	}
+	sys.Exit("x")
 
 	switch {
 	case cli.Version:
@@ -202,116 +162,4 @@ func main() {
 	default:
 		fmt.Printf(Usage, fox.Version, fox.Website)
 	}
-
-	if len(cli.Query) > 0 && !ai.Check() {
-		sys.Exit("assistant is not available")
-	}
-
-	hs := heapset.New(ctx.Args)
-	defer hs.ThrowAway()
-
-	hs.Range(func(_ int, h *heap.Heap) bool {
-		if h.Type != types.Stdin {
-			if hs.Len() > 1 && !cli.NoFile {
-				fmt.Println(text.Block(h.String(), page.TermW))
-			}
-
-			///
-
-			//fmt.Printf("%8dL %8dB  %s\n", h.Length(), len(*h.MMap()), h.String())
-			//
-			//if v := h.Entropy(
-			//	flg.Entropy.Min,
-			//	flg.Entropy.Max,
-			//); v != -1 {
-			//	fmt.Printf("%.10f  %s\n", v, h.String())
-			//}
-			//
-			//fmt.Print(text.Diff(
-			//	a[0].String(),
-			//	a[1].String(),
-			//	a[0].SMap().Lines(),
-			//	a[1].SMap().Lines(),
-			//	false,
-			//))
-			//
-			//hs.Unique().CloseOther()
-			//
-			//for l := range page.Text(hs.LoadHeap(), 2).Lines {
-			//	fmt.Println(l)
-			//}
-			//
-			//if !flg.NoFile {
-			//	fmt.Println(text.Block(h.String(), page.TermW))
-			//}
-			//
-			//for s := range h.Strings(
-			//	flg.Strings.Min,
-			//	flg.Strings.Max,
-			//	flg.Strings.Class,
-			//	flg.Strings.Re,
-			//) {
-			//	if !flg.NoLine {
-			//		fmt.Printf("%08x  %s\n", s.Off, strings.TrimSpace(s.Str))
-			//	} else {
-			//		fmt.Println(strings.TrimSpace(s.Str))
-			//	}
-			//}
-			//
-			//for _, algo := range algos {
-			//	if len(algos) > 1 {
-			//		fmt.Println(text.Block(strings.ToUpper(algo), page.TermW))
-			//	}
-			//
-			//	hs.Range(func(_ int, h *heap.Heap) bool {
-			//		sum, err := h.HashSum(algo)
-			//
-			//		if err != nil {
-			//			sys.Exit(fmt.Sprintf("could not compute hash: %s", err.Error()))
-			//			return false
-			//		}
-			//
-			//		switch algo {
-			//		case types.SDHASH:
-			//			fmt.Printf("%s  %s\n", sum, h.String())
-			//		default:
-			//			fmt.Printf("%x  %s\n", sum, h.String())
-			//		}
-			//		return true
-			//	})
-			//}
-
-			///
-
-			if len(cli.Query) > 0 {
-				c := chat.New(h)
-				defer c.Close()
-
-				c.Query(cli.Query)
-			} else if cli.Hex {
-				for l := range page.Hex(h).Lines {
-					fmt.Println(l)
-				}
-			} else {
-				if h.Size() == 0 {
-					return true // ignore empty files
-				}
-
-				for l := range page.Text(h, 2).Lines {
-					if l.Nr == "--" {
-						if !cli.NoLine {
-							fmt.Println("--")
-						}
-					} else {
-						if !cli.NoLine {
-							fmt.Printf("%s %s\n", l.Nr, l)
-						} else {
-							fmt.Println(l)
-						}
-					}
-				}
-			}
-		}
-		return true
-	})
 }

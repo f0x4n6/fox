@@ -17,7 +17,6 @@
   * https://dave.cheney.net/high-performance-json.html
 
 ## 5. Ideas
-* Add STDIN to plugins, to bypass cache?
 * Colorize CLI output?
   * https://github.com/logrusorgru/aurora
   * https://github.com/cyucelen/marker

@@ -18,7 +18,6 @@ type Writer interface {
 
 type Meta struct {
 	User     *user.User `json:"user"`
-	Name     string     `json:"name"`
 	Path     string     `json:"path"`
 	Size     int64      `json:"size"`
 	Hash     []byte     `json:"hash"`

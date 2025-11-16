@@ -8,7 +8,7 @@ import (
 
 	"github.com/cuhsat/fox/v4/internal"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/v4/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/run"
 )
 
 type Hec struct {
@@ -46,7 +46,7 @@ func (hec *Hec) String() string {
 }
 
 func (hec *Hec) Headers() map[string]string {
-	token := strings.ToLower(flags.CLI.Auth)
+	token := strings.ToLower(run.CLI.Auth)
 
 	return map[string]string{
 		"Content-Type":  "application/json",
@@ -56,7 +56,7 @@ func (hec *Hec) Headers() map[string]string {
 
 func (hec *Hec) SetMeta(meta evidence.Meta) {
 	hec.Time = meta.Seized.UnixMilli()
-	hec.Index = meta.Name
+	//hec.Index
 
 	hec.Event.User = fmt.Sprintf("%s (%s)", meta.User.Username, meta.User.Name)
 	hec.Event.Hash = fmt.Sprintf("%x", meta.Hash)

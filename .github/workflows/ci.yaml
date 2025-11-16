@@ -39,14 +39,6 @@ jobs:
         name: Run tests
         run: go test -v -race ./...
       -
-        name: Run builds
-        run: |
-          go build -o fox main.go
-          go build -o fox -tags minimal main.go
-      -
-        name: Run clean
-        run: rm fox
-      -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:

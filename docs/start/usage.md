@@ -3,24 +3,12 @@ The Swiss Army Knife for examining text files.
 
 ## Usage
 ```console
-fox [ACTION] [FLAG ...] [PATH ...]
+fox [COMMAND] [FLAG ...] [PATH ...]
 ```
 
-### Actions
-- `compare`
-- `counts`
-- `deflate`
-- `entropy`
-- `hash`
-- `strings`
-- `timeline`
 
 ### Arguments
 Path(s) to open or `-` for **STDIN**
-
-### Local
-- `-b`, `--bag` — save into evidence bag
-- `-x`, `--hex` — show file in canonical hex
 
 ### Print
 - `--no-file` — don't print filenames
@@ -37,18 +25,6 @@ Path(s) to open or `-` for **STDIN**
 - `-C`, `--context=NUMBER` — number of lines surrounding context of match
 - `-B`, `--before=NUMBER` — number of lines leading context before match
 - `-A`, `--after=NUMBER` — number of lines trailing context after match
-
-### AI assistant
-- `-q`, `--query=QUERY` — query for the assistant to process
-- `-m`, `--model=MODEL` — model for the assistant to use
-- `--embed=MODEL` — embedding model for RAG
-
-### AI options
-- `--num-ctx=SIZE` — context window length (*default:* `4096`)
-- `--temp=DECIMAL` — option for temperature (*default:* `0.2`)
-- `--topp=DECIMAL` — option for model top_p (*default:* `0.5`)
-- `--topk=NUMBER` — option for model top_k (*default:* `10`)
-- `--seed=NUMBER` — option for random seed (*default:* `8211`)
 
 ### Evidence bag
 - `-N`, `--case=NAME` — evidence bag case name (*default:* `YYYY-MM-DD`)
@@ -75,12 +51,10 @@ Available evidence bag modes:
 - `-r`, `--raw` — don't process files at all
 - `--no-convert` — don't convert automatically
 - `--no-deflate` — don't deflate automatically
-- `--no-plugins` — don't run any plugins
 
 ### Aliases
 - `-L`, `--logstash` — short for: `--ecs --url=http://localhost:8080`
 - `-S`, `--splunk` — short for: `--hec --url=http://localhost:8088/...`
-- `-T`, `--text` — short for: `--mode=text`
 - `-j`, `--json` — short for: `--mode=json`
 - `-J`, `--jsonl` — short for: `--mode=jsonl`
 - `-Q`, `--sqlite` — short for: `--mode=sqlite`
@@ -92,15 +66,10 @@ Available evidence bag modes:
 ## Examples
 Search for occurrences in all logs:
 ```console
-$ fox -pe "login" ./**/*.log
+$ fox -e "login" ./**/*.log
 ```
 
 Export the disk MBR in hex format:
 ```console
-$ fox -pxhc=512 image.dd > mbr
-```
-
-Analyse the given event log:
-```console
-$ fox -pq="analyse this" log.evtx
+$ fox -xhc=512 image.dd > mbr
 ```

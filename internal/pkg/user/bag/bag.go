@@ -21,7 +21,7 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/ecs"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/hec"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/raw"
-	"github.com/cuhsat/fox/v4/internal/pkg/flags"
+	"github.com/cuhsat/fox/v4/internal/pkg/run"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
@@ -32,7 +32,6 @@ type Bag struct {
 	Mode string // file mode
 
 	file *os.File          // file handle
-	name string            // case name
 	key  string            // key phrase
 	url  string            // url address
 	ws   []evidence.Writer // writers
@@ -41,7 +40,7 @@ type Bag struct {
 func New() *Bag {
 	var ws []evidence.Writer
 
-	cli := &flags.CLI
+	cli := &run.CLI
 
 	path := cli.File
 
@@ -83,7 +82,6 @@ func New() *Bag {
 	return &Bag{
 		Path: path,
 		Mode: cli.Mode,
-		name: cli.Case,
 		key:  cli.Sign,
 		url:  cli.Url,
 		file: nil,
@@ -137,7 +135,6 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 
 		w.WriteMeta(evidence.Meta{
 			User:     usr,
-			Name:     bag.name,
 			Path:     abs,
 			Size:     h.Size(),
 			Hash:     sum,

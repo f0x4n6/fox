@@ -3,7 +3,6 @@ package page
 import (
 	"fmt"
 
-	"github.com/cuhsat/fox/v4/internal/pkg/flags"
 	"github.com/cuhsat/fox/v4/internal/pkg/text"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
@@ -29,11 +28,11 @@ func Hex(h *heap.Heap) (page *HexPage) {
 
 	mmap := *h.MMap()
 
-	limit := flags.Get().Limits
+	//limit := flags.CLI.Limits
 
-	if limit.IsTail && limit.Bytes > 0 {
-		tail = max(int(h.Size())-limit.Bytes, 0)
-	}
+	//if limit.IsTail && limit.Bytes > 0 {
+	//	tail = max(int(h.Size())-limit.Bytes, 0)
+	//}
 
 	page.Lines = make(chan HexLine, Size)
 

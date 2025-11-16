@@ -1,4 +1,4 @@
-package flags
+package run
 
 import (
 	"github.com/edsrzf/mmap-go"

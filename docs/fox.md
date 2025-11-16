@@ -1,4 +1,4 @@
-% FOX(1) Version 3.0 | Forensic Examiner Documentation
+% FOX(1) Version 4.0 | Forensic Examiner Documentation
 
 NAME
 ====
@@ -8,29 +8,21 @@ NAME
 SYNOPSIS
 ========
 
-| **fox** \[_action_] \[_options_] \[_path_ ...]
+| **fox** \[_command_] \[_options_] \[_path_ ...]
 
 DESCRIPTION
 ===========
 
-The Swiss Army Knife for examining text files. Combining the power of many traditional tools like **grep(1)**, **diff(1)**, **hexdump(1)** and **strings(1)** with the abilities of modern Large Language Models, to leverage your forensic examination process.
+The Swiss Army Knife for examining text files. Combining the power of many traditional tools like **grep(1)**, **hexdump(1)** and **strings(1)** with the abilities of modern Large Language Models, to leverage your forensic examination process.
 
 All files are processed in the order specified. Use **-** to read from **STDIN(4)**.
 
-Actions
--------
-
-compare
-
-:   Compare two files.
+Commands
+--------
 
 counts
 
 :   Display line and byte counts.
-
-deflate
-
-:   Deflate compressed files.
 
 entropy
 
@@ -44,28 +36,8 @@ strings
 
 :   Display ASCII and Unicode strings.
 
-timeline
-
-:   Display super timeline.
-
-unique
-
-:   Display unique lines.
-
 Options
 -------
-
-**-p, --print**
-
-:   Print directly to console.
-
-**-f, --follow**
-
-:   Print follows file end.
-
-**-x, --hex**
-
-:   Print file in canonical hex.
 
 **--help**
 
@@ -113,62 +85,6 @@ Options Filters
 
 :   _Number_ of lines trailing context after match.
 
-Options AI
-----------
-
-**-q, --query**=_query_
-
-:   _Query_ for the assistant to process.
-
-**-m, --model**=_model_
-
-:   _Model_ for the assistant to use.
-
-**--embed**=_model_
-
-:   Embedding _model_ used for RAG.
-
-**--num-ctx**=_length_
-
-:   Context window _length_ (default 4096).
-
-**--temp**=decimal
-
-:   Option for temperature (default 0.2).
-
-**--topp**=decimal
-
-:   Option for model top_p (default 0.5).
-
-**--topk**=number
-
-:   Option for model top_k (default 10).
-
-**--seed**=number
-
-:   Option for random seed (default 8211).
-
-Options UI
-----------
-
-**--state**=_state_
-
-:   Sets the used UI _state_ flags.
-
-    The state must be either be **N**, **W**, **Y**, **R** or a combination. Use **-** to reset the state.
-
-**--theme**=_theme_
-
-:   Sets the used UI _theme_.
-
-**--space**=number
-
-:   Sets the used indentation space (default 2).
-
-**--legacy**
-
-:   Don't use any unicode decorations (_ISO-8859-1_)
-
 Options Evidence
 ----------------
 
@@ -188,7 +104,7 @@ Options Evidence
 
 :   Evidence bag file _mode_ (default **text**):
 
-    Modes are **none**, **plain**, **text**, **json**, **jsonl**, **xml**, **sqlite**.
+    Modes are **none**, **plain**, **text**, **json**, **jsonl**, **sqlite**.
 
 **-s, --sign**=_phrase_
 
@@ -236,10 +152,6 @@ Options Misc
 
 :   Don't deflate automatically.
 
-**--no-plugins**
-
-:   Don't run any plugins.
-
 **--no-mouse**
 
 :   Don't use the mouse.
@@ -267,10 +179,6 @@ Aliases
 
 :   Short for **--mode=plain**.
 
-**-T, --text**
-
-:   Short for **--mode=text**.
-
 **-j, --json**
 
 :   Short for **--mode=json**.
@@ -283,10 +191,6 @@ Aliases
 
 :   Short for **--mode=sqlite**.
 
-**-X, --xml**
-
-:   Short for **--mode=xml**.
-
 FILES
 =====
 
@@ -295,18 +199,6 @@ All configuration files will also be searched for in the _/etc/fox_ and _/usr/lo
 *~/.config/fox/foxrc*
 
 :   Per-user configuration file.
-
-*~/.config/fox/history*
-
-:   Per-user input history file.
-
-*~/.config/fox/plugins*
-
-:   Per-user plugin configuration file.
-
-*~/.config/fox/themes*
-
-:   Per-user theme configuration file.
 
 ENVIRONMENT
 ===========
@@ -318,17 +210,13 @@ ENVIRONMENT
 EXAMPLES
 ========
 
-fox -be "login" ./**/*.log
+fox -e "login" ./**/*.log
 
 :   Search for occurrences in all logs.
 
-fox -pxhc=512 image.dd > mbr
+fox dump -hc=512 image.dd > mbr
 
 :   Export the disk MBR in hex format.
-
-fox -pq="analyse this" log.evtx
-
-:   Analyse the given event log.
 
 BUGS
 ====
@@ -343,4 +231,4 @@ Christian Uhsat <christian at uhsat dot de>
 SEE ALSO
 ========
 
-**grep(1)**, **diff(1)**, **hexdump(1)**, **strings(1)**
+**grep(1)**, **hexdump(1)**, **strings(1)**

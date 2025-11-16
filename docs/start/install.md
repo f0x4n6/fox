@@ -1,8 +1,6 @@
 # Installation
 Stable [releases](https://github.com/cuhsat/fox/releases) are available for both `AMD64` and `ARM64` architectures, including signed SBOMs.
 
-> To use the [AI Assistant](../features/ai/assistant.md), a connection to a local or remote running [Ollama](https://ollama.com) server is required.
-
 ## Install using Make
 Execute the following command:
 
