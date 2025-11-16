@@ -11,7 +11,7 @@ import (
 type TextPage struct {
 	Y     int
 	N     int
-	FMap  *smap.SMap
+	SMap  *smap.SMap
 	Lines chan *TextLine
 }
 
@@ -28,14 +28,14 @@ func Text(h *heap.Heap, e int) (page *TextPage) {
 	page = new(TextPage)
 
 	page.Lines = make(chan *TextLine, Size)
-	page.N = text.Dec(h.Length())
+	page.N = text.Dec(h.Len())
 
-	page.FMap = h.FMap()
+	page.SMap = h.SMap()
 
-	if page.FMap.CanFormat() {
-		page.FMap = page.FMap.Format(e)
+	if page.SMap.CanFormat() {
+		page.SMap = page.SMap.Format(e)
 	} else {
-		page.FMap = page.FMap.Render(e)
+		page.SMap = page.SMap.Render(e)
 	}
 
 	go textStream(page)
@@ -56,7 +56,7 @@ func textStream(page *TextPage) {
 	numSep, numGrp, lastGrp := 0, 1, 0
 
 	// stream lines
-	for _, str := range (*page.FMap)[page.Y:] {
+	for _, str := range (*page.SMap)[page.Y:] {
 
 		// insert context separator
 		if lastGrp != str.Grp && numGrp > 1 {

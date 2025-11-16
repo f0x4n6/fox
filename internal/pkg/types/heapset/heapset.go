@@ -1,60 +1,42 @@
 package heapset
 
 import (
-	"slices"
 	"sync"
-	"sync/atomic"
 
-	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/loader"
 )
 
 type HeapSet struct {
 	sync.RWMutex
-	loader *loader.Loader // file loader
-	heaps  []*heap.Heap   // set heaps
-	index  *int32         // set index
+	heaps []*heap.Heap // set heaps
 }
 
 func New(paths []string, opts *loader.Options) *HeapSet {
-	hs := HeapSet{
-		loader: loader.New(opts),
-		index:  new(int32),
+	heaps := loader.New(opts).Load(paths)
+
+	for _, h := range heaps {
+		h.Load(
+			opts.Limit,
+			opts.Filter,
+		)
 	}
 
-	go hs.notify()
-
-	for _, h := range hs.loader.Load(paths) {
-		hs.atomicAdd(h)
+	return &HeapSet{
+		heaps: heaps,
 	}
-
-	// load first heap
-	hs.LoadHeap()
-
-	return &hs
 }
 
-func (hs *HeapSet) Len() int32 {
+func (hs *HeapSet) Len() int {
 	hs.RLock()
 	defer hs.RUnlock()
-	return int32(len(hs.heaps))
+	return len(hs.heaps)
 }
 
 func (hs *HeapSet) Get() []*heap.Heap {
 	hs.RLock()
 	defer hs.RUnlock()
 	return hs.heaps[:]
-}
-
-func (hs *HeapSet) LoadHeap() *heap.Heap {
-	h := hs.atomicGet(atomic.LoadInt32(hs.index))
-
-	if h.Ensure().Type == types.Regular {
-		hs.watchFile(h.Path) // changed file
-	}
-
-	return h
 }
 
 func (hs *HeapSet) ThrowAway() {
@@ -66,38 +48,5 @@ func (hs *HeapSet) ThrowAway() {
 
 	hs.heaps = hs.heaps[:0]
 
-	hs.Unlock()
-
-	atomic.AddInt32(hs.index, -1)
-}
-
-func (hs *HeapSet) findByPath(path string) (int32, bool) {
-	hs.RLock()
-	defer hs.RUnlock()
-
-	for i, h := range hs.heaps {
-		if h.Base == path {
-			return int32(i), true
-		}
-	}
-
-	return 0, false
-}
-
-func (hs *HeapSet) atomicAdd(h *heap.Heap) {
-	hs.Lock()
-	hs.heaps = append(hs.heaps, h)
-	hs.Unlock()
-}
-
-func (hs *HeapSet) atomicGet(idx int32) *heap.Heap {
-	hs.RLock()
-	defer hs.RUnlock()
-	return hs.heaps[idx]
-}
-
-func (hs *HeapSet) atomicDel(idx int32) {
-	hs.Lock()
-	hs.heaps = slices.Delete(hs.heaps, int(idx), int(idx)+1)
 	hs.Unlock()
 }

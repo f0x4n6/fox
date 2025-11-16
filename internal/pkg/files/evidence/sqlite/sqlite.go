@@ -30,7 +30,6 @@ type entry struct {
 		size     int64
 		hash     string
 		modified time.Time
-		filters  []value
 		lines    []value
 	}
 
@@ -96,14 +95,6 @@ func (w *Writer) Flush() {
 		w.entry.file.modified,
 	)
 
-	for _, f := range w.entry.file.filters {
-		_ = w.insert(`Filters (file_id, nr, value)`,
-			fileId,
-			f.nr,
-			f.value,
-		)
-	}
-
 	for _, l := range w.entry.file.lines {
 		_ = w.insert(`lines (file_id, nr, grp, value)`,
 			fileId,
@@ -133,12 +124,6 @@ func (w *Writer) WriteMeta(meta evidence.Meta) {
 	w.entry.file.size = meta.Size
 	w.entry.file.modified = meta.Modified.UTC()
 	w.entry.file.hash = fmt.Sprintf("%x", meta.Hash)
-
-	for i, f := range meta.Filters {
-		w.entry.file.filters = append(w.entry.file.filters, value{
-			nr: i, value: f,
-		})
-	}
 
 	w.entry.user.login = meta.User.Username
 	w.entry.user.name = meta.User.Name

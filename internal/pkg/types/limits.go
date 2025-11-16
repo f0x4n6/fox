@@ -1,4 +1,4 @@
-package run
+package types
 
 import (
 	"github.com/edsrzf/mmap-go"

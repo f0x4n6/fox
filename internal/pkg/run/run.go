@@ -1,7 +1,8 @@
 package run
 
 import (
-	"log"
+	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/alecthomas/kong"
@@ -31,10 +32,10 @@ type Globals struct {
 	Pass string `short:"p"`
 
 	// Line filter
-	Regex   []string `short:"e"`
-	Context int      `short:"C"`
-	Before  int      `short:"B"`
-	After   int      `short:"A"`
+	Regex   string `short:"e"`
+	Context int    `short:"C"`
+	Before  int    `short:"B"`
+	After   int    `short:"A"`
 
 	// Evidence bag
 	File string `short:"f"`
@@ -207,7 +208,24 @@ type Show struct {
 }
 
 func (cmd *Show) Run(ctx *kong.Context, cli *Globals) error {
+	var re *regexp.Regexp
+
+	if len(cli.Regex) > 0 {
+		re = regexp.MustCompile(cli.Regex)
+	}
+
 	hs := heapset.New(ctx.Args, &loader.Options{
+		Limit: &types.Limits{
+			IsHead: cli.Head,
+			IsTail: cli.Tail,
+			Lines:  cli.Lines,
+			Bytes:  cli.Bytes,
+		},
+		Filter: &types.Filters{
+			Regex:  re,
+			Before: cli.Before,
+			After:  cli.After,
+		},
 		Password:  cli.Pass,
 		NoDeflate: cli.NoDeflate,
 		NoConvert: cli.NoConvert,
@@ -221,7 +239,7 @@ func (cmd *Show) Run(ctx *kong.Context, cli *Globals) error {
 		}
 
 		if hs.Len() > 1 && !cli.NoFile {
-			log.Println(text.Block(h.String(), page.TermW))
+			fmt.Println(text.Block(h.String(), page.TermW))
 		}
 
 		if h.Size() == 0 {
@@ -232,13 +250,13 @@ func (cmd *Show) Run(ctx *kong.Context, cli *Globals) error {
 			switch l.Nr {
 			case "--":
 				if !cli.NoLine {
-					log.Println("--")
+					fmt.Println("--")
 				}
 			default:
 				if !cli.NoLine {
-					log.Printf("%s %s\n", l.Nr, l)
+					fmt.Printf("%s %s\n", l.Nr, l)
 				} else {
-					log.Println(l)
+					fmt.Println(l)
 				}
 			}
 		}

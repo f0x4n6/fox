@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/cuhsat/fox/v4/internal/pkg/run"
 	"github.com/edsrzf/mmap-go"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
@@ -25,8 +24,6 @@ type Heap struct {
 
 	mmap *mmap.MMap // memory map
 	smap *smap.SMap // string map
-
-	filters []*Filter // filters
 
 	size int64   // file size
 	file fs.File // file handle
@@ -55,19 +52,13 @@ func (h *Heap) SMap() *smap.SMap {
 	return h.smap
 }
 
-func (h *Heap) FMap() *smap.SMap {
-	h.RLock()
-	defer h.RUnlock()
-	return h.LastFilter().fmap
-}
-
 func (h *Heap) Size() int64 {
 	h.RLock()
 	defer h.RUnlock()
 	return h.size
 }
 
-func (h *Heap) Length() int {
+func (h *Heap) Len() int {
 	h.RLock()
 	defer h.RUnlock()
 	return len(*h.smap)
@@ -84,28 +75,7 @@ func (h *Heap) String() string {
 	}
 }
 
-func (h *Heap) Ensure() *Heap {
-	if h.file == nil {
-		h.Reload()
-
-		// apply global filters once
-		if h.Type != types.Chat {
-			//			filters := flags.CLI.Filters
-
-			//			for _, filter := range filters.Patterns {
-			//				h.AddFilter(
-			//					filter,
-			//					filters.Before,
-			//					filters.After,
-			//				)
-			//			}
-		}
-	}
-
-	return h
-}
-
-func (h *Heap) Reload(limit run.Limits) {
+func (h *Heap) Load(limit *types.Limits, filter *types.Filters) {
 	var err error
 
 	h.Lock()
@@ -155,13 +125,8 @@ func (h *Heap) Reload(limit run.Limits) {
 	// reduce smap
 	h.smap = limit.ReduceSMap(smap.Map(h.mmap))
 
-	// resets filters
-	h.filters = h.filters[:0]
-	h.filters = append(h.filters, &Filter{
-		new(Pattern),
-		new(Context),
-		h.smap,
-	})
+	// filter smap
+	h.smap = filter.FilterSMap(h.smap)
 
 	h.Unlock()
 
@@ -170,8 +135,6 @@ func (h *Heap) Reload(limit run.Limits) {
 
 func (h *Heap) ThrowAway() {
 	h.Lock()
-
-	clear(h.filters)
 
 	h.size = 0
 	h.smap = nil

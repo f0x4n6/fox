@@ -27,9 +27,8 @@ type entry struct {
 
 	Metadata struct {
 		File struct {
-			Path    string   `json:"Path"`
-			Size    int64    `json:"Size"`
-			Filters []string `json:"Filters"`
+			Path string `json:"Path"`
+			Size int64  `json:"Size"`
 		} `json:"file"`
 
 		User struct {
@@ -96,7 +95,6 @@ func (w *Writer) Flush() {
 func (w *Writer) WriteMeta(meta evidence.Meta) {
 	w.entry.Metadata.File.Path = meta.Path
 	w.entry.Metadata.File.Size = meta.Size
-	w.entry.Metadata.File.Filters = meta.Filters
 
 	w.entry.Metadata.Hash = fmt.Sprintf("%x", meta.Hash)
 

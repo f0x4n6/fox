@@ -21,7 +21,6 @@ type Meta struct {
 	Path     string     `json:"path"`
 	Size     int64      `json:"size"`
 	Hash     []byte     `json:"hash"`
-	Filters  []string   `json:"filters"`
 	Modified time.Time  `json:"modified"`
 	Seized   time.Time  `json:"seized"`
 }

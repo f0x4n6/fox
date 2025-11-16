@@ -20,7 +20,7 @@ Example of an evidence bag in `text` format (including metadata):
 
 Forensic Examiner Evidence Bag (v1.2.3)
 ==============================================================================
-File: /hello.txt > Hello (12 bytes)
+File: /hello.txt (12 bytes)
 User: jd (John Doe)
 Time: 2025-12-06T12:34:56Z modified, 2025-12-24T12:34:56Z seized
 Hash: SHA256 d2a84f4b8b650937ec8f73cd8be2c74add5a911ba64df27458ed8229da804a26

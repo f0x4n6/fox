@@ -38,15 +38,8 @@ func (w *Writer) Flush() {
 }
 
 func (w *Writer) WriteMeta(meta evidence.Meta) {
-	var sb strings.Builder
-
-	for _, f := range meta.Filters {
-		sb.WriteString("> ")
-		sb.WriteString(f)
-	}
-
 	w.write("%s\n", strings.Repeat("=", width))
-	w.write("File: %s %s (%d bytes)\n", meta.Path, sb.String(), meta.Size)
+	w.write("File: %s (%d bytes)\n", meta.Path, meta.Size)
 	w.write("User: %s (%s)\n", meta.User.Username, meta.User.Name)
 	w.write("Time: %s modified, %s seized\n", evidence.Utc(meta.Modified), evidence.Utc(meta.Seized))
 	w.write("Hash: SHA256 %x\n", meta.Hash)

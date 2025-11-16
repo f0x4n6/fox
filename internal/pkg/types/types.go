@@ -42,12 +42,9 @@ const (
 type Heap int
 
 const (
-	Regular Heap = iota
-	Deflate
-	Stdin
+	Stdin Heap = iota
 	Stdout
-	Plugin
-	Chat
+	Stderr
+	Regular
+	Deflate
 )
-
-type Null struct{}

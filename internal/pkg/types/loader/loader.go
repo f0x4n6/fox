@@ -30,6 +30,8 @@ import (
 const Stdin = "-"
 
 type Options struct {
+	Limit     *types.Limits
+	Filter    *types.Filters
 	Password  string
 	NoDeflate bool
 	NoConvert bool
@@ -192,15 +194,6 @@ func (l *Loader) addItem(path, base string) {
 		path,
 		base,
 		types.Deflate,
-	))
-}
-
-func (l *Loader) addPlugin(path, name string) {
-	l.heaps = append(l.heaps, heap.New(
-		name,
-		path,
-		path,
-		types.Plugin,
 	))
 }
 

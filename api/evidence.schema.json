@@ -24,22 +24,11 @@
             "size": {
               "description": "File size in bytes",
               "type": "number"
-            },
-            "filters": {
-              "description": "Applied content filters",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "type": "string"
-              }
             }
           },
           "required": [
             "path",
-            "size",
-            "filters"
+            "size"
           ]
         },
         "user": {

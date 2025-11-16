@@ -22,14 +22,6 @@ CREATE TABLE IF NOT EXISTS files (
     modified INTEGER NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS filters (
-    id INTEGER PRIMARY KEY,
-    file_id INTEGER NOT NULL,
-    nr INTEGER NOT NULL,
-    value TEXT NOT NULL,
-    FOREIGN KEY (file_id) REFERENCES files (id)
-);
-
 CREATE TABLE IF NOT EXISTS lines (
     id INTEGER PRIMARY KEY,
     file_id INTEGER NOT NULL,
