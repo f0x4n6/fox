@@ -21,34 +21,34 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/ecs"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/hec"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/raw"
-	"github.com/cuhsat/fox/v4/internal/pkg/run"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
 
-type Bag struct {
-	Path string // file path
-	Mode string // file mode
+type Options struct {
+	File string
+	Mode string
+	Sign string
+	Auth string
+	Url  string
+	ECS  bool
+	HEC  bool
+}
 
+type Bag struct {
+	opts *Options          // bag options
+	path string            // file path
 	file *os.File          // file handle
-	key  string            // key phrase
-	url  string            // url address
 	ws   []evidence.Writer // writers
 }
 
-func New() *Bag {
+func New(opts *Options) *Bag {
 	var ws []evidence.Writer
 
-	cli := &run.CLI
+	path := opts.File
 
-	path := cli.File
-
-	if len(path) == 0 {
-		path = cli.File
-	}
-
-	switch cli.Mode {
+	switch opts.Mode {
 	case types.SQLITE:
 		ws = append(ws, sqlite.New())
 		path += sqlite.Ext
@@ -69,31 +69,21 @@ func New() *Bag {
 		// write nothing
 	}
 
-	if len(cli.Url) > 0 {
-		if cli.Ecs {
-			ws = append(ws, url.New(cli.Url, ecs.New()))
-		} else if cli.Hec {
-			ws = append(ws, url.New(cli.Url, hec.New()))
+	if len(opts.Url) > 0 {
+		if opts.ECS {
+			ws = append(ws, url.New(opts.Url, ecs.New()))
+		} else if opts.HEC {
+			ws = append(ws, url.New(opts.Url, hec.New(opts.Auth)))
 		} else {
-			ws = append(ws, url.New(cli.Url, raw.New()))
+			ws = append(ws, url.New(opts.Url, raw.New()))
 		}
 	}
 
 	return &Bag{
-		Path: path,
-		Mode: cli.Mode,
-		key:  cli.Sign,
-		url:  cli.Url,
+		opts: opts,
+		path: path,
 		file: nil,
 		ws:   ws,
-	}
-}
-
-func (bag *Bag) String() string {
-	if bag.file != nil {
-		return bag.Path
-	} else {
-		return bag.url
 	}
 }
 
@@ -139,8 +129,8 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 			Size:     h.Size(),
 			Hash:     sum,
 			Filters:  ptn,
-			Seized:   now(),
-			Modified: mod(h),
+			Seized:   time.Now().UTC(),
+			Modified: modified(h),
 		})
 
 		for _, str := range *h.SMap() {
@@ -158,12 +148,12 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 }
 
 func (bag *Bag) init() {
-	old := fs.Exists(bag.Path)
+	old := fs.Exists(bag.path)
 
-	if bag.Mode != types.NONE {
+	if bag.opts.Mode != types.NONE {
 		var err error
 
-		bag.file, err = os.OpenFile(bag.Path, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
+		bag.file, err = os.OpenFile(bag.path, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
 
 		if err != nil {
 			log.Panicln(err)
@@ -180,13 +170,13 @@ func (bag *Bag) init() {
 func (bag *Bag) sign() {
 	var imp hash.Hash
 
-	if len(bag.key) > 0 {
-		imp = hmac.New(sha256.New, []byte(bag.key))
+	if len(bag.opts.Sign) > 0 {
+		imp = hmac.New(sha256.New, []byte(bag.opts.Sign))
 	} else {
 		imp = sha256.New()
 	}
 
-	buf, err := os.ReadFile(bag.Path)
+	buf, err := os.ReadFile(bag.path)
 
 	if err != nil {
 		log.Println(err)
@@ -197,7 +187,7 @@ func (bag *Bag) sign() {
 
 	sum := base64.StdEncoding.EncodeToString(imp.Sum(nil))
 
-	err = os.WriteFile(bag.Path+".sig", []byte(sum), 0600)
+	err = os.WriteFile(bag.path+".sig", []byte(sum), 0600)
 
 	if err != nil {
 		log.Println(err)
@@ -206,12 +196,8 @@ func (bag *Bag) sign() {
 	return
 }
 
-func now() time.Time {
-	return time.Now().UTC()
-}
-
-func mod(h *heap.Heap) time.Time {
-	mt := now()
+func modified(h *heap.Heap) time.Time {
+	mt := time.Now().UTC()
 
 	if h.Type == types.Regular {
 		fi, err := os.Stat(h.Base)

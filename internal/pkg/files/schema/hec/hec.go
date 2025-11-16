@@ -8,10 +8,11 @@ import (
 
 	"github.com/cuhsat/fox/v4/internal"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence"
-	"github.com/cuhsat/fox/v4/internal/pkg/run"
 )
 
 type Hec struct {
+	token string
+
 	Time       int64  `json:"time"`
 	Source     string `json:"source"`
 	Sourcetype string `json:"sourcetype"`
@@ -28,8 +29,9 @@ type Hec struct {
 	} `json:"event"`
 }
 
-func New() *Hec {
+func New(token string) *Hec {
 	return &Hec{
+		token:      strings.ToLower(token),
 		Source:     fox.Product,
 		Sourcetype: "_json",
 	}
@@ -46,11 +48,9 @@ func (hec *Hec) String() string {
 }
 
 func (hec *Hec) Headers() map[string]string {
-	token := strings.ToLower(run.CLI.Auth)
-
 	return map[string]string{
 		"Content-Type":  "application/json",
-		"Authorization": fmt.Sprintf("Splunk %s", token),
+		"Authorization": fmt.Sprintf("Splunk %s", hec.token),
 	}
 }
 

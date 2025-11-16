@@ -11,20 +11,18 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/types/loader"
 )
 
-type Range func(int, *heap.Heap) bool
+type Rangeable func(int, *heap.Heap) bool
 
 type HeapSet struct {
 	sync.RWMutex
-
 	loader *loader.Loader // file loader
-
-	heaps []*heap.Heap // set heaps
-	index *int32       // set index
+	heaps  []*heap.Heap   // set heaps
+	index  *int32         // set index
 }
 
-func New(paths []string) *HeapSet {
+func New(paths []string, opts *loader.Options) *HeapSet {
 	hs := HeapSet{
-		loader: loader.New(),
+		loader: loader.New(opts),
 		index:  new(int32),
 	}
 
@@ -46,7 +44,7 @@ func (hs *HeapSet) Len() int32 {
 	return int32(len(hs.heaps))
 }
 
-func (hs *HeapSet) Range(fn Range) {
+func (hs *HeapSet) Range(fn Rangeable) {
 	hs.RLock()
 
 	for i, h := range hs.heaps {

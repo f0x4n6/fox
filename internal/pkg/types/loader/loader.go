@@ -22,7 +22,6 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/compress/zstd"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/parser/evtx"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/parser/journal"
-	"github.com/cuhsat/fox/v4/internal/pkg/run"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
@@ -30,12 +29,19 @@ import (
 
 const Stdin = "-"
 
-type Loader struct {
-	heaps []*heap.Heap // temp heaps
+type Options struct {
+	Password  string
+	NoDeflate bool
+	NoConvert bool
 }
 
-func New() *Loader {
-	return new(Loader)
+type Loader struct {
+	opts  *Options     // loader options
+	heaps []*heap.Heap // result heaps
+}
+
+func New(opts *Options) *Loader {
+	return &Loader{opts: opts}
 }
 
 func (l *Loader) Load(paths []string) []*heap.Heap {
@@ -106,7 +112,7 @@ func (l *Loader) loadDir(path string) {
 func (l *Loader) loadFile(path string) {
 	base := path
 
-	if !run.CLI.NoDeflate {
+	if !l.opts.NoDeflate {
 		path = l.deflate(path, base)
 
 		if len(path) == 0 {
@@ -131,7 +137,7 @@ func (l *Loader) loadArchive(path, base string, fn files.Deflate) {
 		}
 	}()
 
-	items := fn(path, run.CLI.Pass)
+	items := fn(path, l.opts.Password)
 
 	if len(items) == 0 {
 		panic("no item(s)")
@@ -234,23 +240,7 @@ func (l *Loader) deflate(path, base string) string {
 }
 
 func (l *Loader) process(path string) string {
-	//if !flags.CLI.NoPlugins {
-	//for _, p := range l.plugins {
-	//	if p.Match(path) {
-	//		p.Execute(path, func(path, dir string) {
-	//			if len(dir) > 0 {
-	//				l.loadDir(dir) // load dir results
-	//			}
-	//
-	//			l.addPlugin(path, p.Name)
-	//		})
-	//
-	//		return ""
-	//	}
-	//}
-	//}
-
-	if !run.CLI.NoConvert {
+	if !l.opts.NoConvert {
 		if evtx.Detect(path) {
 			path = evtx.Parse(path)
 		}

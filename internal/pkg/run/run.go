@@ -1,13 +1,17 @@
 package run
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/alecthomas/kong"
+	"github.com/cuhsat/fox/v4/internal/pkg/text"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/heapset"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/loader"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/page"
 )
-
-var CLI = Globals{}
 
 type Globals struct {
 	// Commands
@@ -34,7 +38,7 @@ type Globals struct {
 	After   int      `short:"A"`
 
 	// Evidence bag
-	File string `short:"f" default:"evidence"`
+	File string `short:"f"`
 	Mode string `short:"m" enum:"none,text,json,jsonl,sqlite" default:"text"`
 
 	// Evidence sign
@@ -54,7 +58,7 @@ type Globals struct {
 	NoDeflate bool `long:"no-deflate"`
 	NoConvert bool `long:"no-convert"`
 
-	// Alias
+	// Aliases
 	Logstash bool `short:"L"`
 	Splunk   bool `short:"S"`
 	Sqlite   bool `short:"Q"`
@@ -203,39 +207,42 @@ type Show struct {
 	Paths []string `arg:"" name:"path" type:"path"`
 }
 
-func (cmd *Show) Run() error {
-	// ctx *kong.Context, cli *Globals
+func (cmd *Show) Run(ctx *kong.Context, cli *Globals) error {
+	hs := heapset.New(ctx.Args, &loader.Options{
+		Password:  cli.Pass,
+		NoDeflate: cli.NoDeflate,
+		NoConvert: cli.NoConvert,
+	})
 
-	//hs := heapset.New(ctx.Args)
-	//defer hs.ThrowAway()
-	//
-	//hs.Range(func(_ int, h *heap.Heap) bool {
-	//	if h.Type != types.Stdin {
-	//		if hs.Len() > 1 && !cli.NoFile {
-	//			fmt.Println(text.Block(h.String(), page.TermW))
-	//		}
-	//
-	//		if h.Size() == 0 {
-	//			return true // ignore empty files
-	//		}
-	//
-	//		for l := range page.Text(h, 2).Lines {
-	//			switch l.Nr {
-	//			case "--":
-	//				if !cli.NoLine {
-	//					fmt.Println("--")
-	//				}
-	//			default:
-	//				if !cli.NoLine {
-	//					fmt.Printf("%s %s\n", l.Nr, l)
-	//				} else {
-	//					fmt.Println(l)
-	//				}
-	//			}
-	//		}
-	//	}
-	//	return true
-	//})
+	defer hs.ThrowAway()
+
+	hs.Range(func(_ int, h *heap.Heap) bool {
+		if h.Type != types.Stdin {
+			if hs.Len() > 1 && !cli.NoFile {
+				fmt.Println(text.Block(h.String(), page.TermW))
+			}
+
+			if h.Size() == 0 {
+				return true // ignore empty files
+			}
+
+			for l := range page.Text(h, 2).Lines {
+				switch l.Nr {
+				case "--":
+					if !cli.NoLine {
+						fmt.Println("--")
+					}
+				default:
+					if !cli.NoLine {
+						fmt.Printf("%s %s\n", l.Nr, l)
+					} else {
+						fmt.Println(l)
+					}
+				}
+			}
+		}
+		return true
+	})
 
 	return nil
 }

@@ -125,8 +125,6 @@ Type "man fox" for more help...
 
 type Cli struct {
 	run.Globals
-
-	// Standard
 	Help    bool
 	Version bool
 }
