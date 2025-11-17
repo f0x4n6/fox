@@ -13,7 +13,7 @@ import (
 
 const Prefix = "fox: "
 
-func Exit(v ...any) {
+func Panic(v ...any) {
 	_, _ = fmt.Fprintf(os.Stderr, Prefix+"%s\n", v...)
 	os.Exit(1)
 }

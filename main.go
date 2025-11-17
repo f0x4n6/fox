@@ -11,11 +11,10 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/alecthomas/kong"
 	"github.com/cuhsat/fox/v4/internal"
-	"github.com/cuhsat/fox/v4/internal/pkg/run"
+	"github.com/cuhsat/fox/v4/internal/cmd"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 )
 
@@ -123,7 +122,7 @@ Type "man fox" for more help...
 `
 
 type Cli struct {
-	run.Globals
+	cmd.Globals
 	Help    bool
 	Version bool
 }
@@ -148,14 +147,8 @@ func main() {
 	case cli.Help || ctx.Error != nil || len(ctx.Args) == 0:
 		log.Printf(Usage, fox.Version, fox.Website)
 	default:
-		log.Print("init")
-		err := ctx.Run(&cli.Globals)
-
-		if err != nil {
+		if err := ctx.Run(&cli.Globals); err != nil {
 			log.Panic(err)
 		}
-
-		log.Print("exit")
-		os.Exit(0)
 	}
 }

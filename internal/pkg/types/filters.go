@@ -14,13 +14,13 @@ type Filters struct {
 
 func (f *Filters) FilterSMap(s *smap.SMap) *smap.SMap {
 	if f.Regex == nil {
-		return s
+		return s // not filtered
 	}
 
 	v := s.Grep(f.Regex)
 
 	if f.Before+f.After == 0 {
-		return v
+		return v // without context
 	}
 
 	r := make(smap.SMap, len(*v))
@@ -40,5 +40,5 @@ func (f *Filters) FilterSMap(s *smap.SMap) *smap.SMap {
 		}
 	}
 
-	return &r
+	return &r // with context
 }
