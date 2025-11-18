@@ -1,6 +1,7 @@
 package zip
 
 import (
+	"bytes"
 	"io"
 	"log"
 	"path/filepath"
@@ -9,24 +10,21 @@ import (
 	"github.com/cuhsat/zip/pkg/zip"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 )
 
-func Detect(path string) bool {
-	return files.HasMagic(path, 0, []byte{
+func Detect(b []byte) bool {
+	return files.HasMagic(b, 0, []byte{
 		0x50, 0x4B, 0x03, 0x04,
 	})
 }
 
-func Deflate(path, pass string) (e []files.Entry) {
-	r, err := zip.OpenReader(path)
+func Extract(b []byte, root, pass string) (e []files.Entry) {
+	r, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
 
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
-	defer sys.Handle(r.Close)
 
 	for _, f := range r.File {
 		if strings.HasSuffix(f.Name, "/") {
@@ -54,7 +52,7 @@ func Deflate(path, pass string) (e []files.Entry) {
 		}
 
 		e = append(e, files.Entry{
-			Name: filepath.Join(path, f.Name),
+			Name: filepath.Join(root, f.Name),
 			Data: buf,
 		})
 	}

@@ -3,7 +3,6 @@ package evtx
 import (
 	"bytes"
 	"log"
-	"os"
 
 	"github.com/0xrawsec/golang-evtx/evtx"
 
@@ -11,22 +10,14 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 )
 
-func Detect(path string) bool {
-	return files.HasMagic(path, 0, []byte{
-		0x45, 0x6C, 0x66, 0x46, 0x69, 0x6C, 0x65, 0x00,
+func Detect(b []byte) bool {
+	return files.HasMagic(b, 0, []byte{
+		'E', 'l', 'f', 'F', 'i', 'l', 'e', 0,
 	})
 }
 
-func Convert(path string) ([]byte, error) {
-	f, err := os.Open(path)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer sys.Handle(f.Close)
-
-	r, err := evtx.New(f)
+func Convert(b []byte) ([]byte, error) {
+	r, err := evtx.New(bytes.NewReader(b))
 
 	if err != nil {
 		return nil, err

@@ -2,11 +2,6 @@ package files
 
 import (
 	"bytes"
-	"io"
-	"log"
-	"os"
-
-	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 )
 
 type Entry struct {
@@ -14,30 +9,16 @@ type Entry struct {
 	Data []byte
 }
 
-type Deflate func(string, string) []Entry
+type Detect func([]byte) bool
 
-func HasMagic(path string, off int, mask []byte) bool {
-	buf := make([]byte, off+len(mask))
+type Deflate func([]byte) ([]byte, error)
 
-	f, err := os.Open(path)
+type Extract func([]byte, string, string) []Entry
 
-	if err != nil {
-		log.Println(err)
+func HasMagic(b []byte, o int, m []byte) bool {
+	if len(b) < o+len(m) {
 		return false
 	}
 
-	defer sys.Handle(f.Close)
-
-	n, err := io.ReadFull(f, buf)
-
-	if n < len(buf) {
-		return false
-	}
-
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-
-	return bytes.Equal(buf[off:], mask)
+	return bytes.Equal(b[o:o+len(m)], m)
 }

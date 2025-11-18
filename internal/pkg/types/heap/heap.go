@@ -1,8 +1,6 @@
 package heap
 
 import (
-	"log"
-	"os"
 	"runtime"
 	"sync"
 
@@ -31,46 +29,12 @@ type Heap struct {
 	size int64 // file size
 }
 
-func New(ctx *Context, src any) *Heap {
+func New(ctx *Context, m mmap.MMap) *Heap {
 	h := &Heap{
 		Name: ctx.Name,
 		Type: ctx.Type,
-	}
-
-	switch v := src.(type) {
-	case []byte:
-		h.mmap = src.(mmap.MMap)
-
-	case string:
-		f, err := os.Open(v)
-
-		if err != nil {
-			log.Println(err)
-		}
-
-		fi, err := f.Stat()
-
-		if err != nil {
-			log.Println(err)
-		}
-
-		h.size = fi.Size()
-
-		// empty files will cause issues
-		if h.size == 0 {
-			h.mmap = make(mmap.MMap, 0)
-		} else {
-			h.mmap, err = mmap.Map(f, mmap.RDONLY, 0)
-
-			if err != nil {
-				log.Println(err)
-			}
-
-			_ = f.Close()
-		}
-
-	default:
-		log.Fatal("invalid heap type")
+		mmap: m,
+		size: int64(len(m)),
 	}
 
 	// reduce mmap
@@ -121,14 +85,13 @@ func (h *Heap) String() string {
 func (h *Heap) ThrowAway() {
 	h.Lock()
 
-	h.size = 0
-	//h.smap = nil
+	if h.Type == types.Regular {
+		_ = h.mmap.Unmap()
+	}
 
-	// TODO
-	//if h.mmap != nil {
-	//	_ = h.mmap.Unmap()
-	//	h.mmap = nil
-	//}
+	h.mmap = nil
+	h.smap = nil
+	h.size = 0
 
 	h.Unlock()
 

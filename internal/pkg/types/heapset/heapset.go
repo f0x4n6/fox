@@ -24,6 +24,7 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
+	"github.com/edsrzf/mmap-go"
 )
 
 const Stdin = "-"
@@ -136,16 +137,106 @@ func (hs *HeapSet) loadDir(path string) {
 }
 
 func (hs *HeapSet) loadFile(path string) {
-	if !hs.opts.NoDeflate {
-		hs.deflate(path)
+	f, err := os.OpenFile(path, os.O_RDONLY, 0x400)
+
+	if err != nil {
+		log.Println(err)
+		return
 	}
 
-	if !hs.convert(path) {
-		hs.addFile(path)
+	defer sys.Handle(f.Close)
+
+	fi, err := f.Stat()
+
+	if err != nil {
+		log.Println(err)
+		return
 	}
+
+	// empty files will cause issues
+	if fi.Size() == 0 {
+		hs.addData(path, []byte{})
+		return
+	}
+
+	buf, err := mmap.Map(f, mmap.RDONLY, 0)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	///
+
+	if !hs.opts.NoDeflate {
+		ok := false
+
+		for {
+			buf, ok = hs.deflate(path, buf)
+
+			if !ok {
+				break
+			}
+		}
+	}
+
+	if !hs.opts.NoConvert {
+		if hs.convert(path, buf) {
+			return
+		}
+	}
+
+	hs.addFile(path, buf)
 }
 
-func (hs *HeapSet) loadArchive(path string, fn files.Deflate) {
+func (hs *HeapSet) deflate(path string, b []byte) ([]byte, bool) {
+	var err error
+
+	switch {
+	case br.Detect(b):
+		b, err = br.Deflate(b)
+	case bzip2.Detect(b):
+		b, err = bzip2.Deflate(b)
+	case gzip.Detect(b):
+		b, err = gzip.Deflate(b)
+	case lz4.Detect(b):
+		b, err = lz4.Deflate(b)
+	case xz.Detect(b):
+		b, err = xz.Deflate(b)
+	case zlib.Detect(b):
+		b, err = zlib.Deflate(b)
+	case zstd.Detect(b):
+		b, err = zstd.Deflate(b)
+	default:
+
+	}
+
+	if err != nil {
+		log.Println(err)
+		return true
+	}
+
+	if len(b) > 0 {
+		hs.addData(path, b)
+		return true
+	}
+
+	switch {
+	case rar.Detect(b):
+		hs.extract(path, rar.Extract)
+		return true
+	case tar.Detect(b):
+		hs.extract(path, tar.Extract)
+		return true
+	case zip.Detect(b):
+		hs.extract(path, zip.Extract)
+		return true
+	}
+
+	return false
+}
+
+func (hs *HeapSet) extract(path string, fn files.Extract) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Println("corrupted archive or wrong password")
@@ -176,73 +267,25 @@ func (hs *HeapSet) loadArchive(path string, fn files.Deflate) {
 	}
 }
 
-func (hs *HeapSet) deflate(path string) bool {
-	var buf []byte
-	var err error
-
+func (hs *HeapSet) convert(path string, b []byte) bool {
 	switch {
-	case br.Detect(path):
-		buf, err = br.Deflate(path)
-	case bzip2.Detect(path):
-		buf, err = bzip2.Deflate(path)
-	case gzip.Detect(path):
-		buf, err = gzip.Deflate(path)
-	case lz4.Detect(path):
-		buf, err = lz4.Deflate(path)
-	case xz.Detect(path):
-		buf, err = xz.Deflate(path)
-	case zlib.Detect(path):
-		buf, err = zlib.Deflate(path)
-	case zstd.Detect(path):
-		buf, err = zstd.Deflate(path)
-	}
-
-	if err != nil {
-		log.Println(err)
-		return true
-	}
-
-	if len(buf) > 0 {
-		hs.addData(path, buf)
-		return true
-	}
-
-	switch {
-	case rar.Detect(path):
-		hs.loadArchive(path, rar.Deflate)
-		return true
-	case tar.Detect(path):
-		hs.loadArchive(path, tar.Deflate)
-		return true
-	case zip.Detect(path):
-		hs.loadArchive(path, zip.Deflate)
-		return true
-	}
-
-	return false
-}
-
-func (hs *HeapSet) convert(path string) bool {
-	if !hs.opts.NoConvert {
-		switch {
-		case evtx.Detect(path):
-			if buf, err := evtx.Convert(path); err == nil {
-				hs.addData(path, buf)
-			} else {
-				log.Println(err)
-			}
-
-			return true
-
-		case journal.Detect(path):
-			if buf, err := journal.Convert(path); err == nil {
-				hs.addData(path, buf)
-			} else {
-				log.Println(err)
-			}
-
-			return true
+	case evtx.Detect(b):
+		if buf, err := evtx.Convert(b); err == nil {
+			hs.addData(path, buf)
+		} else {
+			log.Println(err)
 		}
+
+		return true
+
+	case journal.Detect(b):
+		if buf, err := journal.Convert(b); err == nil {
+			hs.addData(path, buf)
+		} else {
+			log.Println(err)
+		}
+
+		return true
 	}
 
 	return false
@@ -265,24 +308,24 @@ func (hs *HeapSet) addPipe() {
 	))
 }
 
-func (hs *HeapSet) addFile(path string) {
+func (hs *HeapSet) addFile(path string, b []byte) {
 	hs.heaps = append(hs.heaps, heap.New(
 		&heap.Context{
 			Name:   path,
 			Type:   types.Regular,
 			Limit:  hs.opts.Limit,
 			Filter: hs.opts.Filter,
-		}, path,
+		}, b,
 	))
 }
 
-func (hs *HeapSet) addData(name string, buf []byte) {
+func (hs *HeapSet) addData(name string, b []byte) {
 	hs.heaps = append(hs.heaps, heap.New(
 		&heap.Context{
 			Name:   name,
 			Type:   types.Deflate,
 			Limit:  hs.opts.Limit,
 			Filter: hs.opts.Filter,
-		}, buf,
+		}, b,
 	))
 }

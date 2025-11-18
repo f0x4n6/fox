@@ -54,14 +54,6 @@ func (s SMap) String() string {
 	return sb.String()
 }
 
-func (s SMap) Extern(fn func(str String)) SMap {
-	return apply(func(ch chan<- String, c *chunk) {
-		for _, s := range s[c.min:c.max] {
-			fn(s)
-		}
-	}, len(s))
-}
-
 func (s SMap) Render(e int) SMap {
 	tab := strings.Repeat(" ", e)
 	return apply(func(ch chan<- String, c *chunk) {

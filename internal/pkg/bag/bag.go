@@ -196,7 +196,7 @@ func modified(h *heap.Heap) time.Time {
 
 	if h.Type == types.Regular {
 		// TODO
-		//		fi, err := os.Stat(h.Base)
+		//		fi, err := os.Stat(h.Name)
 		//
 		//		if err == nil {
 		//			mt = fi.ModTime()
