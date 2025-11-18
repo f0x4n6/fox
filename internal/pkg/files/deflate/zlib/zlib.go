@@ -2,13 +2,12 @@ package zlib
 
 import (
 	"io"
-	"log"
+	"os"
 
 	"github.com/klauspost/compress/zlib"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 func Detect(path string) bool {
@@ -26,28 +25,22 @@ func Detect(path string) bool {
 	return false
 }
 
-func Deflate(path string) string {
-	a := fs.Open(path)
-	defer sys.Handler(a.Close)
-
-	r, err := zlib.NewReader(a)
+func Deflate(path string) ([]byte, error) {
+	f, err := os.Open(path)
 
 	if err != nil {
-		log.Println(err)
-		return path
+		return nil, err
 	}
 
-	defer sys.Handler(r.Close)
+	defer sys.Handle(f.Close)
 
-	t := fs.Create(path)
-	defer sys.Handler(t.Close)
-
-	_, err = io.Copy(t, r)
+	r, err := zlib.NewReader(f)
 
 	if err != nil {
-		log.Println(err)
-		return path
+		return nil, err
 	}
 
-	return t.Name()
+	defer sys.Handle(r.Close)
+
+	return io.ReadAll(r)
 }

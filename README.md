@@ -3,7 +3,7 @@
 The Swiss Army Knife for examining text files. Combining the power of many traditional tools like **grep**, **hexdump** and **strings** with the abilities of modern Large Language Models, to leverage your forensic examination process. Standalone binaries are available for Windows, Linux and macOS.
 
 ## Key Features
-* Read-only [forensic filesystem](https://forensic-examiner.eu/features/filesystem) abstraction
+* Read-only [filesystem](https://forensic-examiner.eu/features/filesystem) access only
 * Multibyte support with [bidirectional character](https://nvd.nist.gov/vuln/detail/CVE-2021-42574) detection
 * Built-in `grep`, `hexdump` and `strings` like [abilities](https://forensic-examiner.eu/start/usage/fox)
 * Built-in parsing of [Linux Journals](https://forensic-examiner.eu/files/logs/linux) and [Windows Event Logs](https://forensic-examiner.eu/files/logs/windows)

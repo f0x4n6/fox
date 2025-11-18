@@ -10,7 +10,6 @@ import (
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 func Detect(path string) bool {
@@ -19,21 +18,15 @@ func Detect(path string) bool {
 	})
 }
 
-func Deflate(path, pass string) (i []*files.Item) {
+func Deflate(path, pass string) (e []files.Entry) {
 	r, err := zip.OpenReader(path)
 
 	if err != nil {
 		log.Println(err)
-
-		i = append(i, &files.Item{
-			Path: path,
-			Name: path,
-		})
-
 		return
 	}
 
-	defer sys.Handler(r.Close)
+	defer sys.Handle(r.Close)
 
 	for _, f := range r.File {
 		if strings.HasSuffix(f.Name, "/") {
@@ -51,11 +44,8 @@ func Deflate(path, pass string) (i []*files.Item) {
 			continue
 		}
 
-		t := fs.Create(filepath.Join(path, f.Name))
+		buf, err := io.ReadAll(a)
 
-		_, err = io.Copy(t, a)
-
-		_ = t.Close()
 		_ = a.Close()
 
 		if err != nil {
@@ -63,9 +53,9 @@ func Deflate(path, pass string) (i []*files.Item) {
 			continue
 		}
 
-		i = append(i, &files.Item{
-			Path: t.Name(),
-			Name: f.Name,
+		e = append(e, files.Entry{
+			Name: filepath.Join(path, f.Name),
+			Data: buf,
 		})
 	}
 

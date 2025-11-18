@@ -12,7 +12,7 @@ type Filters struct {
 	After  int            // lines after
 }
 
-func (f *Filters) FilterSMap(s *smap.SMap) *smap.SMap {
+func (f *Filters) FilterSMap(s smap.SMap) smap.SMap {
 	if f.Regex == nil {
 		return s // not filtered
 	}
@@ -23,10 +23,10 @@ func (f *Filters) FilterSMap(s *smap.SMap) *smap.SMap {
 		return v // without context
 	}
 
-	r := make(smap.SMap, len(*v))
+	r := make(smap.SMap, len(v))
 
-	for grp, str := range *v {
-		for _, b := range (*s)[max((str.Nr-1)-f.Before, 0) : str.Nr-1] {
+	for grp, str := range v {
+		for _, b := range (s)[max((str.Nr-1)-f.Before, 0) : str.Nr-1] {
 			b.Grp = grp + 1
 			r = append(r, b)
 		}
@@ -34,11 +34,11 @@ func (f *Filters) FilterSMap(s *smap.SMap) *smap.SMap {
 		str.Grp = grp + 1
 		r = append(r, str)
 
-		for _, a := range (*s)[str.Nr:min(str.Nr+f.After, len(*s))] {
+		for _, a := range (s)[str.Nr:min(str.Nr+f.After, len(s))] {
 			a.Grp = grp + 1
 			r = append(r, a)
 		}
 	}
 
-	return &r // with context
+	return r // with context
 }

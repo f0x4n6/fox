@@ -3,6 +3,7 @@ package rar
 import (
 	"io"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -10,7 +11,6 @@ import (
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 func Detect(path string) bool {
@@ -19,9 +19,14 @@ func Detect(path string) bool {
 	})
 }
 
-func Deflate(path, pass string) (i []*files.Item) {
-	a := fs.Open(path)
-	defer sys.Handler(a.Close)
+func Deflate(path, pass string) (e []files.Entry) {
+	a, err := os.Open(path)
+
+	if err != nil {
+		return
+	}
+
+	defer sys.Handle(a.Close)
 
 	r, err := rardecode.NewReader(a, pass)
 
@@ -46,19 +51,16 @@ func Deflate(path, pass string) (i []*files.Item) {
 			continue
 		}
 
-		t := fs.Create(filepath.Join(path, h.Name))
-
-		_, err = io.Copy(t, r)
-		_ = t.Close()
+		buf, err := io.ReadAll(r)
 
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		i = append(i, &files.Item{
-			Path: t.Name(),
-			Name: h.Name,
+		e = append(e, files.Entry{
+			Name: filepath.Join(path, h.Name),
+			Data: buf,
 		})
 	}
 

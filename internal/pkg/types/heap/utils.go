@@ -18,7 +18,7 @@ func (h *Heap) Entropy(n, m float64) float64 {
 		a[b]++
 	}
 
-	l := float64(len(*h.MMap()))
+	l := float64(len(h.MMap()))
 
 	for i := range 256 {
 		if a[i] != 0 {
@@ -50,7 +50,7 @@ func (h *Heap) Strings(n, m int) <-chan text.String {
 func (h *Heap) stream(ch chan<- byte) {
 	h.RLock()
 
-	for _, b := range *h.mmap {
+	for _, b := range h.mmap {
 		ch <- b
 	}
 

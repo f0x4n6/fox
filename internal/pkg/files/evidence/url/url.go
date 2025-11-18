@@ -46,7 +46,7 @@ func (w *Url) Flush() {
 		return
 	}
 
-	defer sys.Handler(res.Body.Close)
+	defer sys.Handle(res.Body.Close)
 
 	if res.StatusCode != 200 {
 		log.Println(http.StatusText(res.StatusCode))

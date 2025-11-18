@@ -22,7 +22,7 @@ func BenchmarkMap(b *testing.B) {
 		_ = f.Close()
 	}(f)
 
-	defer func(m *mmap.MMap) {
+	defer func(m mmap.MMap) {
 		_ = m.Unmap()
 	}(m)
 
@@ -44,7 +44,7 @@ func BenchmarkRender(b *testing.B) {
 		_ = f.Close()
 	}(f)
 
-	defer func(m *mmap.MMap) {
+	defer func(m mmap.MMap) {
 		_ = m.Unmap()
 	}(m)
 
@@ -68,7 +68,7 @@ func BenchmarkFormat(b *testing.B) {
 		_ = f.Close()
 	}(f)
 
-	defer func(m *mmap.MMap) {
+	defer func(m mmap.MMap) {
 		_ = m.Unmap()
 	}(m)
 
@@ -92,7 +92,7 @@ func BenchmarkGrep(b *testing.B) {
 		_ = f.Close()
 	}(f)
 
-	defer func(m *mmap.MMap) {
+	defer func(m mmap.MMap) {
 		_ = m.Unmap()
 	}(m)
 
@@ -114,7 +114,7 @@ func TestMap(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(*Map(m)) != 31107 {
+	if len(Map(m)) != 31107 {
 		t.Fatal("wrong size")
 	}
 
@@ -126,9 +126,9 @@ func TestRender(t *testing.T) {
 	b := []byte("\ttest\n")
 	v := "  test\n"
 
-	s := Map((*mmap.MMap)(&b)).Render(2)
+	s := Map(b).Render(2)
 
-	if len(*s) != 1 {
+	if len(s) != 1 {
 		t.Fatal("wrong length")
 	}
 
@@ -141,9 +141,9 @@ func TestFormat(t *testing.T) {
 	b := []byte(`[{"test":123}]`)
 	v := "[\n  {\n    \"test\": 123\n  }\n]\n"
 
-	s := Map((*mmap.MMap)(&b)).Format(2)
+	s := Map(b).Format(2)
 
-	if len(*s) != 5 {
+	if len(s) != 5 {
 		t.Fatal("wrong length")
 	}
 
@@ -167,7 +167,7 @@ func TestGrep(t *testing.T) {
 	_ = m.Unmap()
 	_ = f.Close()
 
-	if len(*s) != 2 {
+	if len(s) != 2 {
 		t.Fatal("wrong length")
 	}
 
@@ -176,7 +176,7 @@ func TestGrep(t *testing.T) {
 	}
 }
 
-func fixture(name string) (*os.File, *mmap.MMap, error) {
+func fixture(name string) (*os.File, mmap.MMap, error) {
 	_, c, _, ok := runtime.Caller(0)
 
 	if !ok {
@@ -197,5 +197,5 @@ func fixture(name string) (*os.File, *mmap.MMap, error) {
 		return nil, nil, err
 	}
 
-	return f, &m, nil
+	return f, m, nil
 }

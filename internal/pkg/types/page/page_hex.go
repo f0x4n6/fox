@@ -26,7 +26,7 @@ func Hex(h *heap.Heap) (page *HexPage) {
 
 	page = new(HexPage)
 
-	mmap := *h.MMap()
+	mmap := h.MMap()
 
 	//limit := flags.CLI.Limits
 

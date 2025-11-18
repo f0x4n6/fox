@@ -108,7 +108,7 @@ func (cmd *Stat) Run(cli *Globals) error {
 			cli.Stat.Min,
 			cli.Stat.Max,
 		); e != -1 {
-			fmt.Printf("%8dL %8dB %.10f  %s\n", h.Len(), len(*h.MMap()), e, h.String())
+			fmt.Printf("%8dL %8dB %.10f  %s\n", h.Len(), len(h.MMap()), e, h.String())
 		}
 	}
 

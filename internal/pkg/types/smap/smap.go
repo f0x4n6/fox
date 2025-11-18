@@ -28,14 +28,14 @@ type chunk struct {
 	max int // chunk end
 }
 
-func Map(m *mmap.MMap) *SMap {
-	s := new(SMap)
+func Map(m mmap.MMap) SMap {
+	s := make(SMap, 0)
 
-	scanner := bufio.NewScanner(bytes.NewReader(*m))
+	scanner := bufio.NewScanner(bytes.NewReader(m))
 
 	for scanner.Scan() {
-		*s = append(*s, String{
-			Nr:  len(*s) + 1,
+		s = append(s, String{
+			Nr:  len(s) + 1,
 			Str: scanner.Text(),
 		})
 	}
@@ -43,10 +43,10 @@ func Map(m *mmap.MMap) *SMap {
 	return s
 }
 
-func (s *SMap) String() string {
+func (s SMap) String() string {
 	var sb strings.Builder
 
-	for _, str := range *s {
+	for _, str := range s {
 		sb.WriteString(str.Str)
 		sb.WriteRune('\n')
 	}
@@ -54,29 +54,29 @@ func (s *SMap) String() string {
 	return sb.String()
 }
 
-func (s *SMap) Extern(fn func(str String)) *SMap {
+func (s SMap) Extern(fn func(str String)) SMap {
 	return apply(func(ch chan<- String, c *chunk) {
-		for _, s := range (*s)[c.min:c.max] {
+		for _, s := range s[c.min:c.max] {
 			fn(s)
 		}
-	}, len(*s))
+	}, len(s))
 }
 
-func (s *SMap) Render(e int) *SMap {
+func (s SMap) Render(e int) SMap {
 	tab := strings.Repeat(" ", e)
 	return apply(func(ch chan<- String, c *chunk) {
-		for _, s := range (*s)[c.min:c.max] {
+		for _, s := range s[c.min:c.max] {
 			ch <- String{s.Nr, s.Grp, expand(s.Str, tab)}
 		}
-	}, len(*s))
+	}, len(s))
 }
 
-func (s *SMap) Format(e int) *SMap {
+func (s SMap) Format(e int) SMap {
 	tab := strings.Repeat(" ", e)
 	return apply(func(ch chan<- String, c *chunk) {
 		var buf bytes.Buffer
 
-		for _, s := range (*s)[c.min:c.max] {
+		for _, s := range s[c.min:c.max] {
 			buf.Reset()
 
 			if json.Indent(&buf, []byte(s.Str), "", tab) != nil {
@@ -88,25 +88,25 @@ func (s *SMap) Format(e int) *SMap {
 				ch <- String{s.Nr, s.Grp, string(b)}
 			}
 		}
-	}, len(*s))
+	}, len(s))
 }
 
-func (s *SMap) Grep(re *regexp.Regexp) *SMap {
+func (s SMap) Grep(re *regexp.Regexp) SMap {
 	return apply(func(ch chan<- String, c *chunk) {
-		for _, s := range (*s)[c.min:c.max] {
+		for _, s := range s[c.min:c.max] {
 			if re.MatchString(s.Str) {
 				ch <- s
 			}
 		}
-	}, len(*s))
+	}, len(s))
 }
 
-func (s *SMap) CanFormat() bool {
-	if len(*s) == 0 {
+func (s SMap) CanFormat() bool {
+	if len(s) == 0 {
 		return false
 	}
 
-	return json.Valid([]byte((*s)[0].Str))
+	return json.Valid([]byte(s[0].Str))
 }
 
 func chunks(n int) (c []*chunk) {
@@ -122,7 +122,7 @@ func chunks(n int) (c []*chunk) {
 	return
 }
 
-func apply(fn action, n int) *SMap {
+func apply(fn action, n int) SMap {
 	ch := make(chan String, n)
 
 	go func() {
@@ -145,7 +145,7 @@ func apply(fn action, n int) *SMap {
 	return sort(ch)
 }
 
-func sort(ch <-chan String) *SMap {
+func sort(ch <-chan String) SMap {
 	s := make(SMap, 0)
 
 	for str := range ch {
@@ -160,7 +160,7 @@ func sort(ch <-chan String) *SMap {
 		}
 	})
 
-	return &s
+	return s
 }
 
 func expand(s, t string) string {

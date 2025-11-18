@@ -1,17 +1,14 @@
 package evtx
 
 import (
+	"bytes"
 	"log"
+	"os"
 
 	"github.com/0xrawsec/golang-evtx/evtx"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
-)
-
-const (
-	lf = 0xa
 )
 
 func Detect(path string) bool {
@@ -20,35 +17,39 @@ func Detect(path string) bool {
 	})
 }
 
-func Parse(path string) string {
-	f := fs.Open(path)
-	defer sys.Handler(f.Close)
+func Convert(path string) ([]byte, error) {
+	f, err := os.Open(path)
 
-	t := fs.Create(path)
-	defer sys.Handler(t.Close)
+	if err != nil {
+		return nil, err
+	}
+
+	defer sys.Handle(f.Close)
 
 	r, err := evtx.New(f)
 
 	if err != nil {
-		log.Println(err)
-		return path
+		return nil, err
 	}
 
-	defer sys.Handler(r.Close)
+	defer sys.Handle(r.Close)
+
+	buf := bytes.NewBuffer(nil)
 
 	for e := range r.Events() {
-		_, err := t.Write(evtx.ToJSON(e))
+		_, err := buf.Write(evtx.ToJSON(e))
 
 		if err != nil {
 			log.Println(err)
+			continue
 		}
 
-		_, err = t.Write([]byte{lf})
+		_, err = buf.WriteRune('\n')
 
 		if err != nil {
 			log.Println(err)
 		}
 	}
 
-	return t.Name()
+	return buf.Bytes(), nil
 }

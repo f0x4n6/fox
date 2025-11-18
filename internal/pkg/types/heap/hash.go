@@ -70,7 +70,7 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 
 	imp.Reset()
 
-	_, err := imp.Write(*h.MMap())
+	_, err := imp.Write(h.MMap())
 
 	if err != nil {
 		return nil, err

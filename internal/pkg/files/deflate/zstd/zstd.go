@@ -2,13 +2,12 @@ package zstd
 
 import (
 	"io"
-	"log"
+	"os"
 
 	"github.com/klauspost/compress/zstd"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 func Detect(path string) bool {
@@ -30,28 +29,22 @@ func Detect(path string) bool {
 	return false
 }
 
-func Deflate(path string) string {
-	a := fs.Open(path)
-	defer sys.Handler(a.Close)
-
-	r, err := zstd.NewReader(a)
+func Deflate(path string) ([]byte, error) {
+	f, err := os.Open(path)
 
 	if err != nil {
-		log.Println(err)
-		return path
+		return nil, err
+	}
+
+	defer sys.Handle(f.Close)
+
+	r, err := zstd.NewReader(f)
+
+	if err != nil {
+		return nil, err
 	}
 
 	defer r.Close()
 
-	t := fs.Create(path)
-	defer sys.Handler(t.Close)
-
-	_, err = io.Copy(t, r)
-
-	if err != nil {
-		log.Println(err)
-		return path
-	}
-
-	return t.Name()
+	return io.ReadAll(r)
 }

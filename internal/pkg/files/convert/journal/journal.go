@@ -1,42 +1,46 @@
 package journal
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/Velocidex/go-journalctl/parser"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 func Detect(path string) bool {
 	return filepath.Ext(path) == ".journal"
 }
 
-func Parse(path string) string {
-	f := fs.Open(path)
-	defer sys.Handler(f.Close)
+func Convert(path string) ([]byte, error) {
+	f, err := os.Open(path)
 
-	t := fs.Create(path)
-	defer sys.Handler(t.Close)
+	if err != nil {
+		return nil, err
+	}
+
+	defer sys.Handle(f.Close)
 
 	j, err := parser.OpenFile(f)
 
 	if err != nil {
-		log.Println(err)
-		return path
+		return nil, err
 	}
 
+	buf := bytes.NewBuffer(nil)
+
 	for l := range j.GetLogs(context.Background()) {
-		_, err := t.WriteString(fmt.Sprintf("%v\n", l))
+		_, err := buf.WriteString(fmt.Sprintf("%v\n", l))
 
 		if err != nil {
 			log.Println(err)
 		}
 	}
 
-	return t.Name()
+	return buf.Bytes(), err
 }

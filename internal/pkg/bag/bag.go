@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"hash"
 	"log"
@@ -21,7 +22,6 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/ecs"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/hec"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/schema/raw"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
@@ -126,7 +126,7 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 			Modified: modified(h),
 		})
 
-		for _, str := range *h.SMap() {
+		for _, str := range h.SMap() {
 			w.WriteLine(str.Nr, str.Grp, str.Str)
 		}
 
@@ -141,7 +141,9 @@ func (bag *Bag) Put(h *heap.Heap) bool {
 }
 
 func (bag *Bag) init() {
-	old := fs.Exists(bag.path)
+	_, err := os.Stat(bag.path)
+
+	old := !errors.Is(err, os.ErrNotExist)
 
 	if bag.opts.Mode != types.NONE {
 		var err error
@@ -193,13 +195,14 @@ func modified(h *heap.Heap) time.Time {
 	mt := time.Now().UTC()
 
 	if h.Type == types.Regular {
-		fi, err := os.Stat(h.Base)
-
-		if err == nil {
-			mt = fi.ModTime()
-		} else {
-			log.Println(err)
-		}
+		// TODO
+		//		fi, err := os.Stat(h.Base)
+		//
+		//		if err == nil {
+		//			mt = fi.ModTime()
+		//		} else {
+		//			log.Println(err)
+		//		}
 	}
 
 	return mt

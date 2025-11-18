@@ -2,57 +2,31 @@ package sys
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"runtime/debug"
-
-	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
 const Prefix = "fox: "
 
-func Panic(v ...any) {
-	_, _ = fmt.Fprintf(os.Stderr, Prefix+"%s\n", v...)
-	os.Exit(1)
-}
-
-func Stdin() fs.File {
+func Stdin() ([]byte, error) {
 	if !Piped(os.Stdin) {
-		log.Panicln("Device mode is invalid")
+		return nil, errors.New("invalid device mode")
 	}
 
-	f := fs.Create("/fox/stdin")
+	b, err := io.ReadAll(bufio.NewReader(os.Stdin))
 
-	go func(f fs.File) {
-		r := bufio.NewReader(os.Stdin)
+	if err != nil {
+		return nil, err
+	}
 
-		for {
-			s, err := r.ReadString('\n')
-
-			switch err {
-			case nil:
-				_, err = f.WriteString(s)
-
-				if err != nil {
-					log.Println(err)
-				}
-
-			case io.EOF:
-				_ = f.Close()
-				break
-
-			default:
-				log.Println(err)
-			}
-		}
-	}(f)
-
-	return f
+	return b, nil
 }
 
-func Piped(file fs.File) bool {
+func Piped(file *os.File) bool {
 	fi, err := file.Stat()
 
 	if err != nil {
@@ -63,7 +37,7 @@ func Piped(file fs.File) bool {
 	return (fi.Mode() & os.ModeCharDevice) != os.ModeCharDevice
 }
 
-func Handler(fn func() error) {
+func Handle(fn func() error) {
 	_ = fn()
 }
 

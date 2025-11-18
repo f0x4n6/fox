@@ -4,41 +4,40 @@ import (
 	"bytes"
 	"io"
 	"log"
+	"os"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys/fs"
 )
 
-type Item struct {
-	Path string
+type Entry struct {
 	Name string
+	Data []byte
 }
 
-type Deflate func(string, string) []*Item
+type Deflate func(string, string) []Entry
 
-func HasMagic(p string, o int, m []byte) bool {
-	buf := make([]byte, o+len(m))
+func HasMagic(path string, off int, mask []byte) bool {
+	buf := make([]byte, off+len(mask))
 
-	f := fs.Open(p)
-	defer sys.Handler(f.Close)
-
-	fi, err := f.Stat()
+	f, err := os.Open(path)
 
 	if err != nil {
 		log.Println(err)
 		return false
 	}
 
-	if fi.Size() < int64(o+len(m)) {
+	defer sys.Handle(f.Close)
+
+	n, err := io.ReadFull(f, buf)
+
+	if n < len(buf) {
 		return false
 	}
-
-	_, err = io.ReadFull(f, buf)
 
 	if err != nil {
 		log.Println(err)
 		return false
 	}
 
-	return bytes.Equal(buf[o:], m)
+	return bytes.Equal(buf[off:], mask)
 }

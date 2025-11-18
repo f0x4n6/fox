@@ -11,7 +11,7 @@ import (
 type TextPage struct {
 	Y     int
 	N     int
-	SMap  *smap.SMap
+	SMap  smap.SMap
 	Lines chan *TextLine
 }
 
@@ -56,7 +56,7 @@ func textStream(page *TextPage) {
 	numSep, numGrp, lastGrp := 0, 1, 0
 
 	// stream lines
-	for _, str := range (*page.SMap)[page.Y:] {
+	for _, str := range page.SMap[page.Y:] {
 
 		// insert context separator
 		if lastGrp != str.Grp && numGrp > 1 {
