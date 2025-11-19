@@ -83,7 +83,7 @@ func (w *Writer) Flush() {
 		return
 	}
 
-	userId := w.insert(`users (login, Name)`,
+	userId := w.insert(`users (login, Path)`,
 		w.entry.user.login,
 		w.entry.user.name,
 	)

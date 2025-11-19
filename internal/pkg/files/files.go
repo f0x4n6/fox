@@ -5,7 +5,7 @@ import (
 )
 
 type Entry struct {
-	Name string
+	Path string
 	Data []byte
 }
 

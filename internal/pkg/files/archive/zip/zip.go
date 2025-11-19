@@ -52,7 +52,7 @@ func Extract(b []byte, root, pass string) (e []files.Entry) {
 		}
 
 		e = append(e, files.Entry{
-			Name: filepath.Join(root, f.Name),
+			Path: filepath.Join(root, f.Name),
 			Data: buf,
 		})
 	}

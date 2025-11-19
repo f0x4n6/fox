@@ -159,136 +159,100 @@ func (hs *HeapSet) loadFile(path string) {
 		return
 	}
 
-	buf, err := mmap.Map(f, mmap.RDONLY, 0)
+	b, err := mmap.Map(f, mmap.RDONLY, 0)
 
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	///
+	hs.process(path, b, false)
+}
+
+func (hs *HeapSet) process(path string, b []byte, data bool) {
+	var ok bool
 
 	if !hs.opts.NoDeflate {
-		ok := false
+		if b, ok = hs.deflate(b); ok {
+			data = true
+		}
 
-		for {
-			buf, ok = hs.deflate(path, buf)
-
-			if !ok {
-				break
-			}
+		if hs.extract(path, b) {
+			return
 		}
 	}
 
 	if !hs.opts.NoConvert {
-		if hs.convert(path, buf) {
-			return
+		if b, ok = hs.convert(b); ok {
+			data = true
 		}
 	}
 
-	hs.addFile(path, buf)
-}
-
-func (hs *HeapSet) deflate(path string, b []byte) ([]byte, bool) {
-	var err error
-
-	switch {
-	case br.Detect(b):
-		b, err = br.Deflate(b)
-	case bzip2.Detect(b):
-		b, err = bzip2.Deflate(b)
-	case gzip.Detect(b):
-		b, err = gzip.Deflate(b)
-	case lz4.Detect(b):
-		b, err = lz4.Deflate(b)
-	case xz.Detect(b):
-		b, err = xz.Deflate(b)
-	case zlib.Detect(b):
-		b, err = zlib.Deflate(b)
-	case zstd.Detect(b):
-		b, err = zstd.Deflate(b)
-	default:
-
-	}
-
-	if err != nil {
-		log.Println(err)
-		return true
-	}
-
-	if len(b) > 0 {
+	if data {
 		hs.addData(path, b)
-		return true
+	} else {
+		hs.addFile(path, b)
 	}
-
-	switch {
-	case rar.Detect(b):
-		hs.extract(path, rar.Extract)
-		return true
-	case tar.Detect(b):
-		hs.extract(path, tar.Extract)
-		return true
-	case zip.Detect(b):
-		hs.extract(path, zip.Extract)
-		return true
-	}
-
-	return false
 }
 
-func (hs *HeapSet) extract(path string, fn files.Extract) {
+func (hs *HeapSet) extract(path string, b []byte) bool {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("corrupted archive or wrong password")
+			log.Println("archive corrupt or password wrong")
 			return
 		}
 	}()
 
-	items := fn(path, hs.opts.Password)
+	var fn files.Extract
 
-	if len(items) == 0 {
-		panic("no item(s)")
+	switch {
+	case rar.Detect(b):
+		fn = rar.Extract
+	case tar.Detect(b):
+		fn = tar.Extract
+	case zip.Detect(b):
+		fn = zip.Extract
+	default:
+		return false
 	}
 
-	for _, i := range items {
-		i.Path = hs.deflate(i.Path)
-
-		if len(i.Path) == 0 {
-			continue
-		}
-
-		i.Path = hs.convert(i.Path)
-
-		if len(i.Path) == 0 {
-			continue
-		}
-
-		hs.addData(i.Path)
+	for _, e := range fn(b, path, hs.opts.Password) {
+		hs.process(e.Path, e.Data, true)
 	}
+
+	return true
 }
 
-func (hs *HeapSet) convert(path string, b []byte) bool {
+func (hs *HeapSet) deflate(b []byte) ([]byte, bool) {
 	switch {
-	case evtx.Detect(b):
-		if buf, err := evtx.Convert(b); err == nil {
-			hs.addData(path, buf)
-		} else {
-			log.Println(err)
-		}
-
-		return true
-
-	case journal.Detect(b):
-		if buf, err := journal.Convert(b); err == nil {
-			hs.addData(path, buf)
-		} else {
-			log.Println(err)
-		}
-
-		return true
+	case br.Detect(b):
+		return call(b, br.Deflate)
+	case bzip2.Detect(b):
+		return call(b, bzip2.Deflate)
+	case gzip.Detect(b):
+		return call(b, gzip.Deflate)
+	case lz4.Detect(b):
+		return call(b, lz4.Deflate)
+	case xz.Detect(b):
+		return call(b, xz.Deflate)
+	case zlib.Detect(b):
+		return call(b, zlib.Deflate)
+	case zstd.Detect(b):
+		return call(b, zstd.Deflate)
 	}
 
-	return false
+	return b, false
+}
+
+func (hs *HeapSet) convert(b []byte) ([]byte, bool) {
+	switch {
+	case evtx.Detect(b):
+		return call(b, evtx.Convert)
+	case journal.Detect(b):
+		return call(b, journal.Convert)
+	}
+
+	return b, false
 }
 
 func (hs *HeapSet) addPipe() {
@@ -298,6 +262,7 @@ func (hs *HeapSet) addPipe() {
 		log.Fatal(err)
 	}
 
+	hs.Lock()
 	hs.heaps = append(hs.heaps, heap.New(
 		&heap.Context{
 			Name:   Stdin,
@@ -306,9 +271,11 @@ func (hs *HeapSet) addPipe() {
 			Filter: hs.opts.Filter,
 		}, buf,
 	))
+	hs.Unlock()
 }
 
 func (hs *HeapSet) addFile(path string, b []byte) {
+	hs.Lock()
 	hs.heaps = append(hs.heaps, heap.New(
 		&heap.Context{
 			Name:   path,
@@ -317,9 +284,11 @@ func (hs *HeapSet) addFile(path string, b []byte) {
 			Filter: hs.opts.Filter,
 		}, b,
 	))
+	hs.Unlock()
 }
 
 func (hs *HeapSet) addData(name string, b []byte) {
+	hs.Lock()
 	hs.heaps = append(hs.heaps, heap.New(
 		&heap.Context{
 			Name:   name,
@@ -328,4 +297,14 @@ func (hs *HeapSet) addData(name string, b []byte) {
 			Filter: hs.opts.Filter,
 		}, b,
 	))
+	hs.Unlock()
+}
+
+func call(b []byte, fn func([]byte) ([]byte, error)) ([]byte, bool) {
+	if r, err := fn(b); err == nil {
+		return r, true
+	} else {
+		log.Println(err)
+		return b, false
+	}
 }

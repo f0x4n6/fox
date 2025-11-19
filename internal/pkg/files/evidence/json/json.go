@@ -33,7 +33,7 @@ type entry struct {
 
 		User struct {
 			Login string `json:"login"`
-			Name  string `json:"Name"`
+			Name  string `json:"Path"`
 		} `json:"User"`
 
 		Time struct {
