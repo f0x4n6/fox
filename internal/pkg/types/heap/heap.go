@@ -77,6 +77,10 @@ func (h *Heap) String() string {
 	switch h.Type {
 	case types.Stdin:
 		return "stdin"
+	case types.Stdout:
+		return "stdout"
+	case types.Stderr:
+		return "stderr"
 	default:
 		return h.Name
 	}

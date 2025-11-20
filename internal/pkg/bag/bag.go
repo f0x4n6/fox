@@ -195,14 +195,13 @@ func modified(h *heap.Heap) time.Time {
 	mt := time.Now().UTC()
 
 	if h.Type == types.Regular {
-		// TODO
-		//		fi, err := os.Stat(h.Path)
-		//
-		//		if err == nil {
-		//			mt = fi.ModTime()
-		//		} else {
-		//			log.Println(err)
-		//		}
+		fi, err := os.Stat(h.Name)
+
+		if err == nil {
+			mt = fi.ModTime()
+		} else {
+			log.Println(err)
+		}
 	}
 
 	return mt

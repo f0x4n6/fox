@@ -23,7 +23,7 @@ func Convert(b []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	defer sys.Handle(r.Close)
+	defer sys.Ignore(r.Close)
 
 	buf := bytes.NewBuffer(nil)
 

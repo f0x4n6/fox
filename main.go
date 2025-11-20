@@ -13,6 +13,7 @@ import (
 	"log"
 
 	"github.com/alecthomas/kong"
+
 	"github.com/cuhsat/fox/v4/internal"
 	"github.com/cuhsat/fox/v4/internal/cmd"
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
@@ -31,14 +32,14 @@ Positional arguments:
 Commands:
   HUNT     hunt down suspicious files
   HASH     show file content hashes
-  STAT     show file content stats
+  INFO     show file content stats
   TEXT     show file ASCII strings
   DUMP     show file in canonical hex
 
 Hash flags:
   -a, --type=ALGO[,ALGO]   use algorithm
 
-Stat flags:
+Info flags:
       --min=DECIMAL        minimum entropy value
       --max=DECIMAL        maximal entropy value
 
@@ -82,12 +83,12 @@ Turn off:
       --no-deflate         don't deflate automatically
       --no-convert         don't convert automatically
 
-Aliases:
+Shortcuts:
   -L, --logstash           short for: --ecs --url=http://localhost:8080
   -S, --splunk             short for: --hec --url=http://localhost:8088/...
-  -Q, --sqlite             short for: --mode=sqlite
-  -J, --jsonl              short for: --mode=jsonl
-  -j, --json               short for: --mode=json
+  -Q, --sqlite             short for: --file=YYYY-MM-DD --mode=sqlite
+  -J, --jsonl              short for: --file=YYYY-MM-DD --mode=jsonl
+  -j, --json               short for: --file=YYYY-MM-DD --mode=json
 
 Standard:
       --help               prints this message
@@ -110,7 +111,7 @@ Checksums:
   CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
 Example: dump the image MBR in hex format
-  $ fox dump -hc=512 image.dd > mbr
+  $ fox dump -hc512 image.dd > mbr
 
 Example: find occurrences in all logs
   $ fox -e "login" ./**/*.log

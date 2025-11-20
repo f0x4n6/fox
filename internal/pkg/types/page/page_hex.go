@@ -21,18 +21,16 @@ func (hl HexLine) String() string {
 	return fmt.Sprintf("%s %s|%-16s|", hl.Nr, hl.Hex, hl.Str)
 }
 
-func Hex(h *heap.Heap) (page *HexPage) {
+func Hex(h *heap.Heap, t int) (page *HexPage) {
 	var tail int
 
 	page = new(HexPage)
 
 	mmap := h.MMap()
 
-	//limit := flags.CLI.Limits
-
-	//if limit.IsTail && limit.Bytes > 0 {
-	//	tail = max(int(h.Size())-limit.Bytes, 0)
-	//}
+	if t > 0 {
+		tail = max(int(h.Size())-t, 0)
+	}
 
 	page.Lines = make(chan HexLine, Size)
 

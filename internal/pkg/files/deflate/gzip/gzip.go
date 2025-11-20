@@ -22,7 +22,7 @@ func Deflate(b []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	defer sys.Handle(r.Close)
+	defer sys.Ignore(r.Close)
 
 	return io.ReadAll(r)
 }

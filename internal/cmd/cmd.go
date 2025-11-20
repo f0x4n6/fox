@@ -17,7 +17,7 @@ type Hunt struct {
 	Paths []string `arg:"" name:"path" type:"path" optional:""`
 }
 
-type Stat struct {
+type Info struct {
 	Min   float64  `default:"0.0"`
 	Max   float64  `default:"1.0"`
 	Paths []string `arg:"" name:"path" type:"path" optional:""`
@@ -45,11 +45,11 @@ type Show struct {
 type Globals struct {
 	// Commands
 	Hunt Hunt `cmd:"" aliases:"u"`
-	Stat Stat `cmd:"" aliases:"i"`
-	Text Text `cmd:"" aliases:"s"`
+	Info Info `cmd:"" aliases:"i"`
+	Text Text `cmd:"" aliases:"s,strings"`
 	Hash Hash `cmd:"" aliases:"h"`
-	Dump Dump `cmd:"" aliases:"x"`
-	Show Show `cmd:"" default:"withargs" aliases:"p"`
+	Dump Dump `cmd:"" aliases:"x,hex"`
+	Show Show `cmd:"" default:"withargs" aliases:"p,print"`
 
 	// File limits
 	Head  bool `short:"h" xor:"head,tail"`
@@ -87,7 +87,7 @@ type Globals struct {
 	NoDeflate bool `long:"no-deflate"`
 	NoConvert bool `long:"no-convert"`
 
-	// Aliases
+	// Shortcuts
 	Logstash bool `short:"L"`
 	Splunk   bool `short:"S"`
 	Sqlite   bool `short:"Q"`
@@ -99,14 +99,14 @@ func (cmd *Hunt) Run(cli *Globals) error {
 	return nil // TODO
 }
 
-func (cmd *Stat) Run(cli *Globals) error {
-	hs := load(cli.Stat.Paths, cli)
+func (cmd *Info) Run(cli *Globals) error {
+	hs := load(cli.Info.Paths, cli)
 	defer hs.ThrowAway()
 
 	for _, h := range hs.Get() {
 		if e := h.Entropy(
-			cli.Stat.Min,
-			cli.Stat.Max,
+			cli.Info.Min,
+			cli.Info.Max,
 		); e != -1 {
 			fmt.Printf("%8dL %8dB %.10f  %s\n", h.Len(), len(h.MMap()), e, h.String())
 		}
@@ -167,12 +167,18 @@ func (cmd *Dump) Run(cli *Globals) error {
 	hs := load(cli.Dump.Paths, cli)
 	defer hs.ThrowAway()
 
+	t := 0
+
+	if cli.Tail {
+		t = cli.Bytes
+	}
+
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {
 			fmt.Println(text.Block(h.String(), page.TermW))
 		}
 
-		for l := range page.Hex(h).Lines {
+		for l := range page.Hex(h, t).Lines {
 			fmt.Println(l)
 		}
 	}

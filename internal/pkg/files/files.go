@@ -1,15 +1,13 @@
 package files
 
-import (
-	"bytes"
-)
+import "bytes"
 
 type Entry struct {
-	Path string
-	Data []byte
+	Path string // Entry path
+	Data []byte // Entry data
 }
 
-type Detect func([]byte) bool
+type Convert func([]byte) ([]byte, error)
 
 type Deflate func([]byte) ([]byte, error)
 

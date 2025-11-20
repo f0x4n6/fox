@@ -1,13 +1,17 @@
 package heapset
 
 import (
+	"bufio"
 	"errors"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"sync"
 
 	"github.com/bmatcuk/doublestar/v4"
+	"github.com/edsrzf/mmap-go"
+
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/rar"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/tar"
@@ -24,7 +28,6 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
-	"github.com/edsrzf/mmap-go"
 )
 
 const Stdin = "-"
@@ -46,7 +49,7 @@ type HeapSet struct {
 func New(paths []string, opts *Options) *HeapSet {
 	hs := HeapSet{opts: opts}
 
-	if sys.Piped(os.Stdin) {
+	if isPiped(os.Stdin) {
 		paths = append(paths, Stdin)
 	}
 
@@ -64,11 +67,6 @@ func New(paths []string, opts *Options) *HeapSet {
 
 		hs.loadPath(path)
 	}
-
-	//  TODO?
-	//	if len(hs.heaps) == 0 {
-	//		log.Fatal("could not load any files")
-	//	}
 
 	return &hs
 }
@@ -144,7 +142,7 @@ func (hs *HeapSet) loadFile(path string) {
 		return
 	}
 
-	defer sys.Handle(f.Close)
+	defer sys.Ignore(f.Close)
 
 	fi, err := f.Stat()
 
@@ -195,6 +193,58 @@ func (hs *HeapSet) process(path string, b []byte, data bool) {
 	}
 }
 
+func (hs *HeapSet) convert(b []byte) ([]byte, bool) {
+	var fn files.Convert
+
+	switch {
+	case evtx.Detect(b):
+		fn = evtx.Convert
+	case journal.Detect(b):
+		fn = journal.Convert
+	default:
+		return b, false
+	}
+
+	r, err := fn(b)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return r, true
+}
+
+func (hs *HeapSet) deflate(b []byte) ([]byte, bool) {
+	var fn files.Deflate
+
+	switch {
+	case br.Detect(b):
+		fn = br.Deflate
+	case bzip2.Detect(b):
+		fn = bzip2.Deflate
+	case gzip.Detect(b):
+		fn = gzip.Deflate
+	case lz4.Detect(b):
+		fn = lz4.Deflate
+	case xz.Detect(b):
+		fn = xz.Deflate
+	case zlib.Detect(b):
+		fn = zlib.Deflate
+	case zstd.Detect(b):
+		fn = zstd.Deflate
+	default:
+		return b, false
+	}
+
+	r, err := fn(b)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return r, true
+}
+
 func (hs *HeapSet) extract(path string, b []byte) bool {
 	defer func() {
 		if err := recover(); err != nil {
@@ -216,47 +266,28 @@ func (hs *HeapSet) extract(path string, b []byte) bool {
 		return false
 	}
 
+	var wg sync.WaitGroup
+
 	for _, e := range fn(b, path, hs.opts.Password) {
-		hs.process(e.Path, e.Data, true)
+		wg.Add(1)
+
+		go func() {
+			hs.process(e.Path, e.Data, true)
+			wg.Done()
+		}()
 	}
+
+	wg.Wait()
 
 	return true
 }
 
-func (hs *HeapSet) deflate(b []byte) ([]byte, bool) {
-	switch {
-	case br.Detect(b):
-		return call(b, br.Deflate)
-	case bzip2.Detect(b):
-		return call(b, bzip2.Deflate)
-	case gzip.Detect(b):
-		return call(b, gzip.Deflate)
-	case lz4.Detect(b):
-		return call(b, lz4.Deflate)
-	case xz.Detect(b):
-		return call(b, xz.Deflate)
-	case zlib.Detect(b):
-		return call(b, zlib.Deflate)
-	case zstd.Detect(b):
-		return call(b, zstd.Deflate)
-	}
-
-	return b, false
-}
-
-func (hs *HeapSet) convert(b []byte) ([]byte, bool) {
-	switch {
-	case evtx.Detect(b):
-		return call(b, evtx.Convert)
-	case journal.Detect(b):
-		return call(b, journal.Convert)
-	}
-
-	return b, false
-}
-
 func (hs *HeapSet) addPipe() {
-	buf, err := sys.Stdin()
+	if !isPiped(os.Stdin) {
+		log.Fatal("stdin not open")
+	}
+
+	buf, err := io.ReadAll(bufio.NewReader(os.Stdin))
 
 	if err != nil {
 		log.Fatal(err)
@@ -300,11 +331,12 @@ func (hs *HeapSet) addData(name string, b []byte) {
 	hs.Unlock()
 }
 
-func call(b []byte, fn func([]byte) ([]byte, error)) ([]byte, bool) {
-	if r, err := fn(b); err == nil {
-		return r, true
-	} else {
-		log.Println(err)
-		return b, false
+func isPiped(f *os.File) bool {
+	fi, err := f.Stat()
+
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	return (fi.Mode() & os.ModeCharDevice) != os.ModeCharDevice
 }

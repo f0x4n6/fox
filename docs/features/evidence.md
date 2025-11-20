@@ -89,7 +89,7 @@ The evidence can also be streamed as `application/json` to a [Splunk HTTP Event 
   "time": 1766576096000,
   "source": "Forensic Examiner",
   "sourcetype": "_json",
-  "index": "TODO",
+  "index": "fox",
   "event": {
     "user": "jd (John Doe)",
     "path": "/hello.txt",

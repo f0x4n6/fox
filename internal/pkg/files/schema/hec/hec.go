@@ -56,7 +56,7 @@ func (hec *Hec) Headers() map[string]string {
 
 func (hec *Hec) SetMeta(meta evidence.Meta) {
 	hec.Time = meta.Seized.UnixMilli()
-	//hec.Index
+	hec.Index = "fox"
 
 	hec.Event.User = fmt.Sprintf("%s (%s)", meta.User.Username, meta.User.Name)
 	hec.Event.Hash = fmt.Sprintf("%x", meta.Hash)
