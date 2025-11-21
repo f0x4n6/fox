@@ -1,4 +1,4 @@
-package page
+package buffer
 
 const (
 	Sep = "--"
@@ -14,6 +14,6 @@ const (
 
 type Line struct {
 	Nr  string
-	Grp int
+	Grp uint
 	Str string
 }

@@ -18,14 +18,14 @@ type action func(ch chan<- String, c *chunk)
 type SMap []String
 
 type String struct {
-	Nr  int    // string nr
-	Grp int    // string group
+	Nr  uint   // string nr
+	Grp uint   // string group
 	Str string // string data
 }
 
 type chunk struct {
-	min int // chunk start
-	max int // chunk end
+	min uint // chunk start
+	max uint // chunk end
 }
 
 func Map(m mmap.MMap) SMap {
@@ -35,7 +35,7 @@ func Map(m mmap.MMap) SMap {
 
 	for scanner.Scan() {
 		s = append(s, String{
-			Nr:  len(s) + 1,
+			Nr:  uint(len(s)) + 1,
 			Str: scanner.Text(),
 		})
 	}
@@ -106,8 +106,8 @@ func chunks(n int) (c []*chunk) {
 
 	for i := range m {
 		c = append(c, &chunk{
-			min: i * n / m,
-			max: ((i + 1) * n) / m,
+			min: uint(i * n / m),
+			max: uint(((i + 1) * n) / m),
 		})
 	}
 
@@ -146,9 +146,9 @@ func sort(ch <-chan String) SMap {
 
 	slices.SortStableFunc(s, func(a, b String) int {
 		if a.Grp != b.Grp {
-			return a.Grp - b.Grp
+			return int(a.Grp - b.Grp)
 		} else {
-			return a.Nr - b.Nr
+			return int(a.Nr - b.Nr)
 		}
 	})
 

@@ -8,5 +8,5 @@ type Schema interface {
 	String() string
 	Headers() map[string]string
 	SetMeta(meta evidence.Meta)
-	AddLine(nr, grp int, str string)
+	AddLine(nr, grp uint, str string)
 }

@@ -193,58 +193,6 @@ func (hs *HeapSet) process(path string, b []byte, data bool) {
 	}
 }
 
-func (hs *HeapSet) convert(b []byte) ([]byte, bool) {
-	var fn files.Convert
-
-	switch {
-	case evtx.Detect(b):
-		fn = evtx.Convert
-	case journal.Detect(b):
-		fn = journal.Convert
-	default:
-		return b, false
-	}
-
-	r, err := fn(b)
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	return r, true
-}
-
-func (hs *HeapSet) deflate(b []byte) ([]byte, bool) {
-	var fn files.Deflate
-
-	switch {
-	case br.Detect(b):
-		fn = br.Deflate
-	case bzip2.Detect(b):
-		fn = bzip2.Deflate
-	case gzip.Detect(b):
-		fn = gzip.Deflate
-	case lz4.Detect(b):
-		fn = lz4.Deflate
-	case xz.Detect(b):
-		fn = xz.Deflate
-	case zlib.Detect(b):
-		fn = zlib.Deflate
-	case zstd.Detect(b):
-		fn = zstd.Deflate
-	default:
-		return b, false
-	}
-
-	r, err := fn(b)
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	return r, true
-}
-
 func (hs *HeapSet) extract(path string, b []byte) bool {
 	defer func() {
 		if err := recover(); err != nil {
@@ -280,6 +228,58 @@ func (hs *HeapSet) extract(path string, b []byte) bool {
 	wg.Wait()
 
 	return true
+}
+
+func (hs *HeapSet) deflate(b []byte) ([]byte, bool) {
+	var fn files.Deflate
+
+	switch {
+	case br.Detect(b):
+		fn = br.Deflate
+	case bzip2.Detect(b):
+		fn = bzip2.Deflate
+	case gzip.Detect(b):
+		fn = gzip.Deflate
+	case lz4.Detect(b):
+		fn = lz4.Deflate
+	case xz.Detect(b):
+		fn = xz.Deflate
+	case zlib.Detect(b):
+		fn = zlib.Deflate
+	case zstd.Detect(b):
+		fn = zstd.Deflate
+	default:
+		return b, false
+	}
+
+	r, err := fn(b)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return r, true
+}
+
+func (hs *HeapSet) convert(b []byte) ([]byte, bool) {
+	var fn files.Convert
+
+	switch {
+	case evtx.Detect(b):
+		fn = evtx.Convert
+	case journal.Detect(b):
+		fn = journal.Convert
+	default:
+		return b, false
+	}
+
+	r, err := fn(b)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return r, true
 }
 
 func (hs *HeapSet) addPipe() {

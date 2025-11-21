@@ -41,8 +41,8 @@ type entry struct {
 }
 
 type value struct {
-	nr    int
-	grp   int
+	nr    uint
+	grp   uint
 	value string
 }
 
@@ -129,7 +129,7 @@ func (w *Writer) WriteMeta(meta evidence.Meta) {
 	w.entry.user.name = meta.User.Name
 }
 
-func (w *Writer) WriteLine(nr, grp int, str string) {
+func (w *Writer) WriteLine(nr, grp uint, str string) {
 	w.entry.file.lines = append(w.entry.file.lines, value{nr, grp, str})
 }
 

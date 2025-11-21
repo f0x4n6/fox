@@ -33,7 +33,7 @@ func (raw *Raw) SetMeta(meta evidence.Meta) {
 	raw.headers["x-evidence-hash"] = fmt.Sprintf("%x", meta.Hash)
 }
 
-func (raw *Raw) AddLine(_, _ int, str string) {
+func (raw *Raw) AddLine(_, _ uint, str string) {
 	raw.content.WriteString(str)
 	raw.content.WriteRune('\n')
 }

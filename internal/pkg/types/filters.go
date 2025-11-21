@@ -8,8 +8,8 @@ import (
 
 type Filters struct {
 	Regex  *regexp.Regexp // regex pattern
-	Before int            // lines before
-	After  int            // lines after
+	Before uint           // lines before
+	After  uint           // lines after
 }
 
 func (f *Filters) FilterSMap(s smap.SMap) smap.SMap {
@@ -27,15 +27,15 @@ func (f *Filters) FilterSMap(s smap.SMap) smap.SMap {
 
 	for grp, str := range v {
 		for _, b := range (s)[max((str.Nr-1)-f.Before, 0) : str.Nr-1] {
-			b.Grp = grp + 1
+			b.Grp = uint(grp + 1)
 			r = append(r, b)
 		}
 
-		str.Grp = grp + 1
+		str.Grp = uint(grp + 1)
 		r = append(r, str)
 
-		for _, a := range (s)[str.Nr:min(str.Nr+f.After, len(s))] {
-			a.Grp = grp + 1
+		for _, a := range (s)[str.Nr:min(str.Nr+f.After, uint(len(s)))] {
+			a.Grp = uint(grp + 1)
 			r = append(r, a)
 		}
 	}

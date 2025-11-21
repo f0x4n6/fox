@@ -2,15 +2,15 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/0xrawsec/golang-utils/log"
 	"github.com/cuhsat/fox/v4/internal/pkg/text"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/buffer"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heapset"
-	"github.com/cuhsat/fox/v4/internal/pkg/types/page"
 )
 
 type Hunt struct {
@@ -24,8 +24,8 @@ type Info struct {
 }
 
 type Text struct {
-	Min   int      `default:"3"`
-	Max   int      `default:"256"`
+	Min   uint     `default:"3"`
+	Max   uint     `default:"256"`
 	Paths []string `arg:"" name:"path" type:"path" optional:""`
 }
 
@@ -45,7 +45,7 @@ type Show struct {
 type Globals struct {
 	// Commands
 	Hunt Hunt `cmd:"" aliases:"u"`
-	Info Info `cmd:"" aliases:"i"`
+	Info Info `cmd:"" aliases:"i,wc"`
 	Text Text `cmd:"" aliases:"s,strings"`
 	Hash Hash `cmd:"" aliases:"h"`
 	Dump Dump `cmd:"" aliases:"x,hex"`
@@ -54,21 +54,21 @@ type Globals struct {
 	// File limits
 	Head  bool `short:"h" xor:"head,tail"`
 	Tail  bool `short:"t" xor:"head,tail"`
-	Lines int  `short:"n" default:"10"`
-	Bytes int  `short:"c" default:"16"`
+	Lines uint `short:"n"`
+	Bytes uint `short:"c"`
 
 	// File loader
 	Pass string `short:"p"`
 
 	// Line filter
 	Regex   string `short:"e"`
-	Context int    `short:"C"`
-	Before  int    `short:"B"`
-	After   int    `short:"A"`
+	Context uint   `short:"C"`
+	Before  uint   `short:"B"`
+	After   uint   `short:"A"`
 
 	// Evidence bag
 	File string `short:"f"`
-	Mode string `short:"m" enum:"none,text,json,jsonl,sqlite" default:"text"`
+	Mode string `short:"m" enum:"none,text,json,jsonl,sqlite" default:"none"`
 
 	// Evidence sign
 	Sign string `short:"s"`
@@ -104,10 +104,10 @@ func (cmd *Info) Run(cli *Globals) error {
 	defer hs.ThrowAway()
 
 	for _, h := range hs.Get() {
-		if e := h.Entropy(
+		if e, ok := h.Entropy(
 			cli.Info.Min,
 			cli.Info.Max,
-		); e != -1 {
+		); ok {
 			fmt.Printf("%8dL %8dB %.10f  %s\n", h.Len(), len(h.MMap()), e, h.String())
 		}
 	}
@@ -125,9 +125,9 @@ func (cmd *Text) Run(cli *Globals) error {
 			cli.Text.Max,
 		) {
 			if !cli.NoLine {
-				fmt.Printf("%08x  %s\n", s.Off, strings.TrimSpace(s.Str))
+				fmt.Printf("%08x  %s\n", s.Off, s.Str)
 			} else {
-				fmt.Println(strings.TrimSpace(s.Str))
+				fmt.Println(s.Str)
 			}
 		}
 	}
@@ -141,14 +141,14 @@ func (cmd *Hash) Run(cli *Globals) error {
 
 	for _, algo := range cli.Hash.Type {
 		if len(cli.Hash.Type) > 1 {
-			fmt.Println(text.Block(strings.ToUpper(algo), page.TermW))
+			fmt.Println(text.Block(strings.ToUpper(algo), buffer.TermW))
 		}
 
 		for _, h := range hs.Get() {
 			sum, err := h.HashSum(algo)
 
 			if err != nil {
-				log.Errorf("could not compute hash: %s", err.Error())
+				log.Printf("could not compute hash: %s", err.Error())
 			}
 
 			switch algo {
@@ -167,7 +167,7 @@ func (cmd *Dump) Run(cli *Globals) error {
 	hs := load(cli.Dump.Paths, cli)
 	defer hs.ThrowAway()
 
-	t := 0
+	var t uint
 
 	if cli.Tail {
 		t = cli.Bytes
@@ -175,10 +175,10 @@ func (cmd *Dump) Run(cli *Globals) error {
 
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {
-			fmt.Println(text.Block(h.String(), page.TermW))
+			fmt.Println(text.Block(h.String(), buffer.TermW))
 		}
 
-		for l := range page.Hex(h, t).Lines {
+		for l := range buffer.Hex(h, t).Lines {
 			fmt.Println(l)
 		}
 	}
@@ -192,11 +192,11 @@ func (cmd *Show) Run(cli *Globals) error {
 
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {
-			fmt.Println(text.Block(h.String(), page.TermW))
+			fmt.Println(text.Block(h.String(), buffer.TermW))
 		}
 
-		for l := range page.Text(h, 2).Lines {
-			if !cli.NoLine && l.Nr == page.Sep {
+		for l := range buffer.Text(h, 2).Lines {
+			if !cli.NoLine && l.Nr == buffer.Sep {
 				fmt.Println("--")
 			} else if !cli.NoLine {
 				fmt.Printf("%s %s\n", l.Nr, l)

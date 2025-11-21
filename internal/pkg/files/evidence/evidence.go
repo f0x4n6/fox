@@ -13,7 +13,7 @@ type Writer interface {
 	Flush()
 
 	WriteMeta(meta Meta)
-	WriteLine(nr, grp int, str string)
+	WriteLine(nr, grp uint, str string)
 }
 
 type Meta struct {

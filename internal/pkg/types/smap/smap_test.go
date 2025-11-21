@@ -153,7 +153,7 @@ func TestFormat(t *testing.T) {
 }
 
 func TestGrep(t *testing.T) {
-	f, m, err := fixture("test.ioc")
+	f, m, err := fixture("test.xyz")
 	v := "test@example.org\nhttps://example.org\n"
 
 	if err != nil {

@@ -48,8 +48,8 @@ type entry struct {
 }
 
 type line struct {
-	Nr   int    `json:"nr"`
-	Grp  int    `json:"grp"`
+	Nr   uint   `json:"nr"`
+	Grp  uint   `json:"grp"`
 	Data string `json:"data"`
 }
 
@@ -105,6 +105,6 @@ func (w *Writer) WriteMeta(meta evidence.Meta) {
 	w.entry.Metadata.User.Name = meta.User.Name
 }
 
-func (w *Writer) WriteLine(nr, grp int, str string) {
+func (w *Writer) WriteLine(nr, grp uint, str string) {
 	w.entry.Lines = append(w.entry.Lines, line{nr, grp, str})
 }

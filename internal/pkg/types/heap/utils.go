@@ -2,19 +2,21 @@ package heap
 
 import (
 	"math"
+	"strings"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/text"
 )
 
-func (h *Heap) Entropy(n, m float64) float64 {
+type String struct {
+	Off uint
+	Str string
+}
+
+func (h *Heap) Entropy(min, max float64) (float64, bool) {
 	var a [256]float64
 	var v float64
 
-	ch := make(chan byte, 1024)
-
-	go h.stream(ch)
-
-	for b := range ch {
+	for _, b := range h.mmap {
 		a[b]++
 	}
 
@@ -29,32 +31,49 @@ func (h *Heap) Entropy(n, m float64) float64 {
 
 	v /= 8
 
-	if v < n || v > m {
-		return -1 // filtered
+	// heap filtered
+	if v < min || v > max {
+		return 0, false
 	}
 
-	return v
+	return v, true
 }
 
-func (h *Heap) Strings(n, m int) <-chan text.String {
-	ch := make(chan byte, 1024)
+func (h *Heap) Strings(min, max uint) <-chan String {
+	var buf []byte
+	var off int
 
-	str := make(chan text.String)
+	ch := make(chan String)
 
-	go h.stream(ch)
-	go text.Carve(ch, str, n, m)
+	flush := func() {
+		v := uint(len(buf))
 
-	return str
-}
+		if v < min && v > max {
+			return
+		}
 
-func (h *Heap) stream(ch chan<- byte) {
-	h.RLock()
+		str := string(buf)
 
-	for _, b := range h.mmap {
-		ch <- b
+		if len(strings.TrimSpace(str)) > 0 {
+			ch <- String{uint(off - (len(buf) + 1)), str}
+		}
+
+		buf = buf[:0]
 	}
 
-	h.RUnlock()
+	go func() {
+		defer flush()
 
-	close(ch)
+		for _, b := range h.mmap {
+			off++
+
+			if b >= text.MinASCII && b <= text.MaxASCII {
+				buf = append(buf, b)
+			} else {
+				flush()
+			}
+		}
+	}()
+
+	return ch
 }

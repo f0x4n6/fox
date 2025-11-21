@@ -46,7 +46,7 @@ func (w *Writer) WriteMeta(meta evidence.Meta) {
 	w.write("%s\n", strings.Repeat("-", width))
 }
 
-func (w *Writer) WriteLine(nr, grp int, str string) {
+func (w *Writer) WriteLine(nr, grp uint, str string) {
 	w.write("%d:%d %s\n", nr, grp, str)
 }
 

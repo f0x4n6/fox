@@ -57,6 +57,6 @@ func (w *Url) WriteMeta(meta evidence.Meta) {
 	w.scm.SetMeta(meta)
 }
 
-func (w *Url) WriteLine(nr, grp int, str string) {
+func (w *Url) WriteLine(nr, grp uint, str string) {
 	w.scm.AddLine(nr, grp, str)
 }

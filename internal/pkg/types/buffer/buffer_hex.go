@@ -1,4 +1,4 @@
-package page
+package buffer
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
 
-type HexPage struct {
+type HexBuffer struct {
 	Lines chan HexLine
 }
 
@@ -21,30 +21,30 @@ func (hl HexLine) String() string {
 	return fmt.Sprintf("%s %s|%-16s|", hl.Nr, hl.Hex, hl.Str)
 }
 
-func Hex(h *heap.Heap, t int) (page *HexPage) {
-	var tail int
+func Hex(h *heap.Heap, t uint) (buf *HexBuffer) {
+	var off uint
 
-	page = new(HexPage)
+	buf = new(HexBuffer)
 
 	mmap := h.MMap()
 
 	if t > 0 {
-		tail = max(int(h.Size())-t, 0)
+		off = max(uint(h.Size())-t, 0)
 	}
 
-	page.Lines = make(chan HexLine, Size)
+	buf.Lines = make(chan HexLine, Size)
 
 	// stream lines
-	go hexStream(page, tail, mmap[:])
+	go hexStream(buf, off, mmap[:])
 
 	return
 }
 
-func hexStream(page *HexPage, t int, b []byte) {
-	defer close(page.Lines)
+func hexStream(buf *HexBuffer, o uint, b []byte) {
+	defer close(buf.Lines)
 
 	for i := 0; i < len(b); i += 16 {
-		nr := fmt.Sprintf("%08x ", t+i)
+		nr := fmt.Sprintf("%08x ", o+uint(i))
 
 		line := HexLine{
 			Line: Line{Nr: nr, Str: ""},
@@ -70,6 +70,6 @@ func hexStream(page *HexPage, t int, b []byte) {
 		line.Hex = fmt.Sprintf("%-*s", 50, line.Hex)
 		line.Str = text.ToASCII(line.Str)
 
-		page.Lines <- line
+		buf.Lines <- line
 	}
 }

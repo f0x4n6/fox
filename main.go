@@ -10,6 +10,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/alecthomas/kong"
@@ -37,21 +38,21 @@ Commands:
   DUMP     show file in canonical hex
 
 Hash flags:
-  -a, --type=ALGO[,ALGO]   use algorithm
+      --type=ALGO[,ALGO]   use algorithm (default: SHA256)
 
 Info flags:
-      --min=DECIMAL        minimum entropy value
-      --max=DECIMAL        maximal entropy value
+      --min=DECIMAL        minimum entropy value (default: 0.0)
+      --max=DECIMAL        maximal entropy value (default: 1.0)
 
 Text flags:
-      --min=NUMBER         minimum string length
-      --max=NUMBER         maximal string length
+      --min=NUMBER         minimum string length (default: 3)
+      --max=NUMBER         maximal string length (default: 256)
 
 File limits:
   -h, --head               limit head of file by ...
   -t, --tail               limit tail of file by ...
-  -n, --lines[=NUMBER]     number of lines (default: 10)
-  -c, --bytes[=NUMBER]     number of bytes (default: 16)
+  -n, --lines=NUMBER       number of lines
+  -c, --bytes=NUMBER       number of bytes
 
 File loader:
   -p, --pass=PASSWORD      password for decryption (only RAR, ZIP)
@@ -64,7 +65,7 @@ Line filter:
 
 Evidence bag:
   -f, --file=FILE          evidence bag file name (default: YYYY-MM-DD)
-  -m, --mode=MODE          evidence bag file mode (default: text)
+  -m, --mode=MODE          evidence bag file mode (default: none)
 
 Evidence sign:
   -s, --sign=PHRASE        key phrase to sign evidence bag via HMAC-SHA256
@@ -144,9 +145,9 @@ func main() {
 
 	switch {
 	case cli.Version:
-		log.Printf("%s %s\n", fox.Product, fox.Version)
+		fmt.Printf("%s %s\n", fox.Product, fox.Version)
 	case cli.Help || ctx.Error != nil || len(ctx.Args) == 0:
-		log.Printf(Usage, fox.Version, fox.Website)
+		fmt.Printf(Usage, fox.Version, fox.Website)
 	default:
 		if err := ctx.Run(&cli.Globals); err != nil {
 			log.Panic(err)
