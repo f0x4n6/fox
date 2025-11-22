@@ -23,7 +23,7 @@ func (f *Filters) FilterSMap(s smap.SMap) smap.SMap {
 		return v // without context
 	}
 
-	r := make(smap.SMap, len(v))
+	r := make(smap.SMap, 0, len(v))
 
 	for grp, str := range v {
 		for _, b := range (s)[max((str.Nr-1)-f.Before, 0) : str.Nr-1] {

@@ -7,49 +7,39 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
 
-type HexBuffer struct {
-	Lines chan HexLine
-}
-
 type HexLine struct {
 	Line
 	Hex string
 }
 
-func (hl HexLine) String() string {
-	// canonical form
-	return fmt.Sprintf("%s %s|%-16s|", hl.Nr, hl.Hex, hl.Str)
+type HexBuffer struct {
+	Lines chan HexLine
 }
 
-func Hex(h *heap.Heap, t uint) (buf *HexBuffer) {
+func (l HexLine) String() string {
+	return fmt.Sprintf("%s  %s %-16s", l.Nr, l.Hex, l.Str)
+}
+
+func Hex(h *heap.Heap, n uint) *HexBuffer {
+	var buf = &HexBuffer{make(chan HexLine, Size)}
 	var off uint
 
-	buf = new(HexBuffer)
-
-	mmap := h.MMap()
-
-	if t > 0 {
-		off = max(uint(h.Size())-t, 0)
+	if n > 0 {
+		off = max(uint(h.Size())-n, 0)
 	}
 
-	buf.Lines = make(chan HexLine, Size)
+	go hexStream(buf, off, h.MMap())
 
-	// stream lines
-	go hexStream(buf, off, mmap[:])
-
-	return
+	return buf
 }
 
-func hexStream(buf *HexBuffer, o uint, b []byte) {
+func hexStream(buf *HexBuffer, off uint, b []byte) {
 	defer close(buf.Lines)
 
 	for i := 0; i < len(b); i += 16 {
-		nr := fmt.Sprintf("%08x ", o+uint(i))
+		nr := fmt.Sprintf("%08x ", off+uint(i))
 
-		line := HexLine{
-			Line: Line{Nr: nr, Str: ""},
-			Hex:  "",
-		}
+		line := HexLine{Line{Nr: nr, Str: ""}, ""}
 
 		for j := range 16 {
 			if i+j >= len(b) {
@@ -68,7 +58,7 @@ func hexStream(buf *HexBuffer, o uint, b []byte) {
 		}
 
 		line.Hex = fmt.Sprintf("%-*s", 50, line.Hex)
-		line.Str = text.ToASCII(line.Str)
+		line.Str = text.ToAscii(line.Str)
 
 		buf.Lines <- line
 	}

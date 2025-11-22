@@ -2,59 +2,55 @@ package buffer
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/text"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/smap"
 )
 
-type TextBuffer struct {
-	Y     int
-	N     int
-	SMap  smap.SMap
-	Lines chan *TextLine
-}
-
 type TextLine struct {
 	Line
 }
 
-func (tl TextLine) String() string {
-	return tl.Str
+type TextBuffer struct {
+	Lines chan *TextLine
+	Pad   uint
 }
 
-func Text(h *heap.Heap, e int) (buf *TextBuffer) {
-	buf = new(TextBuffer)
+func (l TextLine) String() string {
+	return l.Str
+}
 
-	buf.Lines = make(chan *TextLine, Size)
-	buf.N = text.Dec(h.Len())
-
-	buf.SMap = h.SMap()
-
-	if buf.SMap.CanFormat() {
-		buf.SMap = buf.SMap.Format(e)
-	} else {
-		buf.SMap = buf.SMap.Render(e)
+func Text(h *heap.Heap, e int) *TextBuffer {
+	var buf = &TextBuffer{
+		make(chan *TextLine, Size),
+		uint(math.Log10(float64(h.Len()))) + 1,
 	}
 
-	go textStream(buf)
+	s := h.SMap()
 
-	return
+	if s.CanFormat() {
+		go textStream(buf, s.Format(e))
+	} else {
+		go textStream(buf, s.Render(e))
+	}
+
+	return buf
 }
 
 func textLine(nr, str string, grp uint) *TextLine {
 	return &TextLine{Line{nr, grp, str}}
 }
 
-func textStream(buf *TextBuffer) {
+func textStream(buf *TextBuffer, s smap.SMap) {
 	defer close(buf.Lines)
 
 	var numSep uint = 0
 	var numGrp uint = 1
 	var tmpGrp uint = 0
 
-	// stream lines
-	for _, str := range buf.SMap[buf.Y:] {
+	for _, str := range s {
 
 		// insert context separator
 		if tmpGrp != str.Grp && numGrp > 1 {
@@ -64,13 +60,11 @@ func textStream(buf *TextBuffer) {
 		}
 
 		// build line
-		line := textLine(
-			fmt.Sprintf("%0*d ", buf.N, str.Nr),
-			str.Str,
+		buf.Lines <- textLine(
+			fmt.Sprintf("%0*d ", buf.Pad, str.Nr),
+			text.Sanitize(str.Str),
 			str.Grp,
 		)
-
-		buf.Lines <- line
 
 		tmpGrp = str.Grp
 		numGrp++

@@ -12,12 +12,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"runtime/debug"
 
 	"github.com/alecthomas/kong"
 
 	"github.com/cuhsat/fox/v4/internal"
 	"github.com/cuhsat/fox/v4/internal/cmd"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 )
 
 var Usage = fox.Banner + `
@@ -131,10 +131,14 @@ type Cli struct {
 
 // Main start and catch.
 func main() {
-	defer sys.Recover()
-
-	log.SetPrefix(sys.Prefix)
 	log.SetFlags(0)
+	log.SetPrefix("fox: ")
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Printf("%+v\n\n%s\n", err, debug.Stack())
+		}
+	}()
 
 	cli := new(Cli)
 	ctx := kong.Parse(cli,

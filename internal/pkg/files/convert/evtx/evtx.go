@@ -7,7 +7,6 @@ import (
 	"github.com/0xrawsec/golang-evtx/evtx"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 )
 
 func Detect(b []byte) bool {
@@ -22,8 +21,6 @@ func Convert(b []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	defer sys.Ignore(r.Close)
 
 	buf := bytes.NewBuffer(nil)
 
@@ -41,6 +38,8 @@ func Convert(b []byte) ([]byte, error) {
 			log.Println(err)
 		}
 	}
+
+	_ = r.Close()
 
 	return buf.Bytes(), nil
 }

@@ -96,11 +96,14 @@ type Globals struct {
 }
 
 func (cmd *Hunt) Run(cli *Globals) error {
+	hs := load(cli, cli.Hunt.Paths)
+	defer hs.ThrowAway()
+
 	return nil // TODO
 }
 
 func (cmd *Info) Run(cli *Globals) error {
-	hs := load(cli.Info.Paths, cli)
+	hs := load(cli, cli.Info.Paths)
 	defer hs.ThrowAway()
 
 	for _, h := range hs.Get() {
@@ -116,7 +119,7 @@ func (cmd *Info) Run(cli *Globals) error {
 }
 
 func (cmd *Text) Run(cli *Globals) error {
-	hs := load(cli.Text.Paths, cli)
+	hs := load(cli, cli.Text.Paths)
 	defer hs.ThrowAway()
 
 	for _, h := range hs.Get() {
@@ -136,12 +139,12 @@ func (cmd *Text) Run(cli *Globals) error {
 }
 
 func (cmd *Hash) Run(cli *Globals) error {
-	hs := load(cli.Hash.Paths, cli)
+	hs := load(cli, cli.Hash.Paths)
 	defer hs.ThrowAway()
 
 	for _, algo := range cli.Hash.Type {
 		if len(cli.Hash.Type) > 1 {
-			fmt.Println(text.Block(strings.ToUpper(algo), buffer.TermW))
+			fmt.Println(text.Header(strings.ToUpper(algo)))
 		}
 
 		for _, h := range hs.Get() {
@@ -149,6 +152,7 @@ func (cmd *Hash) Run(cli *Globals) error {
 
 			if err != nil {
 				log.Printf("could not compute hash: %s", err.Error())
+				continue
 			}
 
 			switch algo {
@@ -164,21 +168,21 @@ func (cmd *Hash) Run(cli *Globals) error {
 }
 
 func (cmd *Dump) Run(cli *Globals) error {
-	hs := load(cli.Dump.Paths, cli)
+	hs := load(cli, cli.Dump.Paths)
 	defer hs.ThrowAway()
 
-	var t uint
+	var n uint
 
 	if cli.Tail {
-		t = cli.Bytes
+		n = cli.Bytes
 	}
 
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {
-			fmt.Println(text.Block(h.String(), buffer.TermW))
+			fmt.Println(text.Header(h.String()))
 		}
 
-		for l := range buffer.Hex(h, t).Lines {
+		for l := range buffer.Hex(h, n).Lines {
 			fmt.Println(l)
 		}
 	}
@@ -187,17 +191,17 @@ func (cmd *Dump) Run(cli *Globals) error {
 }
 
 func (cmd *Show) Run(cli *Globals) error {
-	hs := load(cli.Show.Paths, cli)
+	hs := load(cli, cli.Show.Paths)
 	defer hs.ThrowAway()
 
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {
-			fmt.Println(text.Block(h.String(), buffer.TermW))
+			fmt.Println(text.Header(h.String()))
 		}
 
 		for l := range buffer.Text(h, 2).Lines {
 			if !cli.NoLine && l.Nr == buffer.Sep {
-				fmt.Println("--")
+				fmt.Println(buffer.Sep)
 			} else if !cli.NoLine {
 				fmt.Printf("%s %s\n", l.Nr, l)
 			} else {
@@ -209,11 +213,19 @@ func (cmd *Show) Run(cli *Globals) error {
 	return nil
 }
 
-func load(args []string, cli *Globals) *heapset.HeapSet {
+func load(cli *Globals, args []string) *heapset.HeapSet {
 	var re *regexp.Regexp
 
 	if len(cli.Regex) > 0 {
 		re = regexp.MustCompile(cli.Regex)
+	}
+
+	if cli.Info.Min > cli.Info.Max {
+		log.Fatal("invalid range")
+	}
+
+	if cli.Text.Min > cli.Text.Max {
+		log.Fatal("invalid range")
 	}
 
 	if cli.Context > 0 {

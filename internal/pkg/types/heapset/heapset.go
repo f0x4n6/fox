@@ -25,7 +25,6 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/xz"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/zlib"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/zstd"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
@@ -142,7 +141,7 @@ func (hs *HeapSet) loadFile(path string) {
 		return
 	}
 
-	defer sys.Ignore(f.Close)
+	defer f.Close()
 
 	fi, err := f.Stat()
 

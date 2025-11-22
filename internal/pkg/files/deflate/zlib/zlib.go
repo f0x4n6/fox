@@ -7,7 +7,6 @@ import (
 	"github.com/klauspost/compress/zlib"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 )
 
 func Detect(b []byte) bool {
@@ -32,7 +31,7 @@ func Deflate(b []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	defer sys.Ignore(r.Close)
+	defer r.Close()
 
 	return io.ReadAll(r)
 }

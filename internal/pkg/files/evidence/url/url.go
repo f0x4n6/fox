@@ -8,7 +8,6 @@ import (
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files/evidence"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/schema"
-	"github.com/cuhsat/fox/v4/internal/pkg/sys"
 )
 
 type Url struct {
@@ -46,11 +45,11 @@ func (w *Url) Flush() {
 		return
 	}
 
-	defer sys.Ignore(res.Body.Close)
-
 	if res.StatusCode != 200 {
 		log.Println(http.StatusText(res.StatusCode))
 	}
+
+	_ = res.Body.Close()
 }
 
 func (w *Url) WriteMeta(meta evidence.Meta) {

@@ -12,7 +12,7 @@ import (
 )
 
 func BenchmarkMap(b *testing.B) {
-	f, m, err := fixture("test.txt")
+	f, m, err := fixture("bible.txt")
 
 	if err != nil {
 		b.Fatal(err)
@@ -34,7 +34,7 @@ func BenchmarkMap(b *testing.B) {
 }
 
 func BenchmarkRender(b *testing.B) {
-	f, m, err := fixture("test.txt")
+	f, m, err := fixture("bible.txt")
 
 	if err != nil {
 		b.Fatal(err)
@@ -82,7 +82,7 @@ func BenchmarkFormat(b *testing.B) {
 }
 
 func BenchmarkGrep(b *testing.B) {
-	f, m, err := fixture("test.txt")
+	f, m, err := fixture("bible.txt")
 
 	if err != nil {
 		b.Fatal(err)
@@ -108,7 +108,7 @@ func BenchmarkGrep(b *testing.B) {
 }
 
 func TestMap(t *testing.T) {
-	f, m, err := fixture("test.txt")
+	f, m, err := fixture("bible.txt")
 
 	if err != nil {
 		t.Fatal(err)
@@ -153,21 +153,21 @@ func TestFormat(t *testing.T) {
 }
 
 func TestGrep(t *testing.T) {
-	f, m, err := fixture("test.xyz")
-	v := "test@example.org\nhttps://example.org\n"
+	f, m, err := fixture("bible.txt")
+	v := "Authorized King James Version\n"
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	re := regexp.MustCompile("example")
+	re := regexp.MustCompile("King James")
 
 	s := Map(m).Grep(re)
 
 	_ = m.Unmap()
 	_ = f.Close()
 
-	if len(s) != 2 {
+	if len(s) != 1 {
 		t.Fatal("wrong length")
 	}
 

@@ -40,40 +40,40 @@ func (h *Heap) Entropy(min, max float64) (float64, bool) {
 }
 
 func (h *Heap) Strings(min, max uint) <-chan String {
+	var ch = make(chan String)
+
 	var buf []byte
 	var off int
+	var b byte
 
-	ch := make(chan String)
-
+	// flush closure
 	flush := func() {
-		v := uint(len(buf))
-
-		if v < min && v > max {
-			return
-		}
-
 		str := string(buf)
 
-		if len(strings.TrimSpace(str)) > 0 {
+		v := uint(len(strings.TrimSpace(str)))
+
+		if v >= min && v <= max {
 			ch <- String{uint(off - (len(buf) + 1)), str}
 		}
 
 		buf = buf[:0]
 	}
 
-	go func() {
-		defer flush()
-
-		for _, b := range h.mmap {
-			off++
-
-			if b >= text.MinASCII && b <= text.MaxASCII {
+	// carve closure
+	carve := func() {
+		for off, b = range h.mmap {
+			if b >= text.SP && b <= text.DEL {
 				buf = append(buf, b)
 			} else {
 				flush()
 			}
 		}
-	}()
+
+		flush()
+		close(ch)
+	}
+
+	go carve()
 
 	return ch
 }
