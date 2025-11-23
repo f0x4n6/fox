@@ -25,10 +25,6 @@ go.work.sum
 # IDEs
 .idea/
 
-# MkDocs
-.cache/
-.venv/
-
 # Manpage
 *.1
 

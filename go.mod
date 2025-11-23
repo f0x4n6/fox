@@ -5,7 +5,7 @@ go 1.25.1
 require (
 	github.com/0xrawsec/golang-evtx v1.2.9
 	github.com/Velocidex/go-journalctl v0.0.0-20250902002606-881a5f66df10
-	github.com/alecthomas/kong v1.12.1
+	github.com/alecthomas/kong v1.13.0
 	github.com/andybalholm/brotli v1.2.0
 	github.com/bmatcuk/doublestar/v4 v4.9.1
 	github.com/cespare/xxhash v1.1.0
@@ -21,33 +21,23 @@ require (
 	github.com/zeebo/blake3 v0.2.4
 	github.com/zeebo/xxh3 v1.0.2
 	golang.org/x/term v0.37.0
-	modernc.org/sqlite v1.40.0
 )
 
 require (
 	github.com/Velocidex/json v0.0.0-20220224052537-92f3c0326e5a // indirect
 	github.com/Velocidex/ordereddict v0.0.0-20250821063524-02dc06e46238 // indirect
 	github.com/Velocidex/yaml/v2 v2.2.8 // indirect
-	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/frankban/quicktest v1.14.6 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/tmthrgd/go-popcount v0.0.0-20190904054823-afb1ace8b04f // indirect
-	golang.org/x/crypto v0.43.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
 require (
 	github.com/0xrawsec/golang-utils v1.3.2 // indirect
-	github.com/google/uuid v1.6.0 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/ncruces/go-strftime v1.0.0 // indirect
-	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/sys v0.38.0 // indirect
-	modernc.org/libc v1.66.10 // indirect
-	modernc.org/mathutil v1.7.1 // indirect
-	modernc.org/memory v1.11.0 // indirect
 )

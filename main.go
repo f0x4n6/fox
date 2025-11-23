@@ -6,7 +6,7 @@
 //
 // For more information, please consult:
 //
-//	https://forensic-examiner.eu
+//	https://foxhunt.dev
 package main
 
 import (
@@ -20,7 +20,11 @@ import (
 	"github.com/cuhsat/fox/v4/internal/cmd"
 )
 
-var Usage = fox.Banner + `
+var usage = ` ____ _____  __  _  _ _   _ _  _ _____
+|  __/ _ \ \/ / | || | | | | \| |_   _|
+|  _| (_) >  <  | __ | |_| | .' | | |
+|__| \___/_/\_\ |_||_|\___/|_|\_| |_|
+
 The Swiss Army Knife for examining text files (%s)
 Visit <https://%s>.
 
@@ -63,18 +67,12 @@ Line filter:
   -B, --before=NUMBER      number of lines leading context before match
   -A, --after=NUMBER       number of lines trailing context after match
 
-Evidence bag:
-  -f, --file=FILE          evidence bag file name (default: YYYY-MM-DD)
-  -m, --mode=MODE          evidence bag file mode (default: none)
-
-Evidence sign:
-  -s, --sign=PHRASE        key phrase to sign evidence bag via HMAC-SHA256
-
-Evidence URL:
-  -u, --url=SERVER         forward evidence to server address
-  -a, --auth=TOKEN         forward evidence using auth token
-      --ecs                use ECS schema for evidence
-      --hec                use HEC schema for evidence
+Data stream:
+  -f, --file=FILE          stream data to file name
+  -u, --url=SERVER         stream data to server address
+  -a, --auth=TOKEN         stream data using auth token
+  -E, --ecs                use ECS schema for streaming
+  -H, --hec                use HEC schema for streaming
 
 Turn off:
   -r, --raw                don't process files at all
@@ -84,19 +82,13 @@ Turn off:
       --no-deflate         don't deflate automatically
       --no-convert         don't convert automatically
 
-Shortcuts:
+Localhost:
   -L, --logstash           short for: --ecs --url=http://localhost:8080
   -S, --splunk             short for: --hec --url=http://localhost:8088/...
-  -Q, --sqlite             short for: --file=YYYY-MM-DD --mode=sqlite
-  -J, --jsonl              short for: --file=YYYY-MM-DD --mode=jsonl
-  -j, --json               short for: --file=YYYY-MM-DD --mode=json
 
 Standard:
       --help               prints this message
       --version            prints the version
-
-Evidence bag modes:
-  Text, JSON, JSONL, SQLite
 
 Hashes (cryptographic):
   MD5, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512,
@@ -115,7 +107,7 @@ Example: dump the image MBR in hex format
   $ fox dump -hc512 image.dd > mbr
 
 Example: find occurrences in all logs
-  $ fox -e "login" ./**/*.log
+  $ fox -elogin ./**/*.log
 
 Example: hunt down suspicious files
   $ fox hunt .
@@ -123,7 +115,7 @@ Example: hunt down suspicious files
 Type "man fox" for more help...
 `
 
-type Cli struct {
+type flags struct {
 	cmd.Globals
 	Help    bool
 	Version bool
@@ -140,21 +132,23 @@ func main() {
 		}
 	}()
 
-	cli := new(Cli)
+	cli := new(flags)
 	ctx := kong.Parse(cli,
 		kong.NoDefaultHelp(),
 		kong.DefaultEnvars("FOX"),
 		kong.ConfigureHelp(kong.HelpOptions{}),
 	)
 
+	//defer cli.Exit()
+
 	switch {
 	case cli.Version:
 		fmt.Printf("%s %s\n", fox.Product, fox.Version)
 	case cli.Help || ctx.Error != nil || len(ctx.Args) == 0:
-		fmt.Printf(Usage, fox.Version, fox.Website)
+		fmt.Printf(usage, fox.Version, fox.Website)
 	default:
 		if err := ctx.Run(&cli.Globals); err != nil {
-			log.Panic(err)
+			log.Fatal(err)
 		}
 	}
 }

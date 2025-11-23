@@ -27,14 +27,6 @@ const (
 )
 
 const (
-	NONE   = "none"
-	TEXT   = "text"
-	JSON   = "json"
-	JSONL  = "jsonl"
-	SQLITE = "sqlite"
-)
-
-const (
 	LOGSTASH = "http://localhost:8080"
 	SPLUNK   = "http://localhost:8088/services/collector/event/1.0"
 )

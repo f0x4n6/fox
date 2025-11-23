@@ -1,6 +1,6 @@
-[![](docs/assets/img/title.png "Forensic Examiner")](https://forensic-examiner.eu)
+[![](assets/hunt.png "Fox Hunt")](https://foxhunt.dev)
 
-The Swiss Army Knife for examining text files. Combining the power of many traditional tools like **grep**, **hexdump** and **strings** with the abilities of modern Large Language Models, to leverage your forensic examination process. Standalone binaries are available for Windows, Linux and macOS.
+The Swiss Army Knife for examining text files. Combining the power of many traditional tools like **grep**, **hexdump** and **strings** to leverage your forensic examination process. Standalone binaries are available for Windows, Linux and macOS.
 
 ## Key Features
 * Read-only [filesystem](https://forensic-examiner.eu/features/filesystem) access only

@@ -281,29 +281,6 @@ func (hs *HeapSet) convert(b []byte) ([]byte, bool) {
 	return r, true
 }
 
-func (hs *HeapSet) addPipe() {
-	if !isPiped(os.Stdin) {
-		log.Fatal("stdin not open")
-	}
-
-	buf, err := io.ReadAll(bufio.NewReader(os.Stdin))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	hs.Lock()
-	hs.heaps = append(hs.heaps, heap.New(
-		&heap.Context{
-			Name:   Stdin,
-			Type:   types.Stdin,
-			Limit:  hs.opts.Limit,
-			Filter: hs.opts.Filter,
-		}, buf,
-	))
-	hs.Unlock()
-}
-
 func (hs *HeapSet) addFile(path string, b []byte) {
 	hs.Lock()
 	hs.heaps = append(hs.heaps, heap.New(
@@ -326,6 +303,29 @@ func (hs *HeapSet) addData(name string, b []byte) {
 			Limit:  hs.opts.Limit,
 			Filter: hs.opts.Filter,
 		}, b,
+	))
+	hs.Unlock()
+}
+
+func (hs *HeapSet) addPipe() {
+	if !isPiped(os.Stdin) {
+		log.Fatal("stdin not open")
+	}
+
+	buf, err := io.ReadAll(bufio.NewReader(os.Stdin))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	hs.Lock()
+	hs.heaps = append(hs.heaps, heap.New(
+		&heap.Context{
+			Name:   Stdin,
+			Type:   types.Stdin,
+			Limit:  hs.opts.Limit,
+			Filter: hs.opts.Filter,
+		}, buf,
 	))
 	hs.Unlock()
 }

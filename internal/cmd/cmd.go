@@ -2,11 +2,16 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"regexp"
 	"strings"
-	"time"
 
+	"github.com/cuhsat/fox/v4/internal/pkg/files/stream"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/ecs"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/hec"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/raw"
 	"github.com/cuhsat/fox/v4/internal/pkg/text"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/buffer"
@@ -49,13 +54,13 @@ type Globals struct {
 	Text Text `cmd:"" aliases:"s,strings"`
 	Hash Hash `cmd:"" aliases:"h"`
 	Dump Dump `cmd:"" aliases:"x,hex"`
-	Show Show `cmd:"" default:"withargs" aliases:"p,print"`
+	Show Show `cmd:"" default:"withargs" aliases:"p,print,less,cat"`
 
 	// File limits
 	Head  bool `short:"h" xor:"head,tail"`
 	Tail  bool `short:"t" xor:"head,tail"`
-	Lines uint `short:"n"`
-	Bytes uint `short:"c"`
+	Lines uint `short:"n" xor:"lines,bytes"`
+	Bytes uint `short:"c" xor:"lines,bytes"`
 
 	// File loader
 	Pass string `short:"p"`
@@ -66,18 +71,12 @@ type Globals struct {
 	Before  uint   `short:"B"`
 	After   uint   `short:"A"`
 
-	// Evidence bag
+	// Data stream
 	File string `short:"f"`
-	Mode string `short:"m" enum:"none,text,json,jsonl,sqlite" default:"none"`
-
-	// Evidence sign
-	Sign string `short:"s"`
-
-	// Evidence URL
 	Url  string `short:"u"`
 	Auth string `short:"a"`
-	Ecs  bool   `xor:"ecs,hec"`
-	Hec  bool   `xor:"ecs,hec" and:"hec,auth"`
+	Ecs  bool   `short:"E" xor:"ecs,hec"`
+	Hec  bool   `short:"H" xor:"ecs,hec" and:"hec,auth"`
 
 	// Turn off
 	Readonly  bool `short:"R"`
@@ -87,134 +86,22 @@ type Globals struct {
 	NoDeflate bool `long:"no-deflate"`
 	NoConvert bool `long:"no-convert"`
 
-	// Shortcuts
-	Logstash bool `short:"L"`
-	Splunk   bool `short:"S"`
-	Sqlite   bool `short:"Q"`
-	Jsonl    bool `short:"J"`
-	Json     bool `short:"j"`
+	// Localhost
+	Logstash bool `short:"L" xor:"logstash,splunk"`
+	Splunk   bool `short:"S" xor:"logstash,splunk"`
+
+	// Internal
+	w io.Writer `kong:"-"`
 }
 
-func (cmd *Hunt) Run(cli *Globals) error {
-	hs := load(cli, cli.Hunt.Paths)
-	defer hs.ThrowAway()
-
-	return nil // TODO
-}
-
-func (cmd *Info) Run(cli *Globals) error {
-	hs := load(cli, cli.Info.Paths)
-	defer hs.ThrowAway()
-
-	for _, h := range hs.Get() {
-		if e, ok := h.Entropy(
-			cli.Info.Min,
-			cli.Info.Max,
-		); ok {
-			fmt.Printf("%8dL %8dB %.10f  %s\n", h.Len(), len(h.MMap()), e, h.String())
-		}
-	}
-
-	return nil
-}
-
-func (cmd *Text) Run(cli *Globals) error {
-	hs := load(cli, cli.Text.Paths)
-	defer hs.ThrowAway()
-
-	for _, h := range hs.Get() {
-		for s := range h.Strings(
-			cli.Text.Min,
-			cli.Text.Max,
-		) {
-			if !cli.NoLine {
-				fmt.Printf("%08x  %s\n", s.Off, s.Str)
-			} else {
-				fmt.Println(s.Str)
-			}
-		}
-	}
-
-	return nil
-}
-
-func (cmd *Hash) Run(cli *Globals) error {
-	hs := load(cli, cli.Hash.Paths)
-	defer hs.ThrowAway()
-
-	for _, algo := range cli.Hash.Type {
-		if len(cli.Hash.Type) > 1 {
-			fmt.Println(text.Header(strings.ToUpper(algo)))
-		}
-
-		for _, h := range hs.Get() {
-			sum, err := h.HashSum(algo)
-
-			if err != nil {
-				log.Printf("could not compute hash: %s", err.Error())
-				continue
-			}
-
-			switch algo {
-			case types.SDHASH:
-				fmt.Printf("%s  %s\n", sum, h.String())
-			default:
-				fmt.Printf("%x  %s\n", sum, h.String())
-			}
-		}
-	}
-
-	return nil
-}
-
-func (cmd *Dump) Run(cli *Globals) error {
-	hs := load(cli, cli.Dump.Paths)
-	defer hs.ThrowAway()
-
-	var n uint
-
-	if cli.Tail {
-		n = cli.Bytes
-	}
-
-	for _, h := range hs.Get() {
-		if hs.Len() > 1 && !cli.NoFile {
-			fmt.Println(text.Header(h.String()))
-		}
-
-		for l := range buffer.Hex(h, n).Lines {
-			fmt.Println(l)
-		}
-	}
-
-	return nil
-}
-
-func (cmd *Show) Run(cli *Globals) error {
-	hs := load(cli, cli.Show.Paths)
-	defer hs.ThrowAway()
-
-	for _, h := range hs.Get() {
-		if hs.Len() > 1 && !cli.NoFile {
-			fmt.Println(text.Header(h.String()))
-		}
-
-		for l := range buffer.Text(h, 2).Lines {
-			if !cli.NoLine && l.Nr == buffer.Sep {
-				fmt.Println(buffer.Sep)
-			} else if !cli.NoLine {
-				fmt.Printf("%s %s\n", l.Nr, l)
-			} else {
-				fmt.Println(l)
-			}
-		}
-	}
-
-	return nil
-}
-
-func load(cli *Globals, args []string) *heapset.HeapSet {
+func (cli *Globals) init(args []string) *heapset.HeapSet {
+	var sc stream.Schema = raw.New()
 	var re *regexp.Regexp
+
+	if cli.Readonly {
+		cli.File = ""
+		log.Println("File output deactivated")
+	}
 
 	if len(cli.Regex) > 0 {
 		re = regexp.MustCompile(cli.Regex)
@@ -233,19 +120,11 @@ func load(cli *Globals, args []string) *heapset.HeapSet {
 		cli.After = cli.Context
 	}
 
-	if len(cli.File) == 0 {
-		cli.File = time.Now().Format("2006-01-02")
-	}
-
 	if cli.Raw {
 		cli.NoFile = true
 		cli.NoLine = true
 		cli.NoConvert = true
 		cli.NoDeflate = true
-	}
-
-	if cli.Readonly {
-		cli.Mode = types.NONE
 	}
 
 	if cli.Logstash {
@@ -258,16 +137,19 @@ func load(cli *Globals, args []string) *heapset.HeapSet {
 		cli.Hec = true
 	}
 
-	if cli.Sqlite {
-		cli.Mode = types.SQLITE
+	if len(cli.Url) > 0 {
+		switch {
+		case cli.Hec:
+			sc = hec.New(cli.Auth)
+		case cli.Ecs:
+			sc = ecs.New()
+		}
 	}
 
-	if cli.Jsonl {
-		cli.Mode = types.JSONL
-	}
-
-	if cli.Json {
-		cli.Mode = types.JSON
+	if len(cli.File) > 0 || len(cli.Url) > 0 {
+		cli.w = stream.New(cli.File, cli.Url, sc)
+	} else {
+		cli.w = os.Stdout
 	}
 
 	return heapset.New(args, &heapset.Options{
@@ -286,4 +168,122 @@ func load(cli *Globals, args []string) *heapset.HeapSet {
 		NoDeflate: cli.NoDeflate,
 		NoConvert: cli.NoConvert,
 	})
+}
+
+func (cmd *Hunt) Run(cli *Globals) error {
+	hs := cli.init(cli.Hunt.Paths)
+	defer hs.ThrowAway()
+
+	return nil // TODO
+}
+
+func (cmd *Info) Run(cli *Globals) error {
+	hs := cli.init(cli.Info.Paths)
+	defer hs.ThrowAway()
+
+	for _, h := range hs.Get() {
+		if e, ok := h.Entropy(
+			cli.Info.Min,
+			cli.Info.Max,
+		); ok {
+			_, _ = fmt.Fprintf(cli.w, "%8dL %8dB %.10f  %s\n", h.Len(), len(h.MMap()), e, h.String())
+		}
+	}
+
+	return nil
+}
+
+func (cmd *Text) Run(cli *Globals) error {
+	hs := cli.init(cli.Text.Paths)
+	defer hs.ThrowAway()
+
+	for _, h := range hs.Get() {
+		for s := range h.Strings(
+			cli.Text.Min,
+			cli.Text.Max,
+		) {
+			if !cli.NoLine {
+				_, _ = fmt.Fprintf(cli.w, "%08x  %s\n", s.Off, s.Str)
+			} else {
+				_, _ = fmt.Fprintf(cli.w, "%s\n", s.Str)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (cmd *Hash) Run(cli *Globals) error {
+	hs := cli.init(cli.Hash.Paths)
+	defer hs.ThrowAway()
+
+	for _, algo := range cli.Hash.Type {
+		if len(cli.Hash.Type) > 1 {
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(strings.ToUpper(algo)))
+		}
+
+		for _, h := range hs.Get() {
+			sum, err := h.HashSum(algo)
+
+			if err != nil {
+				log.Printf("could not compute hash: %s", err.Error())
+				continue
+			}
+
+			switch algo {
+			case types.SDHASH:
+				_, _ = fmt.Fprintf(cli.w, "%s  %s\n", sum, h)
+			default:
+				_, _ = fmt.Fprintf(cli.w, "%x  %s\n", sum, h)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (cmd *Dump) Run(cli *Globals) error {
+	hs := cli.init(cli.Dump.Paths)
+	defer hs.ThrowAway()
+
+	var n uint
+
+	if cli.Tail {
+		n = cli.Bytes
+	}
+
+	for _, h := range hs.Get() {
+		if hs.Len() > 1 && !cli.NoFile {
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(h.String()))
+		}
+
+		for l := range buffer.Hex(h, n).Lines {
+			_, _ = fmt.Fprintf(cli.w, "%s\n", l)
+		}
+	}
+
+	return nil
+}
+
+func (cmd *Show) Run(cli *Globals) error {
+	hs := cli.init(cli.Show.Paths)
+	defer hs.ThrowAway()
+
+	for _, h := range hs.Get() {
+		if hs.Len() > 1 && !cli.NoFile {
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(h.String()))
+		}
+
+		for l := range buffer.Text(h, 2).Lines {
+			if !cli.NoLine && l.Nr == buffer.Sep {
+				_, _ = fmt.Fprintf(cli.w, "%s\n", buffer.Sep)
+			} else if !cli.NoLine {
+				_, _ = fmt.Fprintf(cli.w, "%s %s\n", l.Nr, l)
+			} else {
+				_, _ = fmt.Fprintf(cli.w, "%s\n", l)
+			}
+		}
+	}
+
+	return nil
 }
