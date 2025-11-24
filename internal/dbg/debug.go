@@ -13,6 +13,7 @@ func ProfileTime() {
 	}(time.Now())
 }
 
+// TODO
 func ProfileCPU() {
 	cpu, err := os.Create("cpu.pprof")
 
@@ -29,6 +30,7 @@ func ProfileCPU() {
 	}
 }
 
+// TODO
 func ProfileMem() {
 	mem, err := os.Create("mem.pprof")
 

@@ -148,10 +148,6 @@ func main() {
 	case fox.Help || ctx.Error != nil || len(ctx.Args) == 0:
 		fmt.Printf(usage, app.Version, app.Website)
 	default:
-		if fox.Cli.Verbose > 1 {
-			dbg.ProfileTime()
-		}
-
 		if fox.Cli.Verbose > 2 {
 			dbg.ProfileCPU()
 		}
@@ -162,6 +158,10 @@ func main() {
 
 		if fox.Cli.Verbose > 2 {
 			dbg.ProfileMem()
+		}
+
+		if fox.Cli.Verbose > 1 {
+			dbg.ProfileTime()
 		}
 	}
 }
