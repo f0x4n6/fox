@@ -25,8 +25,11 @@ go.work.sum
 # IDEs
 .idea/
 
-# Manpage
+# Manpages
 *.1
+
+# Raw images
+*.dd
 
 # MacOS crap
 .DS_Store

@@ -1,46 +1,47 @@
 package stream
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
-	fox "github.com/cuhsat/fox/v4/internal"
+	"github.com/cuhsat/fox/v4/internal"
 )
 
-type Schema interface {
-	Headers() map[string]string
-	String() string
-	Write(string)
+type Schema struct {
+	Url string            `json:"-"`
+	Map map[string]string `json:"-"`
 }
 
-func Post(url string, sc Schema) {
-	body := strings.NewReader(sc.String())
-
-	req, err := http.NewRequest("POST", url, body)
+func (sch *Schema) Post(s string) (int, error) {
+	req, err := http.NewRequest("POST", sch.Url, strings.NewReader(s))
 
 	if err != nil {
-		log.Println(err)
-		return
+		return 0, err
 	}
 
-	req.Header.Add("user-agent", fmt.Sprintf("%s %s", fox.Product, fox.Version))
+	req.Header.Add("user-agent", fmt.Sprintf("%s %s", app.Product, app.Version))
 
-	for k, v := range sc.Headers() {
+	for k, v := range sch.Map {
 		req.Header.Set(k, v)
 	}
 
 	res, err := new(http.Client).Do(req)
 
 	if err != nil {
-		log.Println(err)
-		return
+		return 0, err
 	}
 
-	if res.StatusCode != 200 {
-		log.Println(http.StatusText(res.StatusCode))
+	if res.StatusCode != http.StatusOK {
+		return 0, errors.New(http.StatusText(res.StatusCode))
 	}
 
-	_ = res.Body.Close()
+	err = res.Body.Close()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return len(s), nil
 }

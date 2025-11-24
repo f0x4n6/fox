@@ -37,6 +37,7 @@ type Options struct {
 	Password  string
 	NoDeflate bool
 	NoConvert bool
+	Verbose   int
 }
 
 type HeapSet struct {
@@ -292,6 +293,10 @@ func (hs *HeapSet) addFile(path string, b []byte) {
 		}, b,
 	))
 	hs.Unlock()
+
+	if hs.opts.Verbose > 0 {
+		log.Printf("loaded heap %s\n", path)
+	}
 }
 
 func (hs *HeapSet) addData(name string, b []byte) {
@@ -305,6 +310,10 @@ func (hs *HeapSet) addData(name string, b []byte) {
 		}, b,
 	))
 	hs.Unlock()
+
+	if hs.opts.Verbose > 0 {
+		log.Printf("loaded heap %s\n", name)
+	}
 }
 
 func (hs *HeapSet) addPipe() {
@@ -328,6 +337,10 @@ func (hs *HeapSet) addPipe() {
 		}, buf,
 	))
 	hs.Unlock()
+
+	if hs.opts.Verbose > 0 {
+		log.Println("loaded heap from stdin")
+	}
 }
 
 func isPiped(f *os.File) bool {

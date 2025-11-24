@@ -19,6 +19,7 @@ import (
 )
 
 type Hunt struct {
+	All   bool     `short:"a"`
 	Paths []string `arg:"" name:"path" type:"path" optional:""`
 }
 
@@ -47,7 +48,7 @@ type Show struct {
 	Paths []string `arg:"" name:"path" type:"path" optional:""`
 }
 
-type Globals struct {
+type Cli struct {
 	// Commands
 	Hunt Hunt `cmd:"" aliases:"u"`
 	Info Info `cmd:"" aliases:"i,wc"`
@@ -90,13 +91,17 @@ type Globals struct {
 	Logstash bool `short:"L" xor:"logstash,splunk"`
 	Splunk   bool `short:"S" xor:"logstash,splunk"`
 
+	// Standard
+	Verbose int `short:"v" type:"counter"`
+
 	// Internal
-	w io.Writer `kong:"-"`
+	w  io.WriteCloser   `kong:"-"`
+	hs *heapset.HeapSet `kong:"-"`
 }
 
-func (cli *Globals) init(args []string) *heapset.HeapSet {
-	var sc stream.Schema = raw.New()
+func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 	var re *regexp.Regexp
+	var sw io.Writer
 
 	if cli.Readonly {
 		cli.File = ""
@@ -105,6 +110,17 @@ func (cli *Globals) init(args []string) *heapset.HeapSet {
 
 	if len(cli.Regex) > 0 {
 		re = regexp.MustCompile(cli.Regex)
+	}
+
+	if len(cli.Url) > 0 {
+		switch {
+		case cli.Hec:
+			sw = hec.New(cli.Url, cli.Auth)
+		case cli.Ecs:
+			sw = ecs.New(cli.Url)
+		default:
+			sw = raw.New(cli.Url)
+		}
 	}
 
 	if cli.Info.Min > cli.Info.Max {
@@ -137,22 +153,13 @@ func (cli *Globals) init(args []string) *heapset.HeapSet {
 		cli.Hec = true
 	}
 
-	if len(cli.Url) > 0 {
-		switch {
-		case cli.Hec:
-			sc = hec.New(cli.Auth)
-		case cli.Ecs:
-			sc = ecs.New()
-		}
-	}
-
-	if len(cli.File) > 0 || len(cli.Url) > 0 {
-		cli.w = stream.New(cli.File, cli.Url, sc)
+	if len(cli.File)+len(cli.Url) > 0 {
+		cli.w = stream.New(cli.File, sw)
 	} else {
 		cli.w = os.Stdout
 	}
 
-	return heapset.New(args, &heapset.Options{
+	cli.hs = heapset.New(args, &heapset.Options{
 		Limit: &types.Limits{
 			IsHead: cli.Head,
 			IsTail: cli.Tail,
@@ -167,35 +174,58 @@ func (cli *Globals) init(args []string) *heapset.HeapSet {
 		Password:  cli.Pass,
 		NoDeflate: cli.NoDeflate,
 		NoConvert: cli.NoConvert,
+		Verbose:   cli.Verbose,
 	})
+
+	return cli.hs
 }
 
-func (cmd *Hunt) Run(cli *Globals) error {
-	hs := cli.init(cli.Hunt.Paths)
-	defer hs.ThrowAway()
+func (cli *Cli) ThrowAway() {
+	if len(cli.File) > 0 {
+		_ = cli.w.Close()
+	}
 
-	return nil // TODO
+	cli.hs.ThrowAway()
 }
 
-func (cmd *Info) Run(cli *Globals) error {
-	hs := cli.init(cli.Info.Paths)
-	defer hs.ThrowAway()
+func (cmd *Hunt) Run(cli *Cli) error {
+	hs := cli.Bootstrap(cli.Hunt.Paths)
+	defer cli.ThrowAway()
+
+	for _, h := range hs.Get() {
+		h = h
+	}
+
+	// TODO:
+	// 1. carve evtx (and journals?) from files or load files
+	// 2. extract important events by event id or user name
+	// 3. translate event id to meaningful description
+	// 4. format event to CEF format, flag important events
+	// 5. order by timestamp for super timeline (unique per XXH3?)
+	// 6. output CEF log
+
+	return nil
+}
+
+func (cmd *Info) Run(cli *Cli) error {
+	hs := cli.Bootstrap(cli.Info.Paths)
+	defer cli.ThrowAway()
 
 	for _, h := range hs.Get() {
 		if e, ok := h.Entropy(
 			cli.Info.Min,
 			cli.Info.Max,
 		); ok {
-			_, _ = fmt.Fprintf(cli.w, "%8dL %8dB %.10f  %s\n", h.Len(), len(h.MMap()), e, h.String())
+			_, _ = fmt.Fprintf(cli.w, "%10dL %10dB  %.10f  %s\n", h.Len(), len(h.MMap()), e, h.String())
 		}
 	}
 
 	return nil
 }
 
-func (cmd *Text) Run(cli *Globals) error {
-	hs := cli.init(cli.Text.Paths)
-	defer hs.ThrowAway()
+func (cmd *Text) Run(cli *Cli) error {
+	hs := cli.Bootstrap(cli.Text.Paths)
+	defer cli.ThrowAway()
 
 	for _, h := range hs.Get() {
 		for s := range h.Strings(
@@ -213,9 +243,9 @@ func (cmd *Text) Run(cli *Globals) error {
 	return nil
 }
 
-func (cmd *Hash) Run(cli *Globals) error {
-	hs := cli.init(cli.Hash.Paths)
-	defer hs.ThrowAway()
+func (cmd *Hash) Run(cli *Cli) error {
+	hs := cli.Bootstrap(cli.Hash.Paths)
+	defer cli.ThrowAway()
 
 	for _, algo := range cli.Hash.Type {
 		if len(cli.Hash.Type) > 1 {
@@ -242,9 +272,9 @@ func (cmd *Hash) Run(cli *Globals) error {
 	return nil
 }
 
-func (cmd *Dump) Run(cli *Globals) error {
-	hs := cli.init(cli.Dump.Paths)
-	defer hs.ThrowAway()
+func (cmd *Dump) Run(cli *Cli) error {
+	hs := cli.Bootstrap(cli.Dump.Paths)
+	defer cli.ThrowAway()
 
 	var n uint
 
@@ -265,9 +295,9 @@ func (cmd *Dump) Run(cli *Globals) error {
 	return nil
 }
 
-func (cmd *Show) Run(cli *Globals) error {
-	hs := cli.init(cli.Show.Paths)
-	defer hs.ThrowAway()
+func (cmd *Show) Run(cli *Cli) error {
+	hs := cli.Bootstrap(cli.Show.Paths)
+	defer cli.ThrowAway()
 
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {

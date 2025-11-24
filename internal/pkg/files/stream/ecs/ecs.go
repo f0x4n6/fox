@@ -1,54 +1,55 @@
-// Package ecs specification: https://www.elastic.co/docs/reference/ecs/ecs-field-reference
+// Package ecs specification:
+// https://www.elastic.co/docs/reference/ecs/ecs-field-reference
 package ecs
 
 import (
 	"encoding/json"
-	"log"
 	"strings"
 	"time"
 
 	"github.com/cuhsat/fox/v4/internal"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/stream"
 )
 
 const version = "9.1.0"
 
 type Ecs struct {
+	stream.Schema
+
 	Timestamp time.Time `json:"@timestamp"`
 	Message   string    `json:"message"`
-	Agent     struct {
+
+	Agent struct {
 		Type    string `json:"type"`
 		Version string `json:"version"`
 	} `json:"agent"`
+
 	Ecs struct {
 		Version string `json:"version"`
 	} `json:"ecs"`
 }
 
-func New() *Ecs {
-	ecs := new(Ecs)
+func New(url string) Ecs {
+	ecs := Ecs{Schema: stream.Schema{Url: url, Map: map[string]string{
+		"Content-Type": "application/json",
+	}}}
+
 	ecs.Ecs.Version = version
-	ecs.Agent.Type = fox.Product
-	ecs.Agent.Version = fox.Version[1:]
+	ecs.Agent.Type = app.Product
+	ecs.Agent.Version = app.Version[1:]
+
 	return ecs
 }
 
-func (ecs *Ecs) Headers() map[string]string {
-	return map[string]string{
-		"Content-Type": "application/json",
-	}
-}
+func (ecs Ecs) Write(p []byte) (int, error) {
+	ecs.Timestamp = time.Now().UTC()
+	ecs.Message = strings.TrimRight(string(p), "\n")
 
-func (ecs *Ecs) String() string {
 	buf, err := json.Marshal(ecs)
 
 	if err != nil {
-		log.Print(err)
+		return 0, nil
 	}
 
-	return string(buf)
-}
-
-func (ecs *Ecs) Write(s string) {
-	ecs.Timestamp = time.Now().UTC()
-	ecs.Message = strings.TrimRight(s, "\n")
+	return ecs.Post(string(buf))
 }

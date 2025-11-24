@@ -2,72 +2,71 @@ package stream
 
 import (
 	"crypto/sha256"
-	"encoding/hex"
+	"fmt"
+	"io"
 	"log"
 	"os"
 )
 
 type Stream struct {
 	path string
-	url  string
-	sc   Schema
 
-	f *os.File
+	f  *os.File
+	ws []io.Writer
 }
 
-func New(path, url string, sc Schema) *Stream {
-	var err error
-
-	st := Stream{path: path, url: url, sc: sc}
+func New(path string, w io.Writer) *Stream {
+	st := Stream{path: path}
 
 	if len(path) > 0 {
+		var err error
+
 		st.f, err = os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600)
 
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		st.ws = append(st.ws, st.f)
+	}
+
+	if w != nil {
+		st.ws = append(st.ws, w)
 	}
 
 	return &st
 }
 
-func (st *Stream) Close() {
-	_ = st.f.Close()
-}
-
 func (st *Stream) Write(p []byte) (n int, err error) {
-	// stream to file
-	if len(st.path) > 0 {
-		_, _ = st.f.Write(p)
-		Sign(st.path)
-	}
-
-	// stream to url
-	if len(st.url) > 0 {
-		st.sc.Write(string(p))
-		Post(st.url, st.sc)
+	for _, w := range st.ws {
+		_, err := w.Write(p)
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	return len(p), nil
 }
 
-func Sign(path string) {
-	sha := sha256.New()
-
-	buf, err := os.ReadFile(path)
+func (st *Stream) Close() error {
+	_, err := st.f.Seek(0, io.SeekStart)
 
 	if err != nil {
-		log.Println(err)
-		return
+		return err
 	}
 
-	sha.Write(buf)
-
-	sum := hex.EncodeToString(sha.Sum(nil))
-
-	err = os.WriteFile(path+".sha256", []byte(sum), 0600)
+	buf, err := io.ReadAll(st.f)
 
 	if err != nil {
-		log.Println(err)
+		return err
 	}
+
+	sum := fmt.Sprintf("%x", sha256.Sum256(buf))
+	err = os.WriteFile(st.path+".sha256", []byte(sum), 0600)
+
+	if err != nil {
+		return err
+	}
+
+	return st.f.Close()
 }

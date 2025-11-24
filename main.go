@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"log"
 	"runtime/debug"
+	"time"
 
 	"github.com/alecthomas/kong"
 
@@ -40,6 +41,9 @@ Commands:
   INFO     show file content stats
   TEXT     show file ASCII strings
   DUMP     show file in canonical hex
+
+Hunt flags:
+  -a, --all                prints all found events
 
 Hash flags:
       --type=ALGO[,ALGO]   use algorithm (default: SHA256)
@@ -87,8 +91,9 @@ Localhost:
   -S, --splunk             short for: --hec --url=http://localhost:8088/...
 
 Standard:
-      --help               prints this message
-      --version            prints the version
+  -v, --verbose[=LEVEL]    prints more details (alt: -v, -vv, -vvv)
+      --version            prints the version number
+      --help               prints this help message
 
 Hashes (cryptographic):
   MD5, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512,
@@ -115,12 +120,6 @@ Example: hunt down suspicious files
 Type "man fox" for more help...
 `
 
-type flags struct {
-	cmd.Globals
-	Help    bool
-	Version bool
-}
-
 // Main start and catch.
 func main() {
 	log.SetFlags(0)
@@ -132,22 +131,30 @@ func main() {
 		}
 	}()
 
-	cli := new(flags)
-	ctx := kong.Parse(cli,
+	fox := new(struct {
+		Help, Version bool
+		cmd.Cli
+	})
+
+	ctx := kong.Parse(fox,
 		kong.NoDefaultHelp(),
 		kong.DefaultEnvars("FOX"),
 		kong.ConfigureHelp(kong.HelpOptions{}),
 	)
 
-	//defer cli.Exit()
-
 	switch {
-	case cli.Version:
-		fmt.Printf("%s %s\n", fox.Product, fox.Version)
-	case cli.Help || ctx.Error != nil || len(ctx.Args) == 0:
-		fmt.Printf(usage, fox.Version, fox.Website)
+	case fox.Version:
+		fmt.Printf("%s %s\n", app.Product, app.Version)
+	case fox.Help || ctx.Error != nil || len(ctx.Args) == 0:
+		fmt.Printf(usage, app.Version, app.Website)
 	default:
-		if err := ctx.Run(&cli.Globals); err != nil {
+		if fox.Cli.Verbose > 1 {
+			defer func(start time.Time) {
+				log.Printf("took %v\n", time.Since(start))
+			}(time.Now())
+		}
+
+		if err := ctx.Run(&fox.Cli); err != nil {
 			log.Fatal(err)
 		}
 	}

@@ -1,7 +1,7 @@
-package fox
+package app
 
 const (
-	Product = "FoxHunt"
+	Product = "Fox Hunt"
 	Website = "foxhunt.dev"
 	Version = "v4.0.0"
 )
