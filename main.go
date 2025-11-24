@@ -13,9 +13,9 @@ import (
 	"fmt"
 	"log"
 	"runtime/debug"
+	"time"
 
 	"github.com/alecthomas/kong"
-	"github.com/cuhsat/fox/v4/internal/dbg"
 
 	"github.com/cuhsat/fox/v4/internal"
 	"github.com/cuhsat/fox/v4/internal/cmd"
@@ -36,7 +36,7 @@ Positional arguments:
   Path(s) to open or '-' for STDIN
 
 Commands:
-  HUNT     hunt down suspicious files
+  HUNT     hunt suspicious activities
   HASH     show file content hashes
   INFO     show file content stats
   TEXT     show file ASCII strings
@@ -44,6 +44,7 @@ Commands:
 
 Hunt flags:
   -a, --all                prints all found events
+  -o, --ordered            orders all found events by time
 
 Hash flags:
       --type=ALGO[,ALGO]   use algorithm (default: SHA256)
@@ -148,20 +149,14 @@ func main() {
 	case fox.Help || ctx.Error != nil || len(ctx.Args) == 0:
 		fmt.Printf(usage, app.Version, app.Website)
 	default:
-		if fox.Cli.Verbose > 2 {
-			dbg.ProfileCPU()
+		if fox.Cli.Verbose > 1 {
+			defer func(start time.Time) {
+				log.Printf("took %v\n", time.Since(start))
+			}(time.Now())
 		}
 
 		if err := ctx.Run(&fox.Cli); err != nil {
 			log.Fatal(err)
-		}
-
-		if fox.Cli.Verbose > 2 {
-			dbg.ProfileMem()
-		}
-
-		if fox.Cli.Verbose > 1 {
-			dbg.ProfileTime()
 		}
 	}
 }

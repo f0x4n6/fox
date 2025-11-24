@@ -40,7 +40,7 @@ func (h *Heap) Entropy(min, max float64) (float64, bool) {
 }
 
 func (h *Heap) Strings(min, max uint) <-chan String {
-	var ch = make(chan String)
+	var ch = make(chan String, 1024)
 
 	var buf []byte
 	var off int

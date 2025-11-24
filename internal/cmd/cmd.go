@@ -12,6 +12,7 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/ecs"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/hec"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/raw"
+	"github.com/cuhsat/fox/v4/internal/pkg/hunt"
 	"github.com/cuhsat/fox/v4/internal/pkg/text"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/buffer"
@@ -19,8 +20,9 @@ import (
 )
 
 type Hunt struct {
-	All   bool     `short:"a"`
-	Paths []string `arg:"" name:"path" type:"path" optional:""`
+	All     bool     `short:"a"`
+	Ordered bool     `short:"o"`
+	Paths   []string `arg:"" name:"path" type:"path" optional:""`
 }
 
 type Info struct {
@@ -193,7 +195,9 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	defer cli.ThrowAway()
 
 	for _, h := range hs.Get() {
-		h = h
+		for s := range hunt.Hunt(h, cli.Verbose) {
+			_, _ = fmt.Fprintln(cli.w, s)
+		}
 	}
 
 	// TODO:
