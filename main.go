@@ -13,9 +13,9 @@ import (
 	"fmt"
 	"log"
 	"runtime/debug"
-	"time"
 
 	"github.com/alecthomas/kong"
+	"github.com/cuhsat/fox/v4/internal/dbg"
 
 	"github.com/cuhsat/fox/v4/internal"
 	"github.com/cuhsat/fox/v4/internal/cmd"
@@ -149,13 +149,19 @@ func main() {
 		fmt.Printf(usage, app.Version, app.Website)
 	default:
 		if fox.Cli.Verbose > 1 {
-			defer func(start time.Time) {
-				log.Printf("took %v\n", time.Since(start))
-			}(time.Now())
+			dbg.ProfileTime()
+		}
+
+		if fox.Cli.Verbose > 2 {
+			dbg.ProfileCPU()
 		}
 
 		if err := ctx.Run(&fox.Cli); err != nil {
 			log.Fatal(err)
+		}
+
+		if fox.Cli.Verbose > 2 {
+			dbg.ProfileMem()
 		}
 	}
 }

@@ -31,5 +31,8 @@ go.work.sum
 # Raw images
 *.dd
 
+# Profiling
+*.pprof
+
 # MacOS crap
 .DS_Store
