@@ -13,10 +13,10 @@ type Deflate func([]byte) ([]byte, error)
 
 type Extract func([]byte, string, string) []Entry
 
-func HasMagic(b []byte, o int, m []byte) bool {
-	if len(b) < o+len(m) {
+func HasMagic(b []byte, off int, m []byte) bool {
+	if len(b) < off+len(m) {
 		return false
 	}
 
-	return bytes.Equal(b[o:o+len(m)], m)
+	return bytes.Equal(b[off:off+len(m)], m)
 }

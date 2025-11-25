@@ -4,15 +4,18 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"hash/maphash"
 	"io"
 	"log"
 	"regexp"
 
 	"github.com/0xrawsec/golang-evtx/evtx"
-	"github.com/zeebo/xxh3"
 
+	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
+
+const Windows = "/Windows/System32/winevt/Logs"
 
 var re = regexp.MustCompile(evtx.ChunkMagic)
 
@@ -24,10 +27,12 @@ func Hunt(h *heap.Heap, v int) chan *Log {
 
 	evtx.SetModeCarving(true)
 
-	set := make(Set)
+	set := make(types.Set)
 
 	go func() {
 		defer close(ch)
+
+		seed := maphash.MakeSeed()
 
 		for off := range offset(r1) {
 			if v > 2 {
@@ -42,17 +47,13 @@ func Hunt(h *heap.Heap, v int) chan *Log {
 			}
 
 			for evt := range chunk.Events() {
-				key := xxh3.HashString(fmt.Sprintf("%#v", evt))
+				key := maphash.String(seed, fmt.Sprintf("%#v", evt))
 
 				if _, ok := set[key]; !ok {
 					ch <- Transform(evt)
-					set[key] = Nil
+					set[key] = types.Nil
 				}
 			}
-		}
-
-		if v > 1 {
-			log.Printf("found %d events\n", len(set))
 		}
 	}()
 

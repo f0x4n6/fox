@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"os"
 	"regexp"
+	"runtime"
+	"slices"
 	"strings"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files/stream"
@@ -21,8 +24,9 @@ import (
 )
 
 type Hunt struct {
-	All   bool
-	Paths []string `arg:"" name:"path" type:"path" optional:""`
+	All   bool     `short:"a"`
+	Sort  bool     `short:"s"`
+	Paths []string `arg:"" type:"path" optional:""`
 }
 
 type Info struct {
@@ -34,30 +38,37 @@ type Info struct {
 type Text struct {
 	Min   uint     `default:"3"`
 	Max   uint     `default:"256"`
-	Paths []string `arg:"" name:"path" type:"path" optional:""`
+	Paths []string `arg:"" type:"path" optional:""`
 }
 
 type Hash struct {
-	Type  []string `sep:"," default:"SHA256"`
-	Paths []string `arg:"" name:"path" type:"path" optional:""`
+	Algo struct {
+		Algo  string `arg:""`
+		Paths struct {
+			Paths []string `arg:"" type:"path" optional:""`
+		} `arg:""`
+	} `arg:""`
+
+	// internal
+	algos []string `kong:"-"`
 }
 
-type Dump struct {
-	Paths []string `arg:"" name:"path" type:"path"`
+type Hex struct {
+	Paths []string `arg:"" type:"path"`
 }
 
-type Show struct {
-	Paths []string `arg:"" name:"path" type:"path" optional:""`
+type Cat struct {
+	Paths []string `arg:"" type:"path" optional:""`
 }
 
 type Cli struct {
 	// Commands
 	Hunt Hunt `cmd:"" aliases:"u"`
 	Info Info `cmd:"" aliases:"i,wc"`
-	Text Text `cmd:"" aliases:"s,strings"`
+	Text Text `cmd:"" aliases:"t,strings"`
 	Hash Hash `cmd:"" aliases:"h"`
-	Dump Dump `cmd:"" aliases:"x,hex"`
-	Show Show `cmd:"" default:"withargs" aliases:"p,print,less,cat"`
+	Hex  Hex  `cmd:"" aliases:"x"`
+	Cat  Cat  `cmd:"" default:"withargs" aliases:"c,less"`
 
 	// File limits
 	Head  bool `short:"h" xor:"head,tail"`
@@ -77,7 +88,7 @@ type Cli struct {
 	// Data stream
 	File string `short:"f"`
 	Url  string `short:"u"`
-	Auth string `short:"a"`
+	Auth string `short:"T"`
 	Ecs  bool   `short:"E" xor:"ecs,hec"`
 	Hec  bool   `short:"H" xor:"ecs,hec" and:"hec,auth"`
 
@@ -161,6 +172,20 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 		cli.w = os.Stdout
 	}
 
+	if len(cli.Hunt.Paths) == 0 {
+		if runtime.GOOS == "windows" {
+			cli.Hunt.Paths = []string{hunt.Windows}
+		}
+	}
+
+	if len(cli.Hunt.Paths) > 0 {
+		cli.NoConvert = true
+	}
+
+	if len(cli.Hash.Algo.Algo) > 0 {
+		cli.Hash.algos = strings.Split(cli.Hash.Algo.Algo, ",")
+	}
+
 	cli.hs = heapset.New(args, &heapset.Options{
 		Limit: &types.Limits{
 			IsHead: cli.Head,
@@ -194,23 +219,34 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	hs := cli.Bootstrap(cli.Hunt.Paths)
 	defer cli.ThrowAway()
 
+	var n uint64
+
+	logs := make(map[int64]*hunt.Log)
+
 	for _, h := range hs.Get() {
-		for l := range hunt.Hunt(h,
-			cli.Verbose,
-		) {
+		for l := range hunt.Hunt(h, cli.Verbose) {
 			if cli.Hunt.All || l.Severity > 0 {
-				_, _ = fmt.Fprintln(cli.w, l)
+				if !cli.Hunt.Sort {
+					_, _ = fmt.Fprintln(cli.w, l)
+				} else {
+					logs[l.Time.UnixNano()] = l
+				}
+				n++
 			}
 		}
 	}
 
+	for _, k := range slices.Sorted(maps.Keys(logs)) {
+		_, _ = fmt.Fprintln(cli.w, logs[k])
+	}
+
+	if cli.Verbose > 1 {
+		log.Printf("found %d events\n", n)
+	}
+
 	// TODO:
-	// 1. carve evtx (and journals?) from files or load files
-	// 2. extract important events by event id or user name
-	// 3. translate event id to meaningful description
-	// 4. format event to CEF format, flag important events
-	// 5. order by timestamp for super timeline (unique per XXH3?)
-	// 6. output CEF log
+	// 1. carve journals from files
+	// 5. order by timestamp for super timeline
 
 	return nil
 }
@@ -252,23 +288,23 @@ func (cmd *Text) Run(cli *Cli) error {
 }
 
 func (cmd *Hash) Run(cli *Cli) error {
-	hs := cli.Bootstrap(cli.Hash.Paths)
+	hs := cli.Bootstrap(cli.Hash.Algo.Paths.Paths)
 	defer cli.ThrowAway()
 
-	for _, t := range cli.Hash.Type {
-		if len(cli.Hash.Type) > 1 {
-			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(strings.ToUpper(t)))
+	for _, a := range cli.Hash.algos {
+		if len(cli.Hash.algos) > 1 && !cli.NoFile {
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(strings.ToUpper(a)))
 		}
 
 		for _, h := range hs.Get() {
-			sum, err := hash.Sum(t, h.MMap())
+			sum, err := hash.Sum(a, h.MMap())
 
 			if err != nil {
 				log.Println("could not compute hash: ", err.Error())
 				continue
 			}
 
-			switch t {
+			switch a {
 			case types.SDHASH:
 				_, _ = fmt.Fprintf(cli.w, "%s  %s\n", sum, h)
 			default:
@@ -280,8 +316,8 @@ func (cmd *Hash) Run(cli *Cli) error {
 	return nil
 }
 
-func (cmd *Dump) Run(cli *Cli) error {
-	hs := cli.Bootstrap(cli.Dump.Paths)
+func (cmd *Hex) Run(cli *Cli) error {
+	hs := cli.Bootstrap(cli.Hex.Paths)
 	defer cli.ThrowAway()
 
 	var n uint
@@ -303,8 +339,8 @@ func (cmd *Dump) Run(cli *Cli) error {
 	return nil
 }
 
-func (cmd *Show) Run(cli *Cli) error {
-	hs := cli.Bootstrap(cli.Show.Paths)
+func (cmd *Cat) Run(cli *Cli) error {
+	hs := cli.Bootstrap(cli.Cat.Paths)
 	defer cli.ThrowAway()
 
 	for _, h := range hs.Get() {

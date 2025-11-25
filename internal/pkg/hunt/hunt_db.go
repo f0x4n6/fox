@@ -29,7 +29,7 @@ var Levels = map[int64]int8{
 	4964: 10,
 }
 
-var Database = map[int64]string{
+var Events = map[int64]string{
 	1015:  "The antimalware platform detected suspicious behavior",
 	1100:  "The event logging service has shut down",
 	1101:  "Audit events have been dropped by the transport.",

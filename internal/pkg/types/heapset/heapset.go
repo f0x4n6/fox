@@ -13,6 +13,7 @@ import (
 	"github.com/edsrzf/mmap-go"
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/cab"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/rar"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/tar"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/zip"
@@ -22,6 +23,10 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/bzip2"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/gzip"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/lz4"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/lzw"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/mz"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/s2"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/sz"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/xz"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/zlib"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/zstd"
@@ -204,6 +209,8 @@ func (hs *HeapSet) extract(path string, b []byte) bool {
 	var fn files.Extract
 
 	switch {
+	case cab.Detect(b):
+		fn = cab.Extract
 	case rar.Detect(b):
 		fn = rar.Extract
 	case tar.Detect(b):
@@ -242,6 +249,14 @@ func (hs *HeapSet) deflate(b []byte) ([]byte, bool) {
 		fn = gzip.Deflate
 	case lz4.Detect(b):
 		fn = lz4.Deflate
+	case lzw.Detect(b):
+		fn = lzw.Deflate
+	case mz.Detect(b):
+		fn = mz.Deflate
+	case s2.Detect(b):
+		fn = s2.Deflate
+	case sz.Detect(b):
+		fn = sz.Deflate
 	case xz.Detect(b):
 		fn = xz.Deflate
 	case zlib.Detect(b):

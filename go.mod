@@ -39,5 +39,8 @@ require (
 
 require (
 	github.com/0xrawsec/golang-utils v1.3.2 // indirect
+	github.com/erfanmomeniii/simhash v1.0.0 // indirect
+	github.com/google/go-cabfile v0.0.0-20220815135208-f9ac3a87fd26 // indirect
+	github.com/minio/minlz v1.0.1 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 )

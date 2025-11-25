@@ -2,6 +2,8 @@ package hunt
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -11,13 +13,9 @@ import (
 	"github.com/cuhsat/fox/v4/internal"
 )
 
-const cef = "%s %s CEF:1|fox|hunt|%s|100|%s|%d|"
+const cef = "%s %s CEF:1|fox|hunt|%s|%d|%s|%d|"
 
 var hostPath = evtx.Path("/Event/System/Computer")
-
-var Nil any
-
-type Set map[uint64]any
 
 type Log struct {
 	Time      time.Time
@@ -25,6 +23,35 @@ type Log struct {
 	Message   string
 	Severity  int8
 	Extension map[string]string
+}
+
+func (log *Log) String() string {
+	var sb strings.Builder
+
+	msg := log.Message
+	msg = strings.ReplaceAll(msg, `\`, `\\`)
+	msg = strings.ReplaceAll(msg, `|`, `\|`)
+
+	if len(msg) > 512 {
+		msg = msg[:512]
+	}
+
+	sb.WriteString(fmt.Sprintf(cef,
+		log.Time.Format("Jan 02 2006 15:04:05.000"),
+		log.Host,
+		app.Version[1:],
+		100,
+		msg,
+		log.Severity,
+	))
+
+	for _, k := range slices.Sorted(maps.Keys(log.Extension)) {
+		if v := log.Extension[k]; len(v) > 0 {
+			sb.WriteString(fmt.Sprintf("%s=%s ", k, v))
+		}
+	}
+
+	return strings.TrimSpace(sb.String())
 }
 
 func Transform(evt *evtx.GoEvtxMap) *Log {
@@ -36,8 +63,8 @@ func Transform(evt *evtx.GoEvtxMap) *Log {
 		Extension: make(map[string]string),
 	}
 
-	if log.Message, ok = Database[evt.EventID()]; !ok {
-		log.Message = "The event is undescribed"
+	if log.Message, ok = Events[evt.EventID()]; !ok {
+		log.Message = fmt.Sprintf("Event ID %d (undescribed)", evt.EventID())
 	}
 
 	if log.Severity, ok = Levels[evt.EventID()]; !ok {
@@ -49,33 +76,4 @@ func Transform(evt *evtx.GoEvtxMap) *Log {
 	log.Extension["userid"], _ = evt.UserID()
 
 	return &log
-}
-
-func (log *Log) String() string {
-	var sb strings.Builder
-
-	m := log.Message
-
-	m = strings.ReplaceAll(m, `\`, `\\`)
-	m = strings.ReplaceAll(m, `|`, `\|`)
-
-	if len(m) > 512 {
-		m = m[:512]
-	}
-
-	sb.WriteString(fmt.Sprintf(cef,
-		log.Time.Format("Jan 02 2006 15:04:05.000"),
-		log.Host,
-		app.Version[1:],
-		m,
-		log.Severity,
-	))
-
-	for k, v := range log.Extension {
-		if len(v) > 0 {
-			sb.WriteString(fmt.Sprintf("%s=%s ", k, v))
-		}
-	}
-
-	return strings.TrimSpace(sb.String())
 }

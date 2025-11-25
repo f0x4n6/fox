@@ -7,6 +7,7 @@ import (
 	"crypto/sha3"
 	"errors"
 	"hash"
+	"hash/adler32"
 	"hash/crc32"
 	"hash/crc64"
 	"hash/fnv"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/cuhsat/fox/v4/internal/pkg/hash/blake3"
 	"github.com/cuhsat/fox/v4/internal/pkg/hash/sdhash"
+	"github.com/cuhsat/fox/v4/internal/pkg/hash/simhash"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 )
 
@@ -52,12 +54,16 @@ func Sum(t string, b []byte) ([]byte, error) {
 		imp = xxhash.New()
 	case types.XXH3:
 		imp = xxh3.New()
+	case types.SIMHASH:
+		imp = simhash.New()
 	case types.SDHASH:
 		imp = sdhash.New()
 	case types.SSDEEP:
 		imp = ssdeep.New()
 	case types.TLSH:
 		imp = tlsh.New()
+	case types.ADLER32:
+		imp = adler32.New()
 	case types.CRC32IEEE:
 		imp = crc32.NewIEEE()
 	case types.CRC64ISO:

@@ -30,23 +30,25 @@ The Swiss Army Knife for examining text files (%s)
 Visit <https://%s>.
 
 Usage:
-  fox [COMMAND] [FLAG ...] <PATH> ...
+  fox [COMMAND] [ARG] [FLAG ...] <PATH> ...
 
 Positional arguments:
   Path(s) to open or '-' for STDIN
 
 Commands:
   HUNT     hunt suspicious activities
-  HASH     show file content hashes
-  INFO     show file content stats
-  TEXT     show file ASCII strings
-  DUMP     show file in canonical hex
+  HASH     prints file content hashes
+  INFO     prints file content infos
+  TEXT     prints file ASCII strings
+  HEX      prints file in hex format
+  CAT      prints file (default)
 
 Hunt flags:
-      --all                prints all found events
+  -a, --all                show logs with lower severity
+  -s, --sort               sort logs by timestamp (slower)
 
-Hash flags:
-      --type=ALGO[,ALGO]   use algorithm (default: SHA256)
+Hash args:
+  ALGO[,ALGO]              use hash algorithm(s)
 
 Info flags:
       --min=DECIMAL        minimum entropy value (default: 0.0)
@@ -74,7 +76,7 @@ Line filter:
 Data stream:
   -f, --file=FILE          stream data to file name
   -u, --url=SERVER         stream data to server address
-  -a, --auth=TOKEN         stream data using auth token
+  -T, --auth=TOKEN         stream data using auth token
   -E, --ecs                use ECS schema for streaming
   -H, --hec                use HEC schema for streaming
 
@@ -96,23 +98,23 @@ Standard:
       --help               prints this help message
 
 Hashes (cryptographic):
-  MD5, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512,
-  BLAKE3-256, BLAKE3-512
+  SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512,
+  MD5, BLAKE3-256, BLAKE3-512
 
 Hashes (performance):
   FNV-1, FNV-1A, XXH64, XXH3
 
 Hashes (similarity):
-  SDHASH, SSDEEP, TLSH
+  SIMHASH, SDHASH, SSDEEP, TLSH
 
 Checksums:
-  CRC32-IEEE, CRC64-ECMA, CRC64-ISO
+  ADLER32, CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
 Example: dump the image MBR in hex format
-  $ fox dump -hc512 image.dd > mbr
+  $ fox hex -hc512 image.dd > mbr
 
 Example: find occurrences in all logs
-  $ fox -elogin ./**/*.log
+  $ fox cat -elogin ./**/*.log
 
 Example: hunt down suspicious files
   $ fox hunt .
