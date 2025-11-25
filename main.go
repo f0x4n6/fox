@@ -30,33 +30,25 @@ The Swiss Army Knife for examining text files (%s)
 Visit <https://%s>.
 
 Usage:
-  fox [COMMAND] [ARG] [FLAG ...] <PATH> ...
-
-Positional arguments:
-  Path(s) to open or '-' for STDIN
+  fox [COMMAND] [FLAGS...] <PATHS...>
 
 Commands:
-  HUNT     hunt suspicious activities
-  HASH     prints file content hashes
-  INFO     prints file content infos
-  TEXT     prints file ASCII strings
-  HEX      prints file in hex format
-  CAT      prints file (default)
+  hunt [FLAGS] <PATHS>     hunt suspicious activities
+    -a, --all              show logs with all severities
+    -s, --sort             show logs sorted by timestamp (slow)
 
-Hunt flags:
-  -a, --all                show logs with lower severity
-  -s, --sort               sort logs by timestamp (slower)
+  hash ALGO[,..] <PATHS>   prints file hash using algorithm(s)
 
-Hash args:
-  ALGO[,ALGO]              use hash algorithm(s)
+  info [FLAGS] <PATHS>     prints file info and entropy
+        --min=DECIMAL      minimum entropy value (default: 0.0)
+        --max=DECIMAL      maximal entropy value (default: 1.0)
 
-Info flags:
-      --min=DECIMAL        minimum entropy value (default: 0.0)
-      --max=DECIMAL        maximal entropy value (default: 1.0)
+  text [FLAGS] <PATHS>     prints file ASCII strings
+        --min=NUMBER       minimum string length (default: 3)
+        --max=NUMBER       maximal string length (default: 256)
 
-Text flags:
-      --min=NUMBER         minimum string length (default: 3)
-      --max=NUMBER         maximal string length (default: 256)
+  hex [FLAGS] <PATHS>      prints file in hex format
+  cat [FLAGS] <PATHS>      prints file (default)
 
 File limits:
   -h, --head               limit head of file by ...
@@ -80,7 +72,7 @@ Data stream:
   -E, --ecs                use ECS schema for streaming
   -H, --hec                use HEC schema for streaming
 
-Turn off:
+Disable:
   -r, --raw                don't process files at all
   -R, --readonly           don't write anything at all
       --no-file            don't print filenames
@@ -88,14 +80,17 @@ Turn off:
       --no-deflate         don't deflate automatically
       --no-convert         don't convert automatically
 
-Localhost:
-  -L, --logstash           short for: --ecs --url=http://localhost:8080
-  -S, --splunk             short for: --hec --url=http://localhost:8088/...
+Aliases:
+  -L, --logstash           alias for: -E -uhttp://localhost:8080
+  -S, --splunk             alias for: -H -uhttp://localhost:8088/...
 
 Standard:
-  -v, --verbose[=LEVEL]    prints more details (alt: -v, -vv, -vvv)
+  -v, --verbose[=LEVEL]    prints more details (v/vv/vvv)
       --version            prints the version number
       --help               prints this help message
+
+Positional arguments:
+  Path(s) to open or '-' for STDIN
 
 Hashes (cryptographic):
   SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512,
@@ -110,14 +105,14 @@ Hashes (similarity):
 Checksums:
   ADLER32, CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
-Example: dump the image MBR in hex format
+Example: Dump the image MBR in hex format
   $ fox hex -hc512 image.dd > mbr
 
-Example: find occurrences in all logs
+Example: Find occurrences in all logs
   $ fox cat -elogin ./**/*.log
 
-Example: hunt down suspicious files
-  $ fox hunt .
+Example: Hunt down suspicious files
+  $ fox hunt -as .
 
 Type "man fox" for more help...
 `

@@ -62,7 +62,7 @@ type Cat struct {
 }
 
 type Cli struct {
-	// Commands
+	// commands
 	Hunt Hunt `cmd:"" aliases:"u"`
 	Info Info `cmd:"" aliases:"i,wc"`
 	Text Text `cmd:"" aliases:"t,strings"`
@@ -70,29 +70,29 @@ type Cli struct {
 	Hex  Hex  `cmd:"" aliases:"x"`
 	Cat  Cat  `cmd:"" default:"withargs" aliases:"c,less"`
 
-	// File limits
+	// file limits
 	Head  bool `short:"h" xor:"head,tail"`
 	Tail  bool `short:"t" xor:"head,tail"`
 	Lines uint `short:"n" xor:"lines,bytes"`
 	Bytes uint `short:"c" xor:"lines,bytes"`
 
-	// File loader
+	// file loader
 	Pass string `short:"p"`
 
-	// Line filter
+	// line filter
 	Regex   string `short:"e"`
 	Context uint   `short:"C"`
 	Before  uint   `short:"B"`
 	After   uint   `short:"A"`
 
-	// Data stream
+	// data stream
 	File string `short:"f"`
 	Url  string `short:"u"`
 	Auth string `short:"T"`
 	Ecs  bool   `short:"E" xor:"ecs,hec"`
 	Hec  bool   `short:"H" xor:"ecs,hec" and:"hec,auth"`
 
-	// Turn off
+	// disable
 	Readonly  bool `short:"R"`
 	Raw       bool `short:"r"`
 	NoFile    bool `long:"no-file"`
@@ -100,14 +100,14 @@ type Cli struct {
 	NoDeflate bool `long:"no-deflate"`
 	NoConvert bool `long:"no-convert"`
 
-	// Localhost
+	// aliases
 	Logstash bool `short:"L" xor:"logstash,splunk"`
 	Splunk   bool `short:"S" xor:"logstash,splunk"`
 
-	// Standard
+	// standard
 	Verbose int `short:"v" type:"counter"`
 
-	// Internal
+	// internal
 	w  io.WriteCloser   `kong:"-"`
 	hs *heapset.HeapSet `kong:"-"`
 }
