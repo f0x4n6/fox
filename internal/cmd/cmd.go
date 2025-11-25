@@ -226,18 +226,20 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	for _, h := range hs.Get() {
 		for l := range hunt.Hunt(h, cli.Verbose) {
 			if cli.Hunt.All || l.Severity > 0 {
-				if !cli.Hunt.Sort {
-					_, _ = fmt.Fprintln(cli.w, l)
-				} else {
+				if cli.Hunt.Sort {
 					logs[l.Time.UnixNano()] = l
+				} else {
+					_, _ = fmt.Fprintln(cli.w, l)
 				}
 				n++
 			}
 		}
 	}
 
-	for _, k := range slices.Sorted(maps.Keys(logs)) {
-		_, _ = fmt.Fprintln(cli.w, logs[k])
+	if cli.Hunt.Sort {
+		for _, k := range slices.Sorted(maps.Keys(logs)) {
+			_, _ = fmt.Fprintln(cli.w, logs[k])
+		}
 	}
 
 	if cli.Verbose > 1 {
@@ -246,7 +248,6 @@ func (cmd *Hunt) Run(cli *Cli) error {
 
 	// TODO:
 	// 1. carve journals from files
-	// 5. order by timestamp for super timeline
 
 	return nil
 }

@@ -12,9 +12,12 @@ require (
 	github.com/cuhsat/zip v0.5.2
 	github.com/eciavatta/sdhash v0.0.0-20210117153940-a7b55306eeff
 	github.com/edsrzf/mmap-go v1.2.0
+	github.com/erfanmomeniii/simhash v1.0.0
 	github.com/glaslos/ssdeep v0.4.0
 	github.com/glaslos/tlsh v0.4.0
+	github.com/google/go-cabfile v0.0.0-20220815135208-f9ac3a87fd26
 	github.com/klauspost/compress v1.18.1
+	github.com/minio/minlz v1.0.1
 	github.com/nwaples/rardecode v1.1.3
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/ulikunitz/xz v0.5.15
@@ -39,8 +42,5 @@ require (
 
 require (
 	github.com/0xrawsec/golang-utils v1.3.2 // indirect
-	github.com/erfanmomeniii/simhash v1.0.0 // indirect
-	github.com/google/go-cabfile v0.0.0-20220815135208-f9ac3a87fd26 // indirect
-	github.com/minio/minlz v1.0.1 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 )
