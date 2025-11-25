@@ -12,6 +12,7 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/ecs"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/hec"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/raw"
+	"github.com/cuhsat/fox/v4/internal/pkg/hash"
 	"github.com/cuhsat/fox/v4/internal/pkg/hunt"
 	"github.com/cuhsat/fox/v4/internal/pkg/text"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
@@ -20,9 +21,8 @@ import (
 )
 
 type Hunt struct {
-	All     bool     `short:"a"`
-	Ordered bool     `short:"o"`
-	Paths   []string `arg:"" name:"path" type:"path" optional:""`
+	All   bool
+	Paths []string `arg:"" name:"path" type:"path" optional:""`
 }
 
 type Info struct {
@@ -195,8 +195,12 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	defer cli.ThrowAway()
 
 	for _, h := range hs.Get() {
-		for s := range hunt.Hunt(h, cli.Verbose) {
-			_, _ = fmt.Fprintln(cli.w, s)
+		for l := range hunt.Hunt(h,
+			cli.Verbose,
+		) {
+			if cli.Hunt.All || l.Severity > 0 {
+				_, _ = fmt.Fprintln(cli.w, l)
+			}
 		}
 	}
 
@@ -251,20 +255,20 @@ func (cmd *Hash) Run(cli *Cli) error {
 	hs := cli.Bootstrap(cli.Hash.Paths)
 	defer cli.ThrowAway()
 
-	for _, algo := range cli.Hash.Type {
+	for _, t := range cli.Hash.Type {
 		if len(cli.Hash.Type) > 1 {
-			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(strings.ToUpper(algo)))
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(strings.ToUpper(t)))
 		}
 
 		for _, h := range hs.Get() {
-			sum, err := h.HashSum(algo)
+			sum, err := hash.Sum(t, h.MMap())
 
 			if err != nil {
-				log.Printf("could not compute hash: %s", err.Error())
+				log.Println("could not compute hash: ", err.Error())
 				continue
 			}
 
-			switch algo {
+			switch t {
 			case types.SDHASH:
 				_, _ = fmt.Fprintf(cli.w, "%s  %s\n", sum, h)
 			default:

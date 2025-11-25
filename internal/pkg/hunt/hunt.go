@@ -16,65 +16,44 @@ import (
 
 var re = regexp.MustCompile(evtx.ChunkMagic)
 
-func Hunt(h *heap.Heap, v int) chan string {
-	ch := make(chan string, 1024)
+func Hunt(h *heap.Heap, v int) chan *Log {
+	ch := make(chan *Log, 1024)
 
 	r1 := bytes.NewReader(h.MMap())
 	r2 := bytes.NewReader(h.MMap())
 
 	evtx.SetModeCarving(true)
 
-	cache := make(Logs)
+	set := make(Set)
 
 	go func() {
 		defer close(ch)
 
-		for o := range offset(r1) {
+		for off := range offset(r1) {
 			if v > 2 {
-				log.Printf("Parsing chunk 0x%08x\n", o)
+				log.Printf("parsing chunk 0x%08x\n", off)
 			}
 
-			chunk, err := parse(r2, o)
+			chunk, err := parse(r2, off)
 
 			if err != nil {
 				log.Print(err)
 				continue
 			}
 
-			for e := range chunk.Events() {
-				s := fmt.Sprintf("%#v", e)
+			for evt := range chunk.Events() {
+				key := xxh3.HashString(fmt.Sprintf("%#v", evt))
 
-				key := xxh3.HashString(s)
-
-				if _, ok := cache[key]; !ok {
-					p := evtx.Path("/Event/System/Computer")
-
-					user, _ := e.UserID()
-					host, _ := e.GetString(&p)
-
-					msg, ok := DB[e.EventID()]
-
-					if !ok {
-						msg = "not found"
-					}
-
-					evt := &Log{
-						Ts:      e.TimeCreated(),
-						Id:      e.EventID(),
-						User:    user,
-						Host:    host,
-						Channel: e.Channel(),
-						Message: msg,
-					}
-
-					cache[key] = evt
-
-					ch <- evt.String()
+				if _, ok := set[key]; !ok {
+					ch <- Transform(evt)
+					set[key] = Nil
 				}
 			}
 		}
 
-		fmt.Printf("found %d events\n", len(cache))
+		if v > 1 {
+			log.Printf("found %d events\n", len(set))
+		}
 	}()
 
 	return ch

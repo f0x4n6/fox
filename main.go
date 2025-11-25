@@ -43,8 +43,7 @@ Commands:
   DUMP     show file in canonical hex
 
 Hunt flags:
-  -a, --all                prints all found events
-  -o, --ordered            orders all found events by time
+      --all                prints all found events
 
 Hash flags:
       --type=ALGO[,ALGO]   use algorithm (default: SHA256)

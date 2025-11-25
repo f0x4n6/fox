@@ -1,4 +1,4 @@
-package heap
+package hash
 
 import (
 	"crypto/md5"
@@ -22,10 +22,10 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 )
 
-func (h *Heap) HashSum(algo string) ([]byte, error) {
+func Sum(t string, b []byte) ([]byte, error) {
 	var imp hash.Hash
 
-	switch strings.ToLower(algo) {
+	switch strings.ToLower(t) {
 	case types.MD5:
 		imp = md5.New()
 	case types.SHA1:
@@ -70,9 +70,7 @@ func (h *Heap) HashSum(algo string) ([]byte, error) {
 
 	imp.Reset()
 
-	_, err := imp.Write(h.MMap())
-
-	if err != nil {
+	if _, err := imp.Write(b); err != nil {
 		return nil, err
 	}
 
