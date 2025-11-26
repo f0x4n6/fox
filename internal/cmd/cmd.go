@@ -24,6 +24,7 @@ import (
 
 type Hunt struct {
 	All   bool     `short:"a"`
+	Ext   bool     `short:"x"`
 	Sort  bool     `short:"s"`
 	Paths []string `arg:"" type:"path" optional:""`
 }
@@ -175,10 +176,6 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 		cli.Hunt.Paths = hunt.Paths
 	}
 
-	if len(cli.Hunt.Paths) > 0 {
-		cli.NoConvert = true
-	}
-
 	if len(cli.Hash.Algo.Algo) > 0 {
 		cli.Hash.algos = strings.Split(cli.Hash.Algo.Algo, ",")
 	}
@@ -213,6 +210,8 @@ func (cli *Cli) ThrowAway() {
 }
 
 func (cmd *Hunt) Run(cli *Cli) error {
+	cli.NoConvert = true // force
+
 	hs := cli.Bootstrap(cli.Hunt.Paths)
 	defer cli.ThrowAway()
 
@@ -221,8 +220,11 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	logs := make(map[int64]*hunt.Log)
 
 	for _, h := range hs.Get() {
-		for l := range hunt.Hunt(h, cli.Verbose) {
-			if cli.Hunt.All || l.Severity > 0 {
+		for l := range hunt.Hunt(h,
+			cli.Hunt.Ext,
+			cli.Verbose,
+		) {
+			if cli.Hunt.All || l.Severity >= hunt.Limit {
 				if cli.Hunt.Sort {
 					logs[l.Time.UnixNano()] = l
 				} else {

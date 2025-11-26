@@ -20,7 +20,6 @@ import (
 
 	"github.com/cuhsat/fox/v4/internal/pkg/hash/blake3"
 	"github.com/cuhsat/fox/v4/internal/pkg/hash/sdhash"
-	"github.com/cuhsat/fox/v4/internal/pkg/hash/simhash"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 )
 
@@ -54,8 +53,6 @@ func Sum(t string, b []byte) ([]byte, error) {
 		imp = xxhash.New()
 	case types.XXH3:
 		imp = xxh3.New()
-	case types.SIMHASH:
-		imp = simhash.New()
 	case types.SDHASH:
 		imp = sdhash.New()
 	case types.SSDEEP:

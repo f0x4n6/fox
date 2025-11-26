@@ -17,10 +17,9 @@ const (
 	XXH64 = "xxh64"
 	XXH3  = "xxh3"
 
-	SIMHASH = "simhash"
-	SDHASH  = "sdhash"
-	SSDEEP  = "ssdeep"
-	TLSH    = "tlsh"
+	SDHASH = "sdhash"
+	SSDEEP = "ssdeep"
+	TLSH   = "tlsh"
 
 	ADLER32   = "adler32"
 	CRC32IEEE = "crc32-ieee"

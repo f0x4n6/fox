@@ -22,11 +22,11 @@ import (
 )
 
 var usage = `
-.-------.----.--.  .--.  .--. .--.--. .--.-. .--.--------.
-|   ___/ .__. \  \/  /   |  |_|  |  | |  |  \|  |__    __|
-|   __|  |  |  >    <    |   _   |  | |  |   '  |  |  |
-|  |   \ '--' /  /\  \   |  | |  |\ '-' /|  |\  |  |  |
-'--'    '----'--'  '--'  '--' '--' '---' '--' '-'  '--'
+.-------.----.--.  .--.   .--. .--.--. .--.-. .--.------.
+|   ___/ .__. \  \/  /    |  |_|  |  | |  |  \|  |   ___|
+|   __|  |  |  >    <     |   _   |  | |  |   '  |  |
+|  |   \ '--' /  /\  \    |  | |  |  '-'  |  |\  |  |
+'--'    '----'--'  '--'   '--' '--'-------'--' '-'--'
 %s >>> https://%s >>> %s
 
 Usage:
@@ -35,6 +35,7 @@ Usage:
 Commands:
   hunt [FLAGS] <PATHS>     hunt suspicious activities
     -a, --all              show logs with all severities
+    -x, --ext              show logs with all extensions             
     -s, --sort             show logs sorted by timestamp (slow)
 
   hash ALGO[,..] <PATHS>   prints file hash using algorithm(s)
@@ -100,7 +101,7 @@ Hashes (performance):
   FNV-1, FNV-1A, XXH64, XXH3
 
 Hashes (similarity):
-  SIMHASH, SDHASH, SSDEEP, TLSH
+  SDHASH, SSDEEP, TLSH
 
 Checksums:
   ADLER32, CRC32-IEEE, CRC64-ECMA, CRC64-ISO
