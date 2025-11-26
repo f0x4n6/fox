@@ -7,7 +7,6 @@ import (
 	"maps"
 	"os"
 	"regexp"
-	"runtime"
 	"slices"
 	"strings"
 
@@ -173,9 +172,7 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 	}
 
 	if len(cli.Hunt.Paths) == 0 {
-		if runtime.GOOS == "windows" {
-			cli.Hunt.Paths = []string{hunt.Windows}
-		}
+		cli.Hunt.Paths = hunt.Paths
 	}
 
 	if len(cli.Hunt.Paths) > 0 {
@@ -245,9 +242,6 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	if cli.Verbose > 1 {
 		log.Printf("found %d events\n", n)
 	}
-
-	// TODO:
-	// 1. carve journals from files
 
 	return nil
 }

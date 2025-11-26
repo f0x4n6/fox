@@ -3,43 +3,49 @@ package hunt
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"hash/maphash"
 	"io"
 	"log"
 	"regexp"
+	"sync"
 
-	"github.com/0xrawsec/golang-evtx/evtx"
-
+	"github.com/cuhsat/fox/v4/internal/pkg/files/parser/evtx"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/parser/journal"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
 
-const Windows = "/Windows/System32/winevt/Logs"
-
-var re = regexp.MustCompile(evtx.ChunkMagic)
+var Paths = []string{
+	"/Windows/System32/winevt/Logs",
+	"/var/log/journal",
+	"/run/log/journal",
+}
 
 func Hunt(h *heap.Heap, v int) chan *Log {
+	var wg sync.WaitGroup
+
 	ch := make(chan *Log, 1024)
 
-	r1 := bytes.NewReader(h.MMap())
-	r2 := bytes.NewReader(h.MMap())
-
-	evtx.SetModeCarving(true)
-
-	set := make(types.Set)
+	wg.Add(2)
 
 	go func() {
-		defer close(ch)
+		defer wg.Done()
 
 		seed := maphash.MakeSeed()
 
-		for off := range offset(r1) {
+		r1 := bytes.NewReader(h.MMap())
+		r2 := bytes.NewReader(h.MMap())
+
+		set := make(types.Set)
+
+		for off := range offset(r1, evtx.Magic) {
 			if v > 2 {
-				log.Printf("parsing chunk 0x%08x\n", off)
+				log.Printf("parsing offset 0x%08x\n", off)
 			}
 
-			chunk, err := parse(r2, off)
+			chunk, err := evtx.Parse(r2, off)
 
 			if err != nil {
 				log.Print(err)
@@ -50,17 +56,56 @@ func Hunt(h *heap.Heap, v int) chan *Log {
 				key := maphash.String(seed, fmt.Sprintf("%#v", evt))
 
 				if _, ok := set[key]; !ok {
-					ch <- Transform(evt)
+					ch <- FromEvtx(evt)
 					set[key] = types.Nil
 				}
 			}
 		}
 	}()
 
+	go func() {
+		defer wg.Done()
+
+		seed := maphash.MakeSeed()
+
+		r := bytes.NewReader(h.MMap())
+
+		set := make(types.Set)
+
+		for off := range offset(r, journal.Magic) {
+			if v > 2 {
+				log.Printf("parsing offset 0x%08x\n", off)
+			}
+
+			jfile, err := journal.Parse(h.MMap(), off)
+
+			if err != nil {
+				log.Print(err)
+				continue
+			}
+
+			for jlg := range jfile.GetLogs(context.Background()) {
+				key := maphash.String(seed, fmt.Sprintf("%#v", jlg))
+
+				fmt.Printf("%#v\n", jlg)
+
+				if _, ok := set[key]; !ok {
+					ch <- FromJournal(jlg)
+					set[key] = types.Nil
+				}
+			}
+		}
+	}()
+
+	go func() {
+		defer close(ch)
+		wg.Wait()
+	}()
+
 	return ch
 }
 
-func offset(rs io.ReadSeeker) <-chan int64 {
+func offset(rs io.ReadSeeker, re *regexp.Regexp) <-chan int64 {
 	ch := make(chan int64, 1024)
 
 	go func(r *bufio.Reader) {
@@ -76,38 +121,4 @@ func offset(rs io.ReadSeeker) <-chan int64 {
 	}(bufio.NewReader(rs))
 
 	return ch
-}
-
-func parse(rs io.ReadSeeker, off int64) (*evtx.Chunk, error) {
-	evtx.GoToSeeker(rs, off)
-
-	chk := evtx.NewChunk()
-	chk.Offset = off
-	chk.Data = make([]byte, evtx.ChunkSize)
-
-	if _, err := rs.Read(chk.Data); err != nil {
-		return nil, err
-	}
-
-	r := bytes.NewReader(chk.Data)
-
-	chk.ParseChunkHeader(r)
-
-	if err := chk.Header.Validate(); err != nil {
-		return nil, err
-	}
-
-	evtx.GoToSeeker(r, int64(chk.Header.SizeHeader))
-
-	chk.ParseStringTable(r)
-
-	if err := chk.ParseTemplateTable(r); err != nil {
-		return nil, err
-	}
-
-	if err := chk.ParseEventOffsets(r); err != nil {
-		return nil, err
-	}
-
-	return &chk, nil
 }

@@ -64,7 +64,7 @@ nfpms:
     maintainer: Christian Uhsat <christian@uhsat.de>
     description: |-
       Fox Hunt.
-      The Swiss Army Knife for examining text files.
+      The Forensic Swiss Army Knife.
     license: GPL-3.0
     formats:
       - archlinux

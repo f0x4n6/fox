@@ -1,4 +1,4 @@
-// The Swiss Army Knife for examining text files.
+// The Forensic Swiss Army Knife.
 //
 // Copyright 2025 Christian Uhsat. All rights reserved.
 // Use of this source code is governed by the GPL-3.0
@@ -21,16 +21,16 @@ import (
 	"github.com/cuhsat/fox/v4/internal/cmd"
 )
 
-var usage = ` ____ _____  __  _  _ _   _ _  _ _____
-|  __/ _ \ \/ / | || | | | | \| |_   _|
-|  _| (_) >  <  | __ | |_| | .' | | |
-|__| \___/_/\_\ |_||_|\___/|_|\_| |_|
-
-The Swiss Army Knife for examining text files (%s)
-Visit <https://%s>.
+var usage = `
+.-------.----.--.  .--.  .--. .--.--. .--.-. .--.--------.
+|   ___/ .__. \  \/  /   |  |_|  |  | |  |  \|  |__    __|
+|   __|  |  |  >    <    |   _   |  | |  |   '  |  |  |
+|  |   \ '--' /  /\  \   |  | |  |\ '-' /|  |\  |  |  |
+'--'    '----'--'  '--'  '--' '--' '---' '--' '-'  '--'
+%s >>> https://%s >>> %s
 
 Usage:
-  fox [COMMAND] [FLAGS...] <PATHS...>
+  fox [COMMAND] [FLAGS] <PATHS>
 
 Commands:
   hunt [FLAGS] <PATHS>     hunt suspicious activities
@@ -143,7 +143,7 @@ func main() {
 	case fox.Version:
 		fmt.Printf("%s %s\n", app.Product, app.Version)
 	case fox.Help || ctx.Error != nil || len(ctx.Args) == 0:
-		fmt.Printf(usage, app.Version, app.Website)
+		fmt.Printf(usage, app.Tagline, app.Website, app.Version)
 	default:
 		if fox.Cli.Verbose > 1 {
 			defer func(start time.Time) {

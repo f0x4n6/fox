@@ -9,13 +9,16 @@ import (
 	"time"
 
 	"github.com/0xrawsec/golang-evtx/evtx"
+	"github.com/Velocidex/ordereddict"
 
 	"github.com/cuhsat/fox/v4/internal"
 )
 
 const cef = "%s %s CEF:1|fox|hunt|%s|%d|%s|%d|"
 
-var hostPath = evtx.Path("/Event/System/Computer")
+var (
+	hostPath = evtx.Path("/Event/System/Computer")
+)
 
 type Log struct {
 	Time      time.Time
@@ -54,7 +57,7 @@ func (log *Log) String() string {
 	return strings.TrimSpace(sb.String())
 }
 
-func Transform(evt *evtx.GoEvtxMap) *Log {
+func FromEvtx(evt *evtx.GoEvtxMap) *Log {
 	var ok bool
 
 	log := Log{
@@ -74,6 +77,37 @@ func Transform(evt *evtx.GoEvtxMap) *Log {
 	log.Extension["channel"] = evt.Channel()
 	log.Extension["eventid"] = strconv.Itoa(int(evt.EventID()))
 	log.Extension["userid"], _ = evt.UserID()
+
+	return &log
+}
+
+func FromJournal(od *ordereddict.Dict) *Log {
+	sys, _ := od.Get("System")
+	evt, _ := od.Get("EventData")
+
+	ts, _ := sys.GetInt64("Timestamp")
+
+	host, _ := sys.GetString("_HOSTNAME")
+
+	log := Log{
+		Time:      time.Unix(ts, 0),
+		Host:      host,
+		Extension: make(map[string]string),
+	}
+
+	log.Message, _ = evt.GetString("MESSAGE")
+
+	//	if log.Message, ok = Events[evt.EventID()]; !ok {
+	//		log.Message = fmt.Sprintf("Event ID %d (undescribed)", evt.EventID())
+	//	}
+
+	//	if log.Severity, ok = Levels[evt.EventID()]; !ok {
+	//		log.Severity = 0 // unknown
+	//	}
+
+	//	log.Extension["channel"] = evt.Channel()
+	//	log.Extension["eventid"] = strconv.Itoa(int(evt.EventID()))
+	//	log.Extension["userid"], _ = evt.UserID()
 
 	return &log
 }

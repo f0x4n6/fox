@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/Velocidex/go-journalctl/parser"
+
 	"github.com/cuhsat/fox/v4/internal/pkg/files"
 )
 

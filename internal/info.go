@@ -2,6 +2,7 @@ package app
 
 const (
 	Product = "Fox Hunt"
-	Website = "foxhunt.dev"
+	Tagline = "The Forensic Swiss Army Knife"
+	Website = "foxhunt.wtf"
 	Version = "v4.0.0"
 )
