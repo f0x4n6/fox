@@ -19,6 +19,7 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/text"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/buffer"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/event"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heapset"
 )
 
@@ -215,9 +216,7 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	hs := cli.Bootstrap(cli.Hunt.Paths)
 	defer cli.ThrowAway()
 
-	var n uint64
-
-	logs := make(map[int64]*hunt.Log)
+	n, cache := 0, make(map[int64]*event.Event)
 
 	for _, h := range hs.Get() {
 		for l := range hunt.Hunt(h,
@@ -226,7 +225,7 @@ func (cmd *Hunt) Run(cli *Cli) error {
 		) {
 			if cli.Hunt.All || l.Severity >= hunt.Limit {
 				if cli.Hunt.Sort {
-					logs[l.Time.UnixNano()] = l
+					cache[l.Time.UnixNano()] = l
 				} else {
 					_, _ = fmt.Fprintln(cli.w, l)
 				}
@@ -236,8 +235,8 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	}
 
 	if cli.Hunt.Sort {
-		for _, k := range slices.Sorted(maps.Keys(logs)) {
-			_, _ = fmt.Fprintln(cli.w, logs[k])
+		for _, k := range slices.Sorted(maps.Keys(cache)) {
+			_, _ = fmt.Fprintln(cli.w, cache[k])
 		}
 	}
 

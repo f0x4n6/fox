@@ -11,9 +11,10 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/cuhsat/fox/v4/internal/pkg/files/parser/evtx"
-	"github.com/cuhsat/fox/v4/internal/pkg/files/parser/journal"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/format/evtx"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/format/journal"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/event"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
 
@@ -32,12 +33,12 @@ type Context struct {
 	h  *heap.Heap
 	x  bool
 	v  int
-	ch chan<- *Log
+	ch chan<- *event.Event
 	wg *sync.WaitGroup
 }
 
-func Hunt(h *heap.Heap, x bool, v int) chan *Log {
-	ch := make(chan *Log, size)
+func Hunt(h *heap.Heap, x bool, v int) chan *event.Event {
+	ch := make(chan *event.Event, size)
 
 	ctx := &Context{h, x, v, ch, new(sync.WaitGroup)}
 	ctx.wg.Add(2)
@@ -63,8 +64,10 @@ func huntEventlogs(ctx *Context) {
 
 	set := make(types.Set)
 
-	for off := range offset(ctx, r1, evtx.Magic) {
-		chunk, err := evtx.Parse(r2, off)
+	re := regexp.MustCompile(evtx.Chunk)
+
+	for off := range offset(ctx, r1, re) {
+		chunk, err := evtx.Decode(r2, off)
 
 		if err != nil {
 			log.Print(err)
@@ -75,7 +78,7 @@ func huntEventlogs(ctx *Context) {
 			key := maphash.String(seed, fmt.Sprintf("%#v", evt))
 
 			if _, ok := set[key]; !ok {
-				ctx.ch <- FromEvtx(evt, ctx.x)
+				ctx.ch <- evtx.ToEvent(evt, ctx.x)
 				set[key] = types.Nil
 			}
 		}
@@ -91,8 +94,10 @@ func huntJournals(ctx *Context) {
 
 	set := make(types.Set)
 
-	for off := range offset(ctx, r, journal.Magic) {
-		jfile, err := journal.Parse(ctx.h.MMap(), off)
+	re := regexp.MustCompile(journal.Magic)
+
+	for off := range offset(ctx, r, re) {
+		jfile, err := journal.Decode(ctx.h.MMap(), off)
 
 		if err != nil {
 			log.Print(err)
@@ -103,7 +108,7 @@ func huntJournals(ctx *Context) {
 			key := maphash.String(seed, fmt.Sprintf("%#v", jlg))
 
 			if _, ok := set[key]; !ok {
-				ctx.ch <- FromJournal(jlg, ctx.x)
+				ctx.ch <- journal.ToEvent(jlg, ctx.x)
 				set[key] = types.Nil
 			}
 		}

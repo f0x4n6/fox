@@ -17,8 +17,6 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/rar"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/tar"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/zip"
-	"github.com/cuhsat/fox/v4/internal/pkg/files/convert/evtx"
-	"github.com/cuhsat/fox/v4/internal/pkg/files/convert/journal"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/br"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/bzip2"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/gzip"
@@ -30,6 +28,8 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/xz"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/zlib"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/zstd"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/format/evtx"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/format/journal"
 	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
@@ -281,9 +281,9 @@ func (hs *HeapSet) convert(b []byte) ([]byte, bool) {
 
 	switch {
 	case evtx.Detect(b):
-		fn = evtx.Convert
+		fn = evtx.Format
 	case journal.Detect(b):
-		fn = journal.Convert
+		fn = journal.Format
 	default:
 		return b, false
 	}

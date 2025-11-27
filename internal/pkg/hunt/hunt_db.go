@@ -1,14 +1,5 @@
 package hunt
 
-var Ignore = []string{
-	"Timestamp",
-	"MESSAGE",
-	"PRIORITY",
-	"SYSLOG_TIMESTAMP",
-	"_SOURCE_REALTIME_TIMESTAMP",
-	"_HOSTNAME",
-}
-
 var Levels = map[int64]int8{
 	1015: 10,
 	1102: 10,
