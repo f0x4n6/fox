@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"maps"
+	"time"
 
 	"github.com/0xrawsec/golang-evtx/evtx"
 
@@ -13,16 +14,48 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/types/event"
 )
 
-const Magic = evtx.EvtxMagic
-const Chunk = evtx.ChunkMagic
-
-var hostPath = evtx.Path("/Event/System/Computer")
+const (
+	Magic = evtx.EvtxMagic
+	Chunk = evtx.ChunkMagic
+)
 
 func Detect(b []byte) bool {
 	return files.HasMagic(b, 0, []byte(Magic))
 }
 
-func Format(b []byte) ([]byte, error) {
+func Decode(rs io.ReadSeeker, off int64, ext int) <-chan *event.Event {
+	ch := make(chan *event.Event, 1024)
+
+	chk, err := newChunk(rs, off)
+
+	if err != nil {
+		defer close(ch)
+		log.Println(err)
+		return ch
+	}
+
+	go func(chk *evtx.Chunk) {
+		defer close(ch)
+
+		for evt := range chk.Events() {
+			e := newEvent(evt)
+
+			if ext > 0 {
+				addExtLevel1(e, evt)
+			}
+
+			if ext > 1 {
+				addExtLevel2(e, evt)
+			}
+
+			ch <- e
+		}
+	}(chk)
+
+	return ch
+}
+
+func Convert(b []byte) ([]byte, error) {
 	r, err := evtx.New(bytes.NewReader(b))
 
 	if err != nil {
@@ -51,7 +84,7 @@ func Format(b []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func Decode(rs io.ReadSeeker, off int64) (*evtx.Chunk, error) {
+func newChunk(rs io.ReadSeeker, off int64) (*evtx.Chunk, error) {
 	evtx.SetModeCarving(true)
 	evtx.GoToSeeker(rs, off)
 
@@ -86,28 +119,73 @@ func Decode(rs io.ReadSeeker, off int64) (*evtx.Chunk, error) {
 	return &chk, nil
 }
 
-func ToEvent(evt *evtx.GoEvtxMap, ext bool) *event.Event {
+func newEvent(evt *evtx.GoEvtxMap) *event.Event {
 	var ok bool
 
-	l := event.Event{
+	p := evtx.Path("/Event/System/Computer")
+	e := event.Event{
 		Time:      evt.TimeCreated().UTC(),
-		Host:      evt.GetStringStrict(&hostPath),
-		Extension: make(map[string]string),
+		Extension: make(map[string]any),
 	}
 
-	if l.Message, ok = Events[evt.EventID()]; !ok {
-		l.Message = fmt.Sprintf("Undescribed event: Event ID %d", evt.EventID())
+	e.Host, _ = evt.GetString(&p)
+
+	if e.Message, ok = Events[evt.EventID()]; !ok {
+		e.Message = fmt.Sprintf("Undescribed event: Event ID %d", evt.EventID())
 	}
 
-	if l.Severity, ok = Levels[evt.EventID()]; !ok {
-		l.Severity = 0 // unknown
+	if e.Severity, ok = Levels[evt.EventID()]; !ok {
+		e.Severity = 0 // unknown
 	}
 
-	if ext {
-		for k, v := range maps.All(*evt) {
-			l.Extension[k] = fmt.Sprintf("%v", v)
+	return &e
+}
+
+func addExtLevel1(e *event.Event, em *evtx.GoEvtxMap) {
+	e.Extension["rt"] = e.Time
+	e.Extension["shost"] = e.Host
+	e.Extension["deviceFacility"] = "eventlog"
+
+	for k, v := range map[string]string{
+		"cat":               "/Event/System/Channel",
+		"suid":              "/Event/System/Security/UserID",
+		"spid":              "/Event/System/Execution/ProcessID",
+		"sourceServiceName": "/Event/System/Provider/Name",
+	} {
+		p := evtx.Path(v)
+		if s, err := em.GetString(&p); err == nil {
+			e.Extension[k] = s
 		}
 	}
+}
 
-	return &l
+func addExtLevel2(e *event.Event, em *evtx.GoEvtxMap) {
+	p := evtx.Path("/Event/System")
+
+	evt, err := em.GetMap(&p)
+
+	if err == nil {
+		addMapDeep(e, evt, "")
+	}
+}
+
+func addMapDeep(e *event.Event, em *evtx.GoEvtxMap, r string) {
+	if len(r) > 0 {
+		r += "_"
+	}
+
+	for k, v := range maps.All(*em) {
+		switch v.(type) {
+		case *evtx.GoEvtxMap, evtx.GoEvtxMap:
+			m := v.(evtx.GoEvtxMap)
+			addMapDeep(e, &m, r+k)
+
+		case *evtx.UTCTime, evtx.UTCTime:
+			u := v.(evtx.UTCTime)
+			e.Extension[r+k] = fmt.Sprintf("%s", time.Time(u))
+
+		default:
+			e.Extension[r+k] = fmt.Sprintf("%v", v)
+		}
+	}
 }

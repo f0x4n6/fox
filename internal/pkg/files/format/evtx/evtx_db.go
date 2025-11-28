@@ -1,4 +1,4 @@
-package hunt
+package evtx
 
 var Levels = map[int64]int8{
 	1015: 10,

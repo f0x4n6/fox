@@ -35,7 +35,7 @@ Usage:
 Commands:
   hunt [FLAGS] <PATHS>     hunt suspicious activities
     -a, --all              show logs with all severities
-    -x, --ext              show logs with all extensions             
+    -x, --ext              show logs with all extensions (slow)
     -s, --sort             show logs sorted by timestamp (slow)
 
   hash ALGO[,..] <PATHS>   prints file hash using algorithm(s)
@@ -49,6 +49,8 @@ Commands:
         --max=NUMBER       maximal string length (default: 256)
 
   hex [FLAGS] <PATHS>      prints file in hex format
+    -m, --mode={hd|od|xxd} use compatible output mode
+
   cat [FLAGS] <PATHS>      prints file (default)
 
 File limits:

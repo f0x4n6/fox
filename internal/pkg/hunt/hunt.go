@@ -3,9 +3,6 @@ package hunt
 import (
 	"bufio"
 	"bytes"
-	"context"
-	"fmt"
-	"hash/maphash"
 	"io"
 	"log"
 	"regexp"
@@ -13,13 +10,12 @@ import (
 
 	"github.com/cuhsat/fox/v4/internal/pkg/files/format/evtx"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/format/journal"
-	"github.com/cuhsat/fox/v4/internal/pkg/types"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/event"
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
 
 const (
-	Limit = 8
+	Level = 8
 	size  = 1024
 )
 
@@ -30,89 +26,55 @@ var Paths = []string{
 }
 
 type Context struct {
-	h  *heap.Heap
-	x  bool
-	v  int
-	ch chan<- *event.Event
-	wg *sync.WaitGroup
+	h *heap.Heap // heap
+	x int        // cli ext
+	v int        // cli verbose
 }
 
-func Hunt(h *heap.Heap, x bool, v int) chan *event.Event {
+func Hunt(h *heap.Heap, x int, v int) chan *event.Event {
 	ch := make(chan *event.Event, size)
+	wg := sync.WaitGroup{}
+	wg.Add(2)
 
-	ctx := &Context{h, x, v, ch, new(sync.WaitGroup)}
-	ctx.wg.Add(2)
+	ctx := &Context{h, x, v}
 
-	go huntEventlogs(ctx)
-	go huntJournals(ctx)
+	// hunt Windows Event Logs
+	go func() {
+		defer wg.Done()
+
+		r1 := bytes.NewReader(h.MMap())
+		r2 := bytes.NewReader(h.MMap())
+
+		re := regexp.MustCompile(evtx.Chunk)
+
+		for off := range offset(ctx, r1, re) {
+			for evt := range evtx.Decode(r2, off, x) {
+				ch <- evt
+			}
+		}
+	}()
+
+	// hunt Linux Systemd journals
+	go func() {
+		defer wg.Done()
+
+		r := bytes.NewReader(h.MMap())
+
+		re := regexp.MustCompile(journal.Magic)
+
+		for off := range offset(ctx, r, re) {
+			for evt := range journal.Decode(h.MMap(), off, x) {
+				ch <- evt
+			}
+		}
+	}()
 
 	go func() {
 		defer close(ch)
-		ctx.wg.Wait()
+		wg.Wait()
 	}()
 
 	return ch
-}
-
-func huntEventlogs(ctx *Context) {
-	defer ctx.wg.Done()
-
-	seed := maphash.MakeSeed()
-
-	r1 := bytes.NewReader(ctx.h.MMap())
-	r2 := bytes.NewReader(ctx.h.MMap())
-
-	set := make(types.Set)
-
-	re := regexp.MustCompile(evtx.Chunk)
-
-	for off := range offset(ctx, r1, re) {
-		chunk, err := evtx.Decode(r2, off)
-
-		if err != nil {
-			log.Print(err)
-			continue
-		}
-
-		for evt := range chunk.Events() {
-			key := maphash.String(seed, fmt.Sprintf("%#v", evt))
-
-			if _, ok := set[key]; !ok {
-				ctx.ch <- evtx.ToEvent(evt, ctx.x)
-				set[key] = types.Nil
-			}
-		}
-	}
-}
-
-func huntJournals(ctx *Context) {
-	defer ctx.wg.Done()
-
-	seed := maphash.MakeSeed()
-
-	r := bytes.NewReader(ctx.h.MMap())
-
-	set := make(types.Set)
-
-	re := regexp.MustCompile(journal.Magic)
-
-	for off := range offset(ctx, r, re) {
-		jfile, err := journal.Decode(ctx.h.MMap(), off)
-
-		if err != nil {
-			log.Print(err)
-			continue
-		}
-
-		for jlg := range jfile.GetLogs(context.Background()) {
-			key := maphash.String(seed, fmt.Sprintf("%#v", jlg))
-
-			if _, ok := set[key]; !ok {
-				ctx.ch <- journal.ToEvent(jlg, ctx.x)
-				set[key] = types.Nil
-			}
-		}
-	}
 }
 
 func offset(ctx *Context, rs io.ReadSeeker, re *regexp.Regexp) <-chan int64 {

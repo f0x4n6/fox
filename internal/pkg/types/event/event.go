@@ -17,7 +17,7 @@ type Event struct {
 	Host      string
 	Message   string
 	Severity  int8
-	Extension map[string]string
+	Extension map[string]any
 }
 
 func (evt *Event) String() string {
@@ -40,11 +40,13 @@ func (evt *Event) String() string {
 	))
 
 	for _, k := range slices.Sorted(maps.Keys(evt.Extension)) {
-		if v := evt.Extension[k]; len(v) > 0 {
-			k = strings.ReplaceAll(k, `=`, `\=`)
-			v = strings.ReplaceAll(v, `=`, `\=`)
+		if v := evt.Extension[k]; v != nil {
+			s := fmt.Sprintf("%v", v)
 
-			sb.WriteString(fmt.Sprintf("%s=%s ", k, v))
+			k = strings.ReplaceAll(k, `=`, `\=`)
+			s = strings.ReplaceAll(s, `=`, `\=`)
+
+			sb.WriteString(fmt.Sprintf("%s=%s ", k, s))
 		}
 	}
 

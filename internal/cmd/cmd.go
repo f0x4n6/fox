@@ -25,7 +25,7 @@ import (
 
 type Hunt struct {
 	All   bool     `short:"a"`
-	Ext   bool     `short:"x"`
+	Ext   int      `short:"x" type:"counter"`
 	Sort  bool     `short:"s"`
 	Paths []string `arg:"" type:"path" optional:""`
 }
@@ -55,6 +55,7 @@ type Hash struct {
 }
 
 type Hex struct {
+	Mode  string   `short:"m" enum:"c,hd,od,xxd" default:"c"`
 	Paths []string `arg:"" type:"path"`
 }
 
@@ -223,7 +224,7 @@ func (cmd *Hunt) Run(cli *Cli) error {
 			cli.Hunt.Ext,
 			cli.Verbose,
 		) {
-			if cli.Hunt.All || l.Severity >= hunt.Limit {
+			if cli.Hunt.All || l.Severity >= hunt.Level {
 				if cli.Hunt.Sort {
 					cache[l.Time.UnixNano()] = l
 				} else {

@@ -3,9 +3,9 @@ package journal
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"log"
-	"slices"
 	"strings"
 	"time"
 
@@ -16,13 +16,57 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/types/event"
 )
 
-const Magic = "LPKSHHRH"
+const (
+	Magic = "LPKSHHRH"
+)
+
+var (
+	ErrNoSystem    = errors.New("journal has no System section")
+	ErrNoEventData = errors.New("journal has no EventData section")
+)
 
 func Detect(b []byte) bool {
 	return files.HasMagic(b, 0, []byte(Magic))
 }
 
-func Format(b []byte) ([]byte, error) {
+func Decode(b []byte, off int64, ext int) <-chan *event.Event {
+	ch := make(chan *event.Event, 1024)
+
+	f, err := parser.OpenFile(bytes.NewReader(b[off:]))
+
+	if err != nil {
+		defer close(ch)
+		log.Println(err)
+		return ch
+	}
+
+	go func(f *parser.JournalFile) {
+		defer close(ch)
+
+		for evt := range f.GetLogs(context.Background()) {
+			e, r, err := newEvent(evt)
+
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
+			if ext > 0 {
+				addExtLevel1(e, r)
+			}
+
+			if ext > 1 {
+				addExtLevel2(e, r)
+			}
+
+			ch <- e
+		}
+	}(f)
+
+	return ch
+}
+
+func Convert(b []byte) ([]byte, error) {
 	j, err := parser.OpenFile(bytes.NewReader(b))
 
 	if err != nil {
@@ -42,27 +86,23 @@ func Format(b []byte) ([]byte, error) {
 	return buf.Bytes(), err
 }
 
-func Decode(b []byte, off int64) (*parser.JournalFile, error) {
-	return parser.OpenFile(bytes.NewReader(b[off:]))
-}
-
-func ToEvent(od *ordereddict.Dict, ext bool) *event.Event {
+func newEvent(od *ordereddict.Dict) (*event.Event, *ordereddict.Dict, error) {
 	var sys, evt *ordereddict.Dict
 
-	l := event.Event{Extension: make(map[string]string)}
+	e := event.Event{
+		Extension: make(map[string]any),
+	}
 
 	if v, ok := od.Get("System"); ok {
 		sys = v.(*ordereddict.Dict)
 	} else {
-		log.Print("System not found")
-		return &l
+		return nil, nil, ErrNoSystem
 	}
 
 	if v, ok := od.Get("EventData"); ok {
 		evt = v.(*ordereddict.Dict)
 	} else {
-		log.Print("EventData not found")
-		return &l
+		return nil, nil, ErrNoEventData
 	}
 
 	for _, k := range []string{
@@ -71,38 +111,52 @@ func ToEvent(od *ordereddict.Dict, ext bool) *event.Event {
 		"Timestamp",
 	} {
 		if v, ok := sys.Get(k); ok {
-			l.Time = v.(time.Time).UTC()
+			e.Time = v.(time.Time).UTC()
 			break
 		}
 	}
 
-	l.Host, _ = sys.GetString("_HOSTNAME")
-	l.Message, _ = evt.GetString("MESSAGE")
+	e.Host, _ = sys.GetString("_HOSTNAME")
+	e.Message, _ = evt.GetString("MESSAGE")
 
-	if len(l.Message) == 0 {
-		l.Message = "Undescribed event"
+	if len(e.Message) == 0 {
+		e.Message = "Undescribed event"
 	}
 
 	if v, ok := evt.GetInt64("PRIORITY"); !ok {
-		l.Severity = 10 - int8(v) // minimum 3
+		e.Severity = 10 - int8(v) // minimum 3
 	}
 
-	if ext {
-		for _, i := range append(sys.Items(), evt.Items()...) {
-			if !slices.Contains(ignore, i.Key) && !strings.HasPrefix(i.Key, "(") {
-				l.Extension[i.Key] = fmt.Sprintf("%v", i.Value)
-			}
+	r := ordereddict.NewDict()
+	r.MergeFrom(sys)
+	r.MergeFrom(evt)
+
+	return &e, r, nil
+}
+
+func addExtLevel1(e *event.Event, od *ordereddict.Dict) {
+	e.Extension["rt"] = e.Time
+	e.Extension["shost"] = e.Host
+	e.Extension["deviceFacility"] = "systemd"
+
+	for k, v := range map[string]string{
+		"cat":               "_TRANSPORT",
+		"suid":              "_UID",
+		"spid":              "_PID",
+		"sourceServiceName": "_COMM",
+	} {
+		if a, ok := od.Get(v); ok {
+			e.Extension[k] = fmt.Sprintf("%v", a)
 		}
 	}
 
-	return &l
+	return
 }
 
-var ignore = []string{
-	"Timestamp",
-	"MESSAGE",
-	"PRIORITY",
-	"SYSLOG_TIMESTAMP",
-	"_SOURCE_REALTIME_TIMESTAMP",
-	"_HOSTNAME",
+func addExtLevel2(e *event.Event, od *ordereddict.Dict) {
+	for _, i := range od.Items() {
+		if !strings.HasPrefix(i.Key, "(") {
+			e.Extension[i.Key] = fmt.Sprintf("%v", i.Value)
+		}
+	}
 }

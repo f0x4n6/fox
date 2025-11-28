@@ -17,7 +17,7 @@ type HexBuffer struct {
 }
 
 func (l HexLine) String() string {
-	return fmt.Sprintf("%s  %s %-16s", l.Nr, l.Hex, l.Str)
+	return fmt.Sprintf("%s %s|%-16s|", l.Nr, l.Hex, l.Str)
 }
 
 func Hex(h *heap.Heap, n uint) *HexBuffer {

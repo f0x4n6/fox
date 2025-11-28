@@ -281,9 +281,9 @@ func (hs *HeapSet) convert(b []byte) ([]byte, bool) {
 
 	switch {
 	case evtx.Detect(b):
-		fn = evtx.Format
+		fn = evtx.Convert
 	case journal.Detect(b):
-		fn = journal.Format
+		fn = journal.Convert
 	default:
 		return b, false
 	}
