@@ -30,7 +30,7 @@ type Options struct {
 	Verbose    int
 }
 
-func Hunt(h *heap.Heap, opt *Options) chan *event.Event {
+func Hunt(h *heap.Heap, opt *Options) <-chan *event.Event {
 	ch := make(chan *event.Event, size)
 	wg := sync.WaitGroup{}
 	wg.Add(2)

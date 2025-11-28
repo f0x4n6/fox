@@ -51,7 +51,7 @@ Commands:
         --max=NUMBER       maximal string length (default: 256)
 
   hex [FLAGS] <PATHS>      prints file in hex format
-    -m, --mode={hd|od|xxd} use compatible output mode
+    -m, --mode={hd|od|xxd} format mode of output
 
   cat [FLAGS] <PATHS>      prints file (default)
 

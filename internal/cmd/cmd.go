@@ -230,40 +230,46 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	hs := cli.Bootstrap(cli.Hunt.Paths)
 	defer cli.ThrowAway()
 
-	n, cache := 0, make(map[int64]*event.Event)
+	n, sort := 0, func(in <-chan *event.Event) <-chan *event.Event {
+		out := make(chan *event.Event)
 
-	for _, h := range hs.Get() {
-		for l := range hunt.Hunt(h, &hunt.Options{
-			Extensions: cli.Hunt.Ext,
-			Verbose:    cli.Verbose,
-		}) {
-			if cli.Hunt.All || l.Severity >= hunt.Level {
-				if cli.Hunt.Sort {
-					cache[l.Time.UnixNano()] = l
-				} else {
-					switch {
-					case cli.Hunt.Jsonl:
-						_, _ = fmt.Fprintln(cli.w, l.ToJSONL())
-					case cli.Hunt.Json:
-						_, _ = fmt.Fprintln(cli.w, l.ToJSON())
-					default:
-						_, _ = fmt.Fprintln(cli.w, l.ToCEF())
-					}
-				}
-				n++
+		go func() {
+			defer close(out)
+			cache := make(map[int64]*event.Event)
+
+			for e := range in {
+				cache[e.Time.UnixNano()] = e
 			}
-		}
+
+			for _, k := range slices.Sorted(maps.Keys(cache)) {
+				out <- cache[k]
+			}
+		}()
+
+		return out
 	}
 
-	if cli.Hunt.Sort {
-		for _, k := range slices.Sorted(maps.Keys(cache)) {
-			switch {
-			case cli.Hunt.Jsonl:
-				_, _ = fmt.Fprintln(cli.w, cache[k].ToJSONL())
-			case cli.Hunt.Json:
-				_, _ = fmt.Fprintln(cli.w, cache[k].ToJSON())
-			default:
-				_, _ = fmt.Fprintln(cli.w, cache[k].ToCEF())
+	for _, h := range hs.Get() {
+		ch := hunt.Hunt(h, &hunt.Options{
+			Extensions: cli.Hunt.Ext,
+			Verbose:    cli.Verbose,
+		})
+
+		if cli.Hunt.Sort {
+			ch = sort(ch)
+		}
+
+		for e := range ch {
+			if cli.Hunt.All || e.Severity >= hunt.Level {
+				switch {
+				case cli.Hunt.Jsonl:
+					_, _ = fmt.Fprintln(cli.w, e.ToJSONL())
+				case cli.Hunt.Json:
+					_, _ = fmt.Fprintln(cli.w, e.ToJSON())
+				default:
+					_, _ = fmt.Fprintln(cli.w, e.ToCEF())
+				}
+				n++
 			}
 		}
 	}

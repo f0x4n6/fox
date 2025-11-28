@@ -60,13 +60,13 @@ func (evt *Event) ToCEF() string {
 }
 
 func (evt *Event) ToJSON() string {
-	b, _ := json.Marshal(evt)
+	b, _ := json.MarshalIndent(evt, "", "  ")
 
 	return string(b)
 }
 
 func (evt *Event) ToJSONL() string {
-	b, _ := json.MarshalIndent(evt, "", "  ")
+	b, _ := json.Marshal(evt)
 
 	return string(b)
 }
