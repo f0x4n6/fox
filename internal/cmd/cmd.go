@@ -27,6 +27,8 @@ type Hunt struct {
 	All   bool     `short:"a"`
 	Ext   int      `short:"x" type:"counter"`
 	Sort  bool     `short:"s"`
+	Json  bool     `short:"j" xor:"json,jsonl"`
+	Jsonl bool     `short:"J" xor:"json,jsonl"`
 	Paths []string `arg:"" type:"path" optional:""`
 }
 
@@ -107,7 +109,8 @@ type Cli struct {
 	Splunk   bool `short:"S" xor:"logstash,splunk"`
 
 	// standard
-	Verbose int `short:"v" type:"counter"`
+	DryRun  bool `short:"d" long:"dry-run"`
+	Verbose int  `short:"v" type:"counter"`
 
 	// internal
 	w  io.WriteCloser   `kong:"-"`
@@ -200,6 +203,16 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 		Verbose:   cli.Verbose,
 	})
 
+	if cli.DryRun {
+		for _, h := range cli.hs.Get() {
+			_, _ = fmt.Fprintf(cli.w, "%s\n", h.Name)
+		}
+
+		// exit early
+		cli.hs.ThrowAway()
+		os.Exit(0)
+	}
+
 	return cli.hs
 }
 
@@ -220,15 +233,22 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	n, cache := 0, make(map[int64]*event.Event)
 
 	for _, h := range hs.Get() {
-		for l := range hunt.Hunt(h,
-			cli.Hunt.Ext,
-			cli.Verbose,
-		) {
+		for l := range hunt.Hunt(h, &hunt.Options{
+			Extensions: cli.Hunt.Ext,
+			Verbose:    cli.Verbose,
+		}) {
 			if cli.Hunt.All || l.Severity >= hunt.Level {
 				if cli.Hunt.Sort {
 					cache[l.Time.UnixNano()] = l
 				} else {
-					_, _ = fmt.Fprintln(cli.w, l)
+					switch {
+					case cli.Hunt.Jsonl:
+						_, _ = fmt.Fprintln(cli.w, l.ToJSONL())
+					case cli.Hunt.Json:
+						_, _ = fmt.Fprintln(cli.w, l.ToJSON())
+					default:
+						_, _ = fmt.Fprintln(cli.w, l.ToCEF())
+					}
 				}
 				n++
 			}
@@ -237,7 +257,14 @@ func (cmd *Hunt) Run(cli *Cli) error {
 
 	if cli.Hunt.Sort {
 		for _, k := range slices.Sorted(maps.Keys(cache)) {
-			_, _ = fmt.Fprintln(cli.w, cache[k])
+			switch {
+			case cli.Hunt.Jsonl:
+				_, _ = fmt.Fprintln(cli.w, cache[k].ToJSONL())
+			case cli.Hunt.Json:
+				_, _ = fmt.Fprintln(cli.w, cache[k].ToJSON())
+			default:
+				_, _ = fmt.Fprintln(cli.w, cache[k].ToCEF())
+			}
 		}
 	}
 

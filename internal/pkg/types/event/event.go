@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"fmt"
 	"maps"
 	"slices"
@@ -13,14 +14,19 @@ import (
 const CEF = "%s %s CEF:1|fox|hunt|%s|100|%s|%d|"
 
 type Event struct {
-	Time      time.Time
-	Host      string
-	Message   string
-	Severity  int8
-	Extension map[string]any
+	Time      time.Time      `json:"ts"`
+	Host      string         `json:"host,omitempty"`
+	User      string         `json:"user,omitempty"`
+	Message   string         `json:"msg,omitempty"`
+	Severity  int8           `json:"lvl"`
+	Extension map[string]any `json:"ext,omitempty"`
 }
 
 func (evt *Event) String() string {
+	return evt.ToCEF()
+}
+
+func (evt *Event) ToCEF() string {
 	var sb strings.Builder
 
 	msg := evt.Message
@@ -51,4 +57,16 @@ func (evt *Event) String() string {
 	}
 
 	return strings.TrimSpace(sb.String())
+}
+
+func (evt *Event) ToJSON() string {
+	b, _ := json.Marshal(evt)
+
+	return string(b)
+}
+
+func (evt *Event) ToJSONL() string {
+	b, _ := json.MarshalIndent(evt, "", "  ")
+
+	return string(b)
 }

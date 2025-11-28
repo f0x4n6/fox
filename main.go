@@ -37,6 +37,8 @@ Commands:
     -a, --all              show logs with all severities
     -x, --ext              show logs with all extensions (slow)
     -s, --sort             show logs sorted by timestamp (slow)
+    -j, --json             show logs as JSON blocks
+    -J, --jsonl            show logs as JSON lines
 
   hash ALGO[,..] <PATHS>   prints file hash using algorithm(s)
 
@@ -88,6 +90,7 @@ Aliases:
   -S, --splunk             alias for: -H -uhttp://localhost:8088/...
 
 Standard:
+  -d, --dry-run            prints only files to be processed
   -v, --verbose[=LEVEL]    prints more details (v/vv/vvv)
       --version            prints the version number
       --help               prints this help message

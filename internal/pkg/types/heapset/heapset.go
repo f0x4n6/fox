@@ -298,36 +298,18 @@ func (hs *HeapSet) convert(b []byte) ([]byte, bool) {
 }
 
 func (hs *HeapSet) addFile(path string, b []byte) {
-	hs.Lock()
-	hs.heaps = append(hs.heaps, heap.New(
-		&heap.Context{
-			Name:   path,
-			Type:   types.Regular,
-			Limit:  hs.opts.Limit,
-			Filter: hs.opts.Filter,
-		}, b,
-	))
-	hs.Unlock()
+	hs.addHeap(path, types.Regular, b)
 
 	if hs.opts.Verbose > 0 {
-		log.Printf("loaded heap %s\n", path)
+		log.Printf("loaded heap from file %s\n", path)
 	}
 }
 
 func (hs *HeapSet) addData(name string, b []byte) {
-	hs.Lock()
-	hs.heaps = append(hs.heaps, heap.New(
-		&heap.Context{
-			Name:   name,
-			Type:   types.Deflate,
-			Limit:  hs.opts.Limit,
-			Filter: hs.opts.Filter,
-		}, b,
-	))
-	hs.Unlock()
+	hs.addHeap(name, types.Deflate, b)
 
 	if hs.opts.Verbose > 0 {
-		log.Printf("loaded heap %s\n", name)
+		log.Printf("loaded heap from data %s\n", name)
 	}
 }
 
@@ -342,20 +324,31 @@ func (hs *HeapSet) addPipe() {
 		log.Fatal(err)
 	}
 
-	hs.Lock()
-	hs.heaps = append(hs.heaps, heap.New(
-		&heap.Context{
-			Name:   Stdin,
-			Type:   types.Stdin,
-			Limit:  hs.opts.Limit,
-			Filter: hs.opts.Filter,
-		}, buf,
-	))
-	hs.Unlock()
+	hs.addHeap(Stdin, types.Deflate, buf)
 
 	if hs.opts.Verbose > 0 {
 		log.Println("loaded heap from stdin")
 	}
+}
+
+func (hs *HeapSet) addHeap(s string, t types.Heap, b []byte) {
+	hs.Lock()
+	defer hs.Unlock()
+
+	for _, h := range hs.heaps {
+		if h.Name == s {
+			return // already loaded
+		}
+	}
+
+	hs.heaps = append(hs.heaps, heap.New(
+		&heap.Context{
+			Name:   s,
+			Type:   t,
+			Limit:  hs.opts.Limit,
+			Filter: hs.opts.Filter,
+		}, b,
+	))
 }
 
 func isPiped(f *os.File) bool {

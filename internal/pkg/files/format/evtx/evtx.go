@@ -129,6 +129,7 @@ func newEvent(evt *evtx.GoEvtxMap) *event.Event {
 	}
 
 	e.Host, _ = evt.GetString(&p)
+	e.User, _ = evt.UserID()
 
 	if e.Message, ok = Events[evt.EventID()]; !ok {
 		e.Message = fmt.Sprintf("Undescribed event: Event ID %d", evt.EventID())
@@ -144,11 +145,11 @@ func newEvent(evt *evtx.GoEvtxMap) *event.Event {
 func addExtLevel1(e *event.Event, em *evtx.GoEvtxMap) {
 	e.Extension["rt"] = e.Time
 	e.Extension["shost"] = e.Host
+	e.Extension["suid"] = e.User
 	e.Extension["deviceFacility"] = "eventlog"
 
 	for k, v := range map[string]string{
 		"cat":               "/Event/System/Channel",
-		"suid":              "/Event/System/Security/UserID",
 		"spid":              "/Event/System/Execution/ProcessID",
 		"sourceServiceName": "/Event/System/Provider/Name",
 	} {

@@ -117,6 +117,7 @@ func newEvent(od *ordereddict.Dict) (*event.Event, *ordereddict.Dict, error) {
 	}
 
 	e.Host, _ = sys.GetString("_HOSTNAME")
+	e.User, _ = sys.GetString("_UID")
 	e.Message, _ = evt.GetString("MESSAGE")
 
 	if len(e.Message) == 0 {
@@ -137,11 +138,11 @@ func newEvent(od *ordereddict.Dict) (*event.Event, *ordereddict.Dict, error) {
 func addExtLevel1(e *event.Event, od *ordereddict.Dict) {
 	e.Extension["rt"] = e.Time
 	e.Extension["shost"] = e.Host
+	e.Extension["suid"] = e.User
 	e.Extension["deviceFacility"] = "systemd"
 
 	for k, v := range map[string]string{
 		"cat":               "_TRANSPORT",
-		"suid":              "_UID",
 		"spid":              "_PID",
 		"sourceServiceName": "_COMM",
 	} {
