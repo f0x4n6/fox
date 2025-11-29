@@ -57,7 +57,7 @@ type Hash struct {
 }
 
 type Hex struct {
-	Mode  string   `short:"m" enum:"c,hd,od,xxd" default:"c"`
+	Mode  string   `short:"m" enum:"c,hd,xxd,raw" default:"raw"`
 	Paths []string `arg:"" type:"path"`
 }
 
@@ -162,12 +162,12 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 	}
 
 	if cli.Logstash {
-		cli.Url = types.LOGSTASH
+		cli.Url = types.Logstash
 		cli.Ecs = true
 	}
 
 	if cli.Splunk {
-		cli.Url = types.SPLUNK
+		cli.Url = types.Splunk
 		cli.Hec = true
 	}
 
@@ -350,10 +350,10 @@ func (cmd *Hex) Run(cli *Cli) error {
 	hs := cli.Bootstrap(cli.Hex.Paths)
 	defer cli.ThrowAway()
 
-	var n uint
+	var tail uint
 
 	if cli.Tail {
-		n = cli.Bytes
+		tail = cli.Bytes
 	}
 
 	for _, h := range hs.Get() {
@@ -361,8 +361,17 @@ func (cmd *Hex) Run(cli *Cli) error {
 			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(h.String()))
 		}
 
-		for l := range buffer.Hex(h, n).Lines {
-			_, _ = fmt.Fprintf(cli.w, "%s\n", l)
+		for l := range buffer.Hex(h, tail, cli.Hex.Mode).Lines {
+			switch cli.Hex.Mode {
+			case types.Canonical:
+				_, _ = fmt.Fprintf(cli.w, "%s  %s|%-16s|\n", l.Nr, l.Hex, l.Str)
+			case types.Hexdump:
+				_, _ = fmt.Fprintf(cli.w, "%s %s\n", l.Nr, l.Hex)
+			case types.Xxd:
+				_, _ = fmt.Fprintf(cli.w, "%s: %s %-16s\n", l.Nr, l.Hex, l.Str)
+			case types.Raw:
+				_, _ = fmt.Fprintf(cli.w, "%s\n", l.Hex)
+			}
 		}
 	}
 

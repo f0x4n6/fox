@@ -10,7 +10,9 @@ import (
 )
 
 type TextLine struct {
-	Line
+	Nr  string
+	Grp uint
+	Str string
 }
 
 type TextBuffer struct {
@@ -40,7 +42,7 @@ func Text(h *heap.Heap, e int) *TextBuffer {
 }
 
 func textLine(nr, str string, grp uint) *TextLine {
-	return &TextLine{Line{nr, grp, str}}
+	return &TextLine{nr, grp, str}
 }
 
 func textStream(buf *TextBuffer, s smap.SMap) {

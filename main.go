@@ -37,7 +37,7 @@ Commands:
     -a, --all              show logs with all severities
     -x, --ext              show logs with all extensions (slow)
     -s, --sort             show logs sorted by timestamp (slow)
-    -j, --json             show logs as JSON blocks
+    -j, --json             show logs as JSON objects
     -J, --jsonl            show logs as JSON lines
 
   hash ALGO[,..] <PATHS>   prints file hash using algorithm(s)
@@ -51,7 +51,7 @@ Commands:
         --max=NUMBER       maximal string length (default: 256)
 
   hex [FLAGS] <PATHS>      prints file in hex format
-    -m, --mode={hd|od|xxd} format mode of output
+    -m, --mode=[c|hd|xxd]  format mode of output
 
   cat [FLAGS] <PATHS>      prints file (default)
 
@@ -62,7 +62,7 @@ File limits:
   -c, --bytes=NUMBER       number of bytes
 
 File loader:
-  -p, --pass=PASSWORD      password for decryption (only RAR, ZIP)
+  -p, --pass=PASSWORD      password for decryption (only RAR and ZIP)
 
 Line filter:
   -e, --regexp=PATTERN     filter for lines that match pattern
@@ -90,7 +90,7 @@ Aliases:
   -S, --splunk             alias for: -H -uhttp://localhost:8088/...
 
 Standard:
-  -d, --dry-run            prints only files to be processed
+  -d, --dry-run            prints only the found filenames
   -v, --verbose[=LEVEL]    prints more details (v/vv/vvv)
       --version            prints the version number
       --help               prints this help message
@@ -118,7 +118,7 @@ Example: Find occurrences in all logs
   $ fox cat -elogin ./**/*.log
 
 Example: Hunt down suspicious files
-  $ fox hunt -as .
+  $ fox hunt -s .
 
 Type "man fox" for more help...
 `

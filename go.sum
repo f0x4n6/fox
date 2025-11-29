@@ -40,8 +40,6 @@ github.com/eciavatta/sdhash v0.0.0-20210117153940-a7b55306eeff h1:8Ba2lWpKhEoMTf
 github.com/eciavatta/sdhash v0.0.0-20210117153940-a7b55306eeff/go.mod h1:TFeMy9op2fGmnE/pF2VlM76Th+/mXAg9QvWCVddQJu0=
 github.com/edsrzf/mmap-go v1.2.0 h1:hXLYlkbaPzt1SaQk+anYwKSRNhufIDCchSPkUD6dD84=
 github.com/edsrzf/mmap-go v1.2.0/go.mod h1:19H/e8pUPLicwkyNgOykDXkJ9F0MHE+Z52B8EIth78Q=
-github.com/erfanmomeniii/simhash v1.0.0 h1:ws/Nvk1qBvnF/kAawQLf8wIxwnfK2fHbaPoljecrrMo=
-github.com/erfanmomeniii/simhash v1.0.0/go.mod h1:aLAcyW0WuiUqFbzTlMxhZNDfMfidfV323KMDs80SwXI=
 github.com/frankban/quicktest v1.11.3/go.mod h1:wRf/ReqHper53s+kmmSZizM8NamnL3IM0I9ntUbOk+k=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=

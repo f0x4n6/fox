@@ -12,7 +12,6 @@ require (
 	github.com/cuhsat/zip v0.5.2
 	github.com/eciavatta/sdhash v0.0.0-20210117153940-a7b55306eeff
 	github.com/edsrzf/mmap-go v1.2.0
-	github.com/erfanmomeniii/simhash v1.0.0
 	github.com/glaslos/ssdeep v0.4.0
 	github.com/glaslos/tlsh v0.4.0
 	github.com/google/go-cabfile v0.0.0-20220815135208-f9ac3a87fd26
@@ -28,7 +27,7 @@ require (
 
 require (
 	github.com/Velocidex/json v0.0.0-20220224052537-92f3c0326e5a // indirect
-	github.com/Velocidex/ordereddict v0.0.0-20250821063524-02dc06e46238 // indirect
+	github.com/Velocidex/ordereddict v0.0.0-20250821063524-02dc06e46238
 	github.com/Velocidex/yaml/v2 v2.2.8 // indirect
 	github.com/frankban/quicktest v1.14.6 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect

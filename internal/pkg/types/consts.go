@@ -28,8 +28,15 @@ const (
 )
 
 const (
-	LOGSTASH = "http://localhost:8080"
-	SPLUNK   = "http://localhost:8088/services/collector/event/1.0"
+	Canonical = "c"
+	Hexdump   = "hd"
+	Xxd       = "xxd"
+	Raw       = "raw"
+)
+
+const (
+	Logstash = "http://localhost:8080"
+	Splunk   = "http://localhost:8088/services/collector/event/1.0"
 )
 
 type Heap int
