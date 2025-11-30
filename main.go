@@ -51,11 +51,13 @@ Commands:
     -s, --sort             show logs sorted by timestamp (slow)
     -j, --json             show logs as JSON objects
     -J, --jsonl            show logs as JSON lines
+    -r, --rule=FILE        show logs that matches rules
 
-  hash [FLAGS] <PATHS>     prints file hash using algorithm(s)
-    -i, --imp=ALGO[,]      use algorithm(s) (default: SHA256)
+  hash [FLAGS] <PATHS>     prints file hashes and checksums
+    -a, --algo=ALGO[,]     use algorithm(s) (default: SHA256)
+    -F, --find=HASH[,]     show only files that match
 
-  info [FLAGS] <PATHS>     prints file info and entropy
+  info [FLAGS] <PATHS>     prints file infos and entropy
         --min=DECIMAL      minimum entropy value (default: 0.0)
         --max=DECIMAL      maximal entropy value (default: 1.0)
 
@@ -64,7 +66,7 @@ Commands:
         --max=NUMBER       maximal string length (default: 256)
 
   hex [FLAGS] <PATHS>      prints file in hex format
-    -m, --mode=[c|hd|xxd]  use compatible output mode 
+    -m, --mode=[c|hd|xxd]  use compatible mode for output 
 
   cat [FLAGS] <PATHS>      prints file (default)
 
@@ -124,13 +126,13 @@ Hashes (similarity):
 Checksums:
   ADLER32, CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
-Example: Dump the image MBR in hex format
-  $ fox hex -hc512 image.dd > mbr
+Example: Dump the images MBR in hex format
+  $ fox hex -mc -hc512 image.dd > mbr.txt
 
 Example: Find occurrences in all logs
   $ fox cat -elogin ./**/*.log
 
-Example: Hunt down suspicious files
+Example: Hunt down suspicious events
   $ fox hunt -s .
 
 Report bugs at <issue@foxhunt.wtf>

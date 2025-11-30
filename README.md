@@ -1,9 +1,9 @@
 [![](assets/fox.png "fox")](https://foxhunt.wtf)
 
+The Forensic Examiners Swiss Army Knife.
+
 ![Release](https://img.shields.io/github/release/cuhsat/fox.svg?style=flat-square&label=Release)
 ![Status](https://img.shields.io/github/actions/workflow/status/cuhsat/fox/ci.yaml?style=flat-square&label=Status)
-
-The Forensic Examiners Swiss Army Knife.
 
 ## Install
 Install directly using Go:

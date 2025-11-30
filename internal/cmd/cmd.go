@@ -29,6 +29,7 @@ type Hunt struct {
 	Sort  bool     `short:"s"`
 	Json  bool     `short:"j" xor:"json,jsonl"`
 	Jsonl bool     `short:"J" xor:"json,jsonl"`
+	Rule  *os.File `short:"r" type:"existingfile"`
 	Paths []string `arg:"" type:"path" optional:""`
 }
 
@@ -45,7 +46,8 @@ type Text struct {
 }
 
 type Hash struct {
-	Imp   []string `short:"i" sep:"," default:"SHA256"`
+	Algo  []string `short:"a" sep:"," default:"SHA256"`
+	Find  []string `short:"F" sep:","`
 	Paths []string `arg:"" type:"path" optional:""`
 }
 
@@ -310,26 +312,30 @@ func (cmd *Hash) Run(cli *Cli) error {
 	hs := cli.Bootstrap(cli.Hash.Paths)
 	defer cli.ThrowAway()
 
-	for _, i := range cli.Hash.Imp {
-		var imp string
+	for _, algo := range cli.Hash.Algo {
+		var a, v string
 
-		if len(cli.Hash.Imp) > 1 {
-			imp = fmt.Sprintf(" (%s)", strings.ToUpper(i))
+		if len(cli.Hash.Algo) > 1 {
+			a = fmt.Sprintf(" (%s)", strings.ToUpper(algo))
 		}
 
 		for _, h := range hs.Get() {
-			sum, err := hash.Sum(i, h.MMap())
+			sum, err := hash.Sum(algo, h.MMap())
 
 			if err != nil {
-				log.Println("could not compute hash: ", err.Error())
+				log.Println(err)
 				continue
 			}
 
-			switch i {
+			switch algo {
 			case types.SDHASH:
-				_, _ = fmt.Fprintf(cli.w, "%s%s  %s\n", sum, imp, h)
+				v = fmt.Sprintf("%s", sum)
 			default:
-				_, _ = fmt.Fprintf(cli.w, "%x%s  %s\n", sum, imp, h)
+				v = fmt.Sprintf("%x", sum)
+			}
+
+			if len(cli.Hash.Find) == 0 || slices.Contains(cli.Hash.Find, v) {
+				_, _ = fmt.Fprintf(cli.w, "%s%s  %s\n", v, a, h)
 			}
 		}
 	}
