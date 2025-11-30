@@ -25,9 +25,6 @@ jobs:
         name: Setup Cosign
         uses: sigstore/cosign-installer@v3
       -
-        name: Setup Pandoc
-        uses: pandoc/actions/setup@v1
-      -
         name: Setup Go
         uses: actions/setup-go@v5
       -

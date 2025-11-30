@@ -21,7 +21,7 @@ func (sch *Schema) Post(s string) (int, error) {
 		return 0, err
 	}
 
-	req.Header.Add("user-agent", fmt.Sprintf("%s %s", app.Product, app.Version))
+	req.Header.Add("user-agent", fmt.Sprintf("fox %s", app.Version))
 
 	for k, v := range sch.Map {
 		req.Header.Set(k, v)

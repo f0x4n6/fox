@@ -1,18 +1,17 @@
-// The Forensic Swiss Army Knife.
+// Fox - The Forensic Examiners Swiss Army Knife.
 //
 // Copyright 2025 Christian Uhsat. All rights reserved.
 // Use of this source code is governed by the GPL-3.0
 // license that can be found in the LICENSE.md file.
 //
-// For more information, please consult:
-//
-//	https://foxhunt.dev
+// For more information visit: https://foxhunt.wtf
 package main
 
 import (
 	"fmt"
 	"log"
 	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/alecthomas/kong"
@@ -21,13 +20,26 @@ import (
 	"github.com/cuhsat/fox/v4/internal/cmd"
 )
 
-var usage = `
-.-------.----.--.  .--.   .--. .--.--. .--.-. .--.------.
-|   ___/ .__. \  \/  /    |  |_|  |  | |  |  \|  |   ___|
+var short = strings.TrimSpace(`
+Usage: fox [COMMAND] <PATHS>
+
+  hunt   hunt suspicious activities
+  hash   prints file hash using algorithm(s)
+  info   prints file info and entropy
+  text   prints file ASCII strings
+  hex    prints file in hex format
+  cat    prints file (default)
+
+Type "fox --help" for more help...
+`)
+
+var long = strings.TrimSpace(`
+.-------.----.--.  .--.   .--. .--.--. .--.-. .--.-----.
+|   ___/ .__. \  \/  /    |  |_|  |  | |  |  \|  |   _/
 |   __|  |  |  >    <     |   _   |  | |  |   '  |  |
 |  |   \ '--' /  /\  \    |  | |  |  '-'  |  |\  |  |
 '--'    '----'--'  '--'   '--' '--'-------'--' '-'--'
-%s >>> https://%s >>> %s
+The Forensic Examiners Swiss Army Knife %s
 
 Usage:
   fox [COMMAND] [FLAGS] <PATHS>
@@ -40,7 +52,8 @@ Commands:
     -j, --json             show logs as JSON objects
     -J, --jsonl            show logs as JSON lines
 
-  hash ALGO[,..] <PATHS>   prints file hash using algorithm(s)
+  hash [FLAGS] <PATHS>     prints file hash using algorithm(s)
+    -i, --imp=ALGO[,]      use algorithm(s) (default: SHA256)
 
   info [FLAGS] <PATHS>     prints file info and entropy
         --min=DECIMAL      minimum entropy value (default: 0.0)
@@ -51,7 +64,7 @@ Commands:
         --max=NUMBER       maximal string length (default: 256)
 
   hex [FLAGS] <PATHS>      prints file in hex format
-    -m, --mode=[c|hd|xxd]  format mode of output
+    -m, --mode=[c|hd|xxd]  use compatible output mode 
 
   cat [FLAGS] <PATHS>      prints file (default)
 
@@ -120,8 +133,8 @@ Example: Find occurrences in all logs
 Example: Hunt down suspicious files
   $ fox hunt -s .
 
-Type "man fox" for more help...
-`
+Report bugs at <issue@foxhunt.wtf>
+`)
 
 // Main start and catch.
 func main() {
@@ -147,9 +160,11 @@ func main() {
 
 	switch {
 	case fox.Version:
-		fmt.Printf("%s %s\n", app.Product, app.Version)
-	case fox.Help || ctx.Error != nil || len(ctx.Args) == 0:
-		fmt.Printf(usage, app.Tagline, app.Website, app.Version)
+		fmt.Printf("fox %s\n", app.Version)
+	case fox.Help || ctx.Error != nil:
+		fmt.Printf(long, app.Version)
+	case len(ctx.Args) == 0:
+		fmt.Printf(short)
 	default:
 		if fox.Cli.Verbose > 1 {
 			defer func(start time.Time) {

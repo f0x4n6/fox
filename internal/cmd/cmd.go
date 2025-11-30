@@ -45,15 +45,8 @@ type Text struct {
 }
 
 type Hash struct {
-	Algo struct {
-		Algo  string `arg:""`
-		Paths struct {
-			Paths []string `arg:"" type:"path" optional:""`
-		} `arg:""`
-	} `arg:""`
-
-	// internal
-	algos []string `kong:"-"`
+	Imp   []string `short:"i" sep:"," default:"SHA256"`
+	Paths []string `arg:"" type:"path" optional:""`
 }
 
 type Hex struct {
@@ -179,10 +172,6 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 
 	if len(cli.Hunt.Paths) == 0 {
 		cli.Hunt.Paths = hunt.Paths
-	}
-
-	if len(cli.Hash.Algo.Algo) > 0 {
-		cli.Hash.algos = strings.Split(cli.Hash.Algo.Algo, ",")
 	}
 
 	cli.hs = heapset.New(args, &heapset.Options{
@@ -318,27 +307,29 @@ func (cmd *Text) Run(cli *Cli) error {
 }
 
 func (cmd *Hash) Run(cli *Cli) error {
-	hs := cli.Bootstrap(cli.Hash.Algo.Paths.Paths)
+	hs := cli.Bootstrap(cli.Hash.Paths)
 	defer cli.ThrowAway()
 
-	for _, a := range cli.Hash.algos {
-		if len(cli.Hash.algos) > 1 && !cli.NoFile {
-			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(strings.ToUpper(a)))
+	for _, i := range cli.Hash.Imp {
+		var imp string
+
+		if len(cli.Hash.Imp) > 1 {
+			imp = fmt.Sprintf(" (%s)", strings.ToUpper(i))
 		}
 
 		for _, h := range hs.Get() {
-			sum, err := hash.Sum(a, h.MMap())
+			sum, err := hash.Sum(i, h.MMap())
 
 			if err != nil {
 				log.Println("could not compute hash: ", err.Error())
 				continue
 			}
 
-			switch a {
+			switch i {
 			case types.SDHASH:
-				_, _ = fmt.Fprintf(cli.w, "%s  %s\n", sum, h)
+				_, _ = fmt.Fprintf(cli.w, "%s%s  %s\n", sum, imp, h)
 			default:
-				_, _ = fmt.Fprintf(cli.w, "%x  %s\n", sum, h)
+				_, _ = fmt.Fprintf(cli.w, "%x%s  %s\n", sum, imp, h)
 			}
 		}
 	}

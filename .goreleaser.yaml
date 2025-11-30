@@ -5,7 +5,6 @@ before:
     - go generate ./...
     - go mod tidy
     - go mod download
-    - pandoc -s -t man manpage.md -o fox.1
 
 builds:
   - env:
@@ -30,9 +29,9 @@ archives:
       - goos: windows
         formats: [zip]
     files:
-      - fox.1
       - README.md
       - LICENSE.md
+      - SECURITY.md
 
 changelog:
   sort: asc
@@ -59,12 +58,10 @@ signs:
     artifacts: checksum
 
 nfpms:
-  - vendor: Fox Hunt
-    homepage: https://foxhunt.dev
-    maintainer: Christian Uhsat <christian@uhsat.de>
-    description: |-
-      Fox Hunt.
-      The Forensic Swiss Army Knife.
+  - vendor: fox
+    homepage: https://foxhunt.wtf
+    maintainer: Christian Uhsat <root@foxhunt.wtf>
+    description: The Forensic Examiners Swiss Army Knife.
     license: GPL-3.0
     formats:
       - archlinux
@@ -77,9 +74,5 @@ nfpms:
     contents:
       - src: ./LICENSE.md
         dst: /usr/share/doc/fox/copyright
-        file_info:
-          mode: 0644
-      - src: ./fox.1
-        dst: /usr/share/man/man1/fox.1
         file_info:
           mode: 0644

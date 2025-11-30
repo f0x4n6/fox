@@ -35,7 +35,7 @@ func New(url string) Ecs {
 	}}}
 
 	ecs.Ecs.Version = version
-	ecs.Agent.Type = app.Product
+	ecs.Agent.Type = "fox"
 	ecs.Agent.Version = app.Version[1:]
 
 	return ecs

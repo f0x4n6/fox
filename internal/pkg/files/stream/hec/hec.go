@@ -22,7 +22,7 @@ type Hec struct {
 
 func New(url, token string) Hec {
 	return Hec{
-		Source: fmt.Sprintf("%s %s", app.Product, app.Version),
+		Source: fmt.Sprintf("fox %s", app.Version),
 		Schema: stream.Schema{Url: url, Map: map[string]string{
 			"Content-Type":  "application/json",
 			"Authorization": fmt.Sprintf("Splunk %s", strings.ToLower(token)),
