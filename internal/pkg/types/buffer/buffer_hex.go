@@ -71,7 +71,7 @@ func fmtCanonical(b []byte, i int, off uint) HexLine {
 	return HexLine{
 		fmt.Sprintf("%08x", off+uint(i)),
 		fmt.Sprintf("%-*s", 50, hex.String()),
-		text.ToAscii(str.String()),
+		fmt.Sprintf("|%-16s|", text.ToAscii(str.String())),
 	}
 }
 
@@ -115,7 +115,7 @@ func fmtXxd(b []byte, i int, off uint) HexLine {
 	}
 
 	return HexLine{
-		fmt.Sprintf("%08x", off+uint(i)),
+		fmt.Sprintf("%08x:", off+uint(i)),
 		fmt.Sprintf("%-*s", 40, hex.String()),
 		text.ToAscii(str.String()),
 	}
@@ -129,7 +129,7 @@ func fmtRaw(b []byte, i int, _ uint) HexLine {
 			break
 		}
 
-		hex.WriteString(fmt.Sprintf("%02X ", b[i+j]))
+		hex.WriteString(fmt.Sprintf("%02x ", b[i+j]))
 	}
 
 	return HexLine{"", hex.String(), ""}

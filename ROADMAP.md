@@ -17,8 +17,5 @@
   * https://dave.cheney.net/high-performance-json.html
 
 ## 5. Ideas
-* Colorize CLI output?
-  * https://github.com/logrusorgru/aurora
-  * https://github.com/cyucelen/marker
 * Use reflow algos?
   * https://github.com/muesli/reflow

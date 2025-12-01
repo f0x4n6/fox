@@ -10,6 +10,8 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/fatih/color"
+
 	"github.com/cuhsat/fox/v4/internal/pkg/files/stream"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/ecs"
 	"github.com/cuhsat/fox/v4/internal/pkg/files/stream/hec"
@@ -29,7 +31,6 @@ type Hunt struct {
 	Sort  bool     `short:"s"`
 	Json  bool     `short:"j" xor:"json,jsonl"`
 	Jsonl bool     `short:"J" xor:"json,jsonl"`
-	Rule  *os.File `short:"r" type:"existingfile"`
 	Paths []string `arg:"" type:"path" optional:""`
 }
 
@@ -96,6 +97,7 @@ type Cli struct {
 	Raw       bool `short:"r"`
 	NoFile    bool `long:"no-file"`
 	NoLine    bool `long:"no-line"`
+	NoColor   bool `long:"no-color"`
 	NoDeflate bool `long:"no-deflate"`
 	NoConvert bool `long:"no-convert"`
 
@@ -152,8 +154,13 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 	if cli.Raw {
 		cli.NoFile = true
 		cli.NoLine = true
+		cli.NoColor = true
 		cli.NoConvert = true
 		cli.NoDeflate = true
+	}
+
+	if cli.NoColor {
+		color.NoColor = true
 	}
 
 	if cli.Logstash {
@@ -258,7 +265,16 @@ func (cmd *Hunt) Run(cli *Cli) error {
 				case cli.Hunt.Json:
 					_, _ = fmt.Fprintln(cli.w, e.ToJSON())
 				default:
-					_, _ = fmt.Fprintln(cli.w, e.ToCEF())
+					switch e.Severity {
+					case 8, 9, 10:
+						_, _ = fmt.Fprintln(cli.w, text.Crt(e.ToCEF()))
+					case 5, 6, 7:
+						_, _ = fmt.Fprintln(cli.w, text.Err(e.ToCEF()))
+					case 2, 3, 4:
+						_, _ = fmt.Fprintln(cli.w, text.Wrn(e.ToCEF()))
+					default:
+						_, _ = fmt.Fprintln(cli.w, e.ToCEF())
+					}
 				}
 				n++
 			}
@@ -266,7 +282,7 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	}
 
 	if cli.Verbose > 1 {
-		log.Printf("found %d events\n", n)
+		log.Printf("found %s events\n", text.Bold(n))
 	}
 
 	return nil
@@ -281,7 +297,7 @@ func (cmd *Info) Run(cli *Cli) error {
 			cli.Info.Min,
 			cli.Info.Max,
 		); ok {
-			_, _ = fmt.Fprintf(cli.w, "%10dL %10dB  %.10f  %s\n", h.Len(), len(h.MMap()), e, h.String())
+			_, _ = fmt.Fprintf(cli.w, "%10dL %10dB  %.10f  %s\n", h.Len(), len(h.MMap()), e, text.Hint(h.String()))
 		}
 	}
 
@@ -293,12 +309,16 @@ func (cmd *Text) Run(cli *Cli) error {
 	defer cli.ThrowAway()
 
 	for _, h := range hs.Get() {
+		if hs.Len() > 1 && !cli.NoFile {
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hint(text.Header(h.String())))
+		}
+
 		for s := range h.Strings(
 			cli.Text.Min,
 			cli.Text.Max,
 		) {
 			if !cli.NoLine {
-				_, _ = fmt.Fprintf(cli.w, "%08x  %s\n", s.Off, s.Str)
+				_, _ = fmt.Fprintf(cli.w, "%s  %s\n", text.Hint(s.Off), s.Str)
 			} else {
 				_, _ = fmt.Fprintf(cli.w, "%s\n", s.Str)
 			}
@@ -313,10 +333,10 @@ func (cmd *Hash) Run(cli *Cli) error {
 	defer cli.ThrowAway()
 
 	for _, algo := range cli.Hash.Algo {
-		var a, v string
+		var v string
 
 		if len(cli.Hash.Algo) > 1 {
-			a = fmt.Sprintf(" (%s)", strings.ToUpper(algo))
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hint(text.Header(strings.ToUpper(algo))))
 		}
 
 		for _, h := range hs.Get() {
@@ -335,7 +355,7 @@ func (cmd *Hash) Run(cli *Cli) error {
 			}
 
 			if len(cli.Hash.Find) == 0 || slices.Contains(cli.Hash.Find, v) {
-				_, _ = fmt.Fprintf(cli.w, "%s%s  %s\n", v, a, h)
+				_, _ = fmt.Fprintf(cli.w, "%s  %s\n", v, text.Hint(h))
 			}
 		}
 	}
@@ -355,17 +375,17 @@ func (cmd *Hex) Run(cli *Cli) error {
 
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {
-			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(h.String()))
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hint(text.Header(h.String())))
 		}
 
 		for l := range buffer.Hex(h, tail, cli.Hex.Mode).Lines {
 			switch cli.Hex.Mode {
 			case types.Canonical:
-				_, _ = fmt.Fprintf(cli.w, "%s  %s|%-16s|\n", l.Nr, l.Hex, l.Str)
+				_, _ = fmt.Fprintf(cli.w, "%s  %s%s\n", text.Hint(l.Nr), l.Hex, text.Hint(l.Str))
 			case types.Hexdump:
-				_, _ = fmt.Fprintf(cli.w, "%s %s\n", l.Nr, l.Hex)
+				_, _ = fmt.Fprintf(cli.w, "%s %s\n", text.Hint(l.Nr), l.Hex)
 			case types.Xxd:
-				_, _ = fmt.Fprintf(cli.w, "%s: %s %-16s\n", l.Nr, l.Hex, l.Str)
+				_, _ = fmt.Fprintf(cli.w, "%s %s %-16s\n", text.Hint(l.Nr), l.Hex, text.Hint(l.Str))
 			case types.Raw:
 				_, _ = fmt.Fprintf(cli.w, "%s\n", l.Hex)
 			}
@@ -381,14 +401,14 @@ func (cmd *Cat) Run(cli *Cli) error {
 
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {
-			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Header(h.String()))
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hint(text.Header(h.String())))
 		}
 
 		for l := range buffer.Text(h, 2).Lines {
 			if !cli.NoLine && l.Nr == buffer.Sep {
-				_, _ = fmt.Fprintf(cli.w, "%s\n", buffer.Sep)
+				_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hint(buffer.Sep))
 			} else if !cli.NoLine {
-				_, _ = fmt.Fprintf(cli.w, "%s %s\n", l.Nr, l)
+				_, _ = fmt.Fprintf(cli.w, "%s %s\n", text.Hint(l.Nr), l)
 			} else {
 				_, _ = fmt.Fprintf(cli.w, "%s\n", l)
 			}

@@ -1,6 +1,7 @@
 package heap
 
 import (
+	"fmt"
 	"math"
 	"strings"
 
@@ -8,7 +9,7 @@ import (
 )
 
 type String struct {
-	Off uint
+	Off string
 	Str string
 }
 
@@ -53,7 +54,10 @@ func (h *Heap) Strings(min, max uint) <-chan String {
 		v := uint(len(strings.TrimSpace(str)))
 
 		if v >= min && v <= max {
-			ch <- String{uint(off - (len(buf) + 1)), str}
+			ch <- String{
+				fmt.Sprintf("%08x", off-(len(buf)+1)),
+				str,
+			}
 		}
 
 		buf = buf[:0]

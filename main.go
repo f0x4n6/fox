@@ -18,6 +18,7 @@ import (
 
 	"github.com/cuhsat/fox/v4/internal"
 	"github.com/cuhsat/fox/v4/internal/cmd"
+	"github.com/cuhsat/fox/v4/internal/pkg/text"
 )
 
 var short = strings.TrimSpace(`
@@ -51,7 +52,6 @@ Commands:
     -s, --sort             show logs sorted by timestamp (slow)
     -j, --json             show logs as JSON objects
     -J, --jsonl            show logs as JSON lines
-    -r, --rule=FILE        show logs that matches rules
 
   hash [FLAGS] <PATHS>     prints file hashes and checksums
     -a, --algo=ALGO[,]     use algorithm(s) (default: SHA256)
@@ -97,6 +97,7 @@ Disable:
   -R, --readonly           don't write anything at all
       --no-file            don't print filenames
       --no-line            don't print line numbers
+      --no-color           don't colorize the output
       --no-deflate         don't deflate automatically
       --no-convert         don't convert automatically
 
@@ -140,14 +141,10 @@ Report bugs at <issue@foxhunt.wtf>
 
 // Main start and catch.
 func main() {
+	defer trace()
+
 	log.SetFlags(0)
 	log.SetPrefix("fox: ")
-
-	defer func() {
-		if err := recover(); err != nil {
-			log.Printf("%+v\n\n%s\n", err, debug.Stack())
-		}
-	}()
 
 	fox := new(struct {
 		Help, Version bool
@@ -169,13 +166,21 @@ func main() {
 		fmt.Printf(short)
 	default:
 		if fox.Cli.Verbose > 1 {
-			defer func(start time.Time) {
-				log.Printf("took %v\n", time.Since(start))
-			}(time.Now())
+			defer timer(time.Now())
 		}
 
 		if err := ctx.Run(&fox.Cli); err != nil {
 			log.Fatal(err)
 		}
+	}
+}
+
+func timer(t time.Time) {
+	log.Printf("took %v\n", text.Bold(time.Since(t)))
+}
+
+func trace() {
+	if err := recover(); err != nil {
+		log.Printf("%+v\n\n%s\n", err, debug.Stack())
 	}
 }

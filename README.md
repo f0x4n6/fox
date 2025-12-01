@@ -1,4 +1,4 @@
-[![](assets/fox.png "fox")](https://foxhunt.wtf)
+<img src="assets/fox.png" width="96" alt="Fox">
 
 The Forensic Examiners Swiss Army Knife.
 
