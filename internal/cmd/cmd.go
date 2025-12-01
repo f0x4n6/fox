@@ -259,23 +259,30 @@ func (cmd *Hunt) Run(cli *Cli) error {
 
 		for e := range ch {
 			if cli.Hunt.All || e.Severity >= hunt.Level {
+				var s string
+
 				switch {
 				case cli.Hunt.Jsonl:
-					_, _ = fmt.Fprintln(cli.w, e.ToJSONL())
+					s = e.ToJSONL()
 				case cli.Hunt.Json:
-					_, _ = fmt.Fprintln(cli.w, e.ToJSON())
+					s = e.ToJSON()
 				default:
-					switch e.Severity {
-					case 8, 9, 10:
-						_, _ = fmt.Fprintln(cli.w, text.Crt(e.ToCEF()))
-					case 5, 6, 7:
-						_, _ = fmt.Fprintln(cli.w, text.Err(e.ToCEF()))
-					case 2, 3, 4:
-						_, _ = fmt.Fprintln(cli.w, text.Wrn(e.ToCEF()))
-					default:
-						_, _ = fmt.Fprintln(cli.w, e.ToCEF())
-					}
+					s = e.ToCEF()
 				}
+
+				switch {
+				case e.Severity >= 9:
+					s = text.Crit(s)
+				case e.Severity >= 7:
+					s = text.High(s)
+				case e.Severity >= 4:
+					s = text.Warn(s)
+				default:
+					s = text.Info(s)
+				}
+
+				_, _ = fmt.Fprintln(cli.w, s)
+
 				n++
 			}
 		}

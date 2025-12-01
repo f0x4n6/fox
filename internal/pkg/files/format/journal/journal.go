@@ -124,7 +124,7 @@ func newEvent(od *ordereddict.Dict) (*event.Event, *ordereddict.Dict, error) {
 		e.Message = "Undescribed event"
 	}
 
-	if v, ok := evt.GetInt64("PRIORITY"); !ok {
+	if v, ok := evt.GetInt64("PRIORITY"); ok {
 		e.Severity = 10 - int8(v) // minimum 3
 	}
 
