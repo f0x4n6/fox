@@ -5,5 +5,5 @@ const (
 )
 
 const (
-	Size = 1024
+	Size = 4096
 )

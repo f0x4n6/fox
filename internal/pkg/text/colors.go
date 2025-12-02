@@ -2,10 +2,8 @@ package text
 
 import "github.com/fatih/color"
 
-var Crit = color.New(color.FgHiRed).SprintFunc()
-var High = color.New(color.FgRed).SprintFunc()
-var Warn = color.New(color.FgYellow).SprintFunc()
-var Info = color.New(color.FgWhite).SprintFunc()
+type Colored func(...any) string
 
-var Bold = color.New(color.Bold).SprintFunc()
-var Hint = color.New(color.FgHiBlack).SprintFunc()
+var Mark = color.New(color.FgHiWhite).SprintFunc()
+var Hide = color.New(color.FgHiBlack).SprintFunc()
+var Term = color.New(color.Reset).SprintFunc()

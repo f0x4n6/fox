@@ -24,7 +24,7 @@ func Detect(b []byte) bool {
 }
 
 func Decode(rs io.ReadSeeker, off int64, ext int) <-chan *event.Event {
-	ch := make(chan *event.Event, 1024)
+	ch := make(chan *event.Event, 4096)
 
 	chk, err := newChunk(rs, off)
 

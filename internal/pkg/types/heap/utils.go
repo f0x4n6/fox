@@ -13,7 +13,7 @@ type String struct {
 	Str string
 }
 
-func (h *Heap) Entropy(min, max float64) (float64, bool) {
+func (h *Heap) Entropy(mn, mx float64) (float64, bool) {
 	var a [256]float64
 	var v float64
 
@@ -33,15 +33,15 @@ func (h *Heap) Entropy(min, max float64) (float64, bool) {
 	v /= 8
 
 	// heap filtered
-	if v < min || v > max {
+	if v < mn || v > mx {
 		return 0, false
 	}
 
 	return v, true
 }
 
-func (h *Heap) Strings(min, max uint) <-chan String {
-	var ch = make(chan String, 1024)
+func (h *Heap) Strings(mn, mx uint) <-chan String {
+	var ch = make(chan String, 4096)
 
 	var buf []byte
 	var off int
@@ -53,9 +53,9 @@ func (h *Heap) Strings(min, max uint) <-chan String {
 
 		v := uint(len(strings.TrimSpace(str)))
 
-		if v >= min && v <= max {
+		if v >= mn && v <= mx {
 			ch <- String{
-				fmt.Sprintf("%08x", off-(len(buf)+1)),
+				fmt.Sprintf("%08x", max(off-(len(buf)+1), 0)),
 				str,
 			}
 		}

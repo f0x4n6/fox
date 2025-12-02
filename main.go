@@ -18,7 +18,6 @@ import (
 
 	"github.com/cuhsat/fox/v4/internal"
 	"github.com/cuhsat/fox/v4/internal/cmd"
-	"github.com/cuhsat/fox/v4/internal/pkg/text"
 )
 
 var short = strings.TrimSpace(`
@@ -50,8 +49,9 @@ Commands:
     -a, --all              show logs with all severities
     -x, --ext              show logs with all extensions (slow)
     -s, --sort             show logs sorted by timestamp (slow)
-    -j, --json             show logs as JSON objects
-    -J, --jsonl            show logs as JSON lines
+    -j, --json             output logs as JSON objects
+    -J, --jsonl            output logs as JSON lines
+    -D, --sqlite           output logs as SQLite3 DB
 
   hash [FLAGS] <PATHS>     prints file hashes and checksums
     -a, --algo=ALGO[,]     use algorithm(s) (default: SHA256)
@@ -127,14 +127,14 @@ Hashes (similarity):
 Checksums:
   ADLER32, CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
-Example: Dump the images MBR in hex format
-  $ fox hex -mc -hc512 image.dd > mbr.txt
+Example: Find occurrences in event logs
+  $ fox cat -elogin ./**/*.evtx
 
-Example: Find occurrences in all logs
-  $ fox cat -elogin ./**/*.log
+Example: Show the MBR as canonical hex
+  $ fox hex -mc -hc512 disk.bin
 
 Example: Hunt down suspicious events
-  $ fox hunt -s .
+  $ fox hunt -sxv ./**/*.dd
 
 Report bugs at <issue@foxhunt.wtf>
 `)
@@ -176,7 +176,7 @@ func main() {
 }
 
 func timer(t time.Time) {
-	log.Printf("took %v\n", text.Bold(time.Since(t)))
+	log.Printf("took %v\n", time.Since(t))
 }
 
 func trace() {

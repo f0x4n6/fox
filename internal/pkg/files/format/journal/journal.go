@@ -30,7 +30,7 @@ func Detect(b []byte) bool {
 }
 
 func Decode(b []byte, off int64, ext int) <-chan *event.Event {
-	ch := make(chan *event.Event, 1024)
+	ch := make(chan *event.Event, 4096)
 
 	f, err := parser.OpenFile(bytes.NewReader(b[off:]))
 

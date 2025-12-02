@@ -28,6 +28,9 @@ go.work.sum
 # Raw images
 *.dd
 
+# Databases
+*.db
+
 # Profiling
 *.pprof
 

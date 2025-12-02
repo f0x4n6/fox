@@ -12,7 +12,7 @@ go install github.com/cuhsat/fox/v4@latest
 ```
 
 ## Build
-Build a full-featured version:
+Build a standalone version:
 ```console
 go build -o fox main.go
 ```

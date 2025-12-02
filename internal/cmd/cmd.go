@@ -26,12 +26,13 @@ import (
 )
 
 type Hunt struct {
-	All   bool     `short:"a"`
-	Ext   int      `short:"x" type:"counter"`
-	Sort  bool     `short:"s"`
-	Json  bool     `short:"j" xor:"json,jsonl"`
-	Jsonl bool     `short:"J" xor:"json,jsonl"`
-	Paths []string `arg:"" type:"path" optional:""`
+	All    bool     `short:"a"`
+	Ext    int      `short:"x" type:"counter"`
+	Sort   bool     `short:"s"`
+	Json   bool     `short:"j" xor:"json,jsonl,sqlite"`
+	Jsonl  bool     `short:"J" xor:"json,jsonl,sqlite"`
+	Sqlite bool     `short:"D" xor:"json,jsonl,sqlite"`
+	Paths  []string `arg:"" type:"path" optional:""`
 }
 
 type Info struct {
@@ -159,10 +160,6 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 		cli.NoDeflate = true
 	}
 
-	if cli.NoColor {
-		color.NoColor = true
-	}
-
 	if cli.Logstash {
 		cli.Url = types.Logstash
 		cli.Ecs = true
@@ -174,6 +171,7 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 	}
 
 	if len(cli.File)+len(cli.Url) > 0 {
+		cli.NoColor = true
 		cli.w = stream.New(cli.File, sw)
 	} else {
 		cli.w = os.Stdout
@@ -181,6 +179,10 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 
 	if len(cli.Hunt.Paths) == 0 {
 		cli.Hunt.Paths = hunt.Paths
+	}
+
+	if cli.NoColor {
+		color.NoColor = true
 	}
 
 	cli.hs = heapset.New(args, &heapset.Options{
@@ -229,7 +231,7 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	defer cli.ThrowAway()
 
 	n, sort := 0, func(in <-chan *event.Event) <-chan *event.Event {
-		out := make(chan *event.Event)
+		out := make(chan *event.Event, cap(in))
 
 		go func() {
 			defer close(out)
@@ -247,6 +249,14 @@ func (cmd *Hunt) Run(cli *Cli) error {
 		return out
 	}
 
+	if cli.Verbose > 0 {
+		log.Println("hunt: started")
+	}
+
+	if cli.Hunt.Sqlite {
+		hunt.UseDB("fox.db")
+	}
+
 	for _, h := range hs.Get() {
 		ch := hunt.Hunt(h, &hunt.Options{
 			Extensions: cli.Hunt.Ext,
@@ -257,39 +267,46 @@ func (cmd *Hunt) Run(cli *Cli) error {
 			ch = sort(ch)
 		}
 
+		var fn text.Colored
+
 		for e := range ch {
 			if cli.Hunt.All || e.Severity >= hunt.Level {
-				var s string
+				n++
+
+				if cli.Hunt.Sqlite {
+					if err := hunt.Save(e); err != nil {
+						log.Println(err)
+					}
+					continue
+				}
+
+				switch {
+				case cli.Hunt.All && e.Severity >= hunt.Level:
+					fn = text.Mark // mark event
+				case cli.Hunt.All:
+					fn = text.Hide // hide event
+				default:
+					fn = text.Term // reset terminal
+				}
 
 				switch {
 				case cli.Hunt.Jsonl:
-					s = e.ToJSONL()
+					_, _ = fmt.Fprintln(cli.w, fn(e.ToJSONL()))
 				case cli.Hunt.Json:
-					s = e.ToJSON()
+					_, _ = fmt.Fprintln(cli.w, fn(e.ToJSON()))
 				default:
-					s = e.ToCEF()
+					_, _ = fmt.Fprintln(cli.w, fn(e.ToCEF()))
 				}
-
-				switch {
-				case e.Severity >= 9:
-					s = text.Crit(s)
-				case e.Severity >= 7:
-					s = text.High(s)
-				case e.Severity >= 4:
-					s = text.Warn(s)
-				default:
-					s = text.Info(s)
-				}
-
-				_, _ = fmt.Fprintln(cli.w, s)
-
-				n++
 			}
 		}
 	}
 
+	if cli.Verbose > 0 {
+		log.Println("hunt: finished")
+	}
+
 	if cli.Verbose > 1 {
-		log.Printf("found %s events\n", text.Bold(n))
+		log.Printf("hunt: found %d events\n", n)
 	}
 
 	return nil
@@ -304,7 +321,7 @@ func (cmd *Info) Run(cli *Cli) error {
 			cli.Info.Min,
 			cli.Info.Max,
 		); ok {
-			_, _ = fmt.Fprintf(cli.w, "%10dL %10dB  %.10f  %s\n", h.Len(), len(h.MMap()), e, text.Hint(h.String()))
+			_, _ = fmt.Fprintf(cli.w, "%10dL %10dB  %.10fE  %s\n", h.Len(), len(h.MMap()), e, text.Hide(h.String()))
 		}
 	}
 
@@ -317,7 +334,7 @@ func (cmd *Text) Run(cli *Cli) error {
 
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {
-			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hint(text.Header(h.String())))
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hide(text.Header(h.String())))
 		}
 
 		for s := range h.Strings(
@@ -325,7 +342,7 @@ func (cmd *Text) Run(cli *Cli) error {
 			cli.Text.Max,
 		) {
 			if !cli.NoLine {
-				_, _ = fmt.Fprintf(cli.w, "%s  %s\n", text.Hint(s.Off), s.Str)
+				_, _ = fmt.Fprintf(cli.w, "%s  %s\n", text.Hide(s.Off), s.Str)
 			} else {
 				_, _ = fmt.Fprintf(cli.w, "%s\n", s.Str)
 			}
@@ -343,7 +360,7 @@ func (cmd *Hash) Run(cli *Cli) error {
 		var v string
 
 		if len(cli.Hash.Algo) > 1 {
-			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hint(text.Header(strings.ToUpper(algo))))
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hide(text.Header(strings.ToUpper(algo))))
 		}
 
 		for _, h := range hs.Get() {
@@ -362,7 +379,7 @@ func (cmd *Hash) Run(cli *Cli) error {
 			}
 
 			if len(cli.Hash.Find) == 0 || slices.Contains(cli.Hash.Find, v) {
-				_, _ = fmt.Fprintf(cli.w, "%s  %s\n", v, text.Hint(h))
+				_, _ = fmt.Fprintf(cli.w, "%s  %s\n", v, text.Hide(h))
 			}
 		}
 	}
@@ -382,17 +399,17 @@ func (cmd *Hex) Run(cli *Cli) error {
 
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {
-			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hint(text.Header(h.String())))
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hide(text.Header(h.String())))
 		}
 
 		for l := range buffer.Hex(h, tail, cli.Hex.Mode).Lines {
 			switch cli.Hex.Mode {
 			case types.Canonical:
-				_, _ = fmt.Fprintf(cli.w, "%s  %s%s\n", text.Hint(l.Nr), l.Hex, text.Hint(l.Str))
+				_, _ = fmt.Fprintf(cli.w, "%s  %s%s\n", text.Hide(l.Nr), l.Hex, text.Hide(l.Str))
 			case types.Hexdump:
-				_, _ = fmt.Fprintf(cli.w, "%s %s\n", text.Hint(l.Nr), l.Hex)
+				_, _ = fmt.Fprintf(cli.w, "%s %s\n", text.Hide(l.Nr), l.Hex)
 			case types.Xxd:
-				_, _ = fmt.Fprintf(cli.w, "%s %s %-16s\n", text.Hint(l.Nr), l.Hex, text.Hint(l.Str))
+				_, _ = fmt.Fprintf(cli.w, "%s %s %-16s\n", text.Hide(l.Nr), l.Hex, text.Hide(l.Str))
 			case types.Raw:
 				_, _ = fmt.Fprintf(cli.w, "%s\n", l.Hex)
 			}
@@ -408,14 +425,14 @@ func (cmd *Cat) Run(cli *Cli) error {
 
 	for _, h := range hs.Get() {
 		if hs.Len() > 1 && !cli.NoFile {
-			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hint(text.Header(h.String())))
+			_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hide(text.Header(h.String())))
 		}
 
 		for l := range buffer.Text(h, 2).Lines {
 			if !cli.NoLine && l.Nr == buffer.Sep {
-				_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hint(buffer.Sep))
+				_, _ = fmt.Fprintf(cli.w, "%s\n", text.Hide(buffer.Sep))
 			} else if !cli.NoLine {
-				_, _ = fmt.Fprintf(cli.w, "%s %s\n", text.Hint(l.Nr), l)
+				_, _ = fmt.Fprintf(cli.w, "%s %s\n", text.Hide(l.Nr), l)
 			} else {
 				_, _ = fmt.Fprintf(cli.w, "%s\n", l)
 			}
