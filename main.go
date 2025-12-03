@@ -49,9 +49,9 @@ Commands:
     -a, --all              show logs with all severities
     -x, --ext              show logs with all extensions (slow)
     -s, --sort             show logs sorted by timestamp (slow)
-    -j, --json             output logs as JSON objects
-    -J, --jsonl            output logs as JSON lines
-    -D, --sqlite           output logs as SQLite3 DB
+    -j, --json             show logs as JSON objects
+    -J, --jsonl            show logs as JSON lines
+    -D, --sqlite           save logs to SQLite3 DB
 
   hash [FLAGS] <PATHS>     prints file hashes and checksums
     -a, --algo=ALGO[,]     use algorithm(s) (default: SHA256)
@@ -94,7 +94,7 @@ Data stream:
 
 Disable:
   -r, --raw                don't process files at all
-  -R, --readonly           don't write anything at all
+  -q, --quiet              don't print anything
       --no-file            don't print filenames
       --no-line            don't print line numbers
       --no-color           don't colorize the output
@@ -139,18 +139,18 @@ Example: Hunt down suspicious events
 Report bugs at <issue@foxhunt.wtf>
 `)
 
-// Main start and catch.
+type Fox struct {
+	Help, Version bool
+	cmd.Cli
+}
+
 func main() {
 	defer trace()
 
 	log.SetFlags(0)
 	log.SetPrefix("fox: ")
 
-	fox := new(struct {
-		Help, Version bool
-		cmd.Cli
-	})
-
+	fox := new(Fox)
 	ctx := kong.Parse(fox,
 		kong.NoDefaultHelp(),
 		kong.DefaultEnvars("FOX"),

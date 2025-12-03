@@ -1,4 +1,4 @@
-<img src="assets/fox.png" width="96" alt="Fox">
+![Fox](assets/title.png "Forensic Examiner")
 
 The Forensic Examiners Swiss Army Knife.
 

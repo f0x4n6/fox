@@ -25,13 +25,15 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heapset"
 )
 
+const dbName = "fox.db"
+
 type Hunt struct {
 	All    bool     `short:"a"`
 	Ext    int      `short:"x" type:"counter"`
 	Sort   bool     `short:"s"`
-	Json   bool     `short:"j" xor:"json,jsonl,sqlite"`
-	Jsonl  bool     `short:"J" xor:"json,jsonl,sqlite"`
-	Sqlite bool     `short:"D" xor:"json,jsonl,sqlite"`
+	Json   bool     `short:"j" xor:"json,jsonl"`
+	Jsonl  bool     `short:"J" xor:"json,jsonl"`
+	Sqlite bool     `short:"D"`
 	Paths  []string `arg:"" type:"path" optional:""`
 }
 
@@ -94,8 +96,8 @@ type Cli struct {
 	Hec  bool   `short:"H" xor:"ecs,hec" and:"hec,auth"`
 
 	// disable
-	Readonly  bool `short:"R"`
 	Raw       bool `short:"r"`
+	Quiet     bool `short:"q"`
 	NoFile    bool `long:"no-file"`
 	NoLine    bool `long:"no-line"`
 	NoColor   bool `long:"no-color"`
@@ -118,11 +120,6 @@ type Cli struct {
 func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 	var re *regexp.Regexp
 	var sw io.Writer
-
-	if cli.Readonly {
-		cli.File = ""
-		log.Println("File output deactivated")
-	}
 
 	if len(cli.Regex) > 0 {
 		re = regexp.MustCompile(cli.Regex)
@@ -173,6 +170,9 @@ func (cli *Cli) Bootstrap(args []string) *heapset.HeapSet {
 	if len(cli.File)+len(cli.Url) > 0 {
 		cli.NoColor = true
 		cli.w = stream.New(cli.File, sw)
+	} else if cli.Quiet {
+		log.SetOutput(io.Discard)
+		cli.w, _ = os.Open(os.DevNull)
 	} else {
 		cli.w = os.Stdout
 	}
@@ -254,7 +254,11 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	}
 
 	if cli.Hunt.Sqlite {
-		hunt.UseDB("fox.db")
+		hunt.UseDB(dbName)
+
+		if cli.Verbose > 0 {
+			log.Printf("hunt: using %s\n", dbName)
+		}
 	}
 
 	for _, h := range hs.Get() {
@@ -277,7 +281,6 @@ func (cmd *Hunt) Run(cli *Cli) error {
 					if err := hunt.Save(e); err != nil {
 						log.Println(err)
 					}
-					continue
 				}
 
 				switch {
