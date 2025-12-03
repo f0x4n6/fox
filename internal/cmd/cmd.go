@@ -225,12 +225,15 @@ func (cli *Cli) ThrowAway() {
 }
 
 func (cmd *Hunt) Run(cli *Cli) error {
+	var db *hunt.Database
+	var fn text.Colored
+
 	cli.NoConvert = true // force
 
 	hs := cli.Bootstrap(cli.Hunt.Paths)
 	defer cli.ThrowAway()
 
-	n, sort := 0, func(in <-chan *event.Event) <-chan *event.Event {
+	cnt, sort := 0, func(in <-chan *event.Event) <-chan *event.Event {
 		out := make(chan *event.Event, cap(in))
 
 		go func() {
@@ -254,7 +257,7 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	}
 
 	if cli.Hunt.Sqlite {
-		hunt.UseDB(dbName)
+		db = hunt.NewDB(dbName)
 
 		if cli.Verbose > 0 {
 			log.Printf("hunt: using %s\n", dbName)
@@ -271,18 +274,8 @@ func (cmd *Hunt) Run(cli *Cli) error {
 			ch = sort(ch)
 		}
 
-		var fn text.Colored
-
 		for e := range ch {
 			if cli.Hunt.All || e.Severity >= hunt.Level {
-				n++
-
-				if cli.Hunt.Sqlite {
-					if err := hunt.Save(e); err != nil {
-						log.Println(err)
-					}
-				}
-
 				switch {
 				case cli.Hunt.All && e.Severity >= hunt.Level:
 					fn = text.Mark // mark event
@@ -300,6 +293,12 @@ func (cmd *Hunt) Run(cli *Cli) error {
 				default:
 					_, _ = fmt.Fprintln(cli.w, fn(e.ToCEF()))
 				}
+
+				if db != nil {
+					db.Write(e)
+				}
+
+				cnt++
 			}
 		}
 	}
@@ -309,7 +308,7 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	}
 
 	if cli.Verbose > 1 {
-		log.Printf("hunt: found %d events\n", n)
+		log.Printf("hunt: found %d events\n", cnt)
 	}
 
 	return nil

@@ -33,12 +33,15 @@ INSERT INTO events (
 ) VALUES (?,?,?,?,?);
 `
 
-var db *sql.DB
+type Database struct {
+	sql *sql.DB
+}
 
-func UseDB(path string) {
+func NewDB(path string) *Database {
 	var err error
 
-	db, err = sql.Open("sqlite", "file:"+path)
+	db := new(Database)
+	db.sql, err = sql.Open("sqlite", "file:"+path)
 
 	if err != nil {
 		log.Fatal(err)
@@ -47,16 +50,18 @@ func UseDB(path string) {
 	_, err = os.Stat(path)
 
 	if errors.Is(err, os.ErrNotExist) {
-		_, err = db.Exec(schema)
+		_, err = db.sql.Exec(schema)
 	}
 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	return db
 }
 
-func Save(evt *event.Event) error {
-	_, err := db.Exec(insert,
+func (db *Database) Write(evt *event.Event) {
+	_, err := db.sql.Exec(insert,
 		evt.Time.UTC(),
 		evt.Host,
 		evt.User,
@@ -64,5 +69,7 @@ func Save(evt *event.Event) error {
 		evt.Severity,
 	)
 
-	return err
+	if err != nil {
+		log.Println(err)
+	}
 }
