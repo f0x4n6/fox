@@ -34,13 +34,17 @@ INSERT INTO events (
 `
 
 type Database struct {
-	sql *sql.DB
+	path string
+	sql  *sql.DB
 }
 
 func NewDB(path string) *Database {
 	var err error
 
-	db := new(Database)
+	db := &Database{
+		path: path,
+	}
+
 	db.sql, err = sql.Open("sqlite", "file:"+path)
 
 	if err != nil {
@@ -58,6 +62,10 @@ func NewDB(path string) *Database {
 	}
 
 	return db
+}
+
+func (db *Database) String() string {
+	return db.path
 }
 
 func (db *Database) Write(evt *event.Event) {

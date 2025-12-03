@@ -1,5 +1,7 @@
 package types
 
+const Database = "fox.db"
+
 const (
 	MD5       = "md5"
 	SHA1      = "sha1"

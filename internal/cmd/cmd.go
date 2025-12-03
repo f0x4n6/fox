@@ -25,8 +25,6 @@ import (
 	"github.com/cuhsat/fox/v4/internal/pkg/types/heapset"
 )
 
-const dbName = "fox.db"
-
 type Hunt struct {
 	All    bool     `short:"a"`
 	Ext    int      `short:"x" type:"counter"`
@@ -257,10 +255,10 @@ func (cmd *Hunt) Run(cli *Cli) error {
 	}
 
 	if cli.Hunt.Sqlite {
-		db = hunt.NewDB(dbName)
+		db = hunt.NewDB(types.Database)
 
 		if cli.Verbose > 0 {
-			log.Printf("hunt: using %s\n", dbName)
+			log.Printf("hunt: using %s\n", db)
 		}
 	}
 
