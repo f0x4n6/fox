@@ -27,19 +27,6 @@ go install github.com/cuhsat/fox/v4@latest
 
 ## Usage
 ```console
-Usage: fox [COMMAND] <PATHS>
-
-  hunt   hunt suspicious activities
-  hash   prints file hash using algorithm(s)
-  info   prints file info and entropy
-  text   prints file ASCII strings
-  hex    prints file in hex format
-  cat    prints file (default)
-
-Type "fox --help" for more help...
-```
-
-```console
 Usage:
   fox [COMMAND] [FLAGS] <PATHS>
 
@@ -114,31 +101,45 @@ Positional arguments:
   Path(s) to open or '-' for STDIN
 ```
 
+## Commands
+* `hunt`   hunt suspicious activities
+* `hash`   prints file hash using algorithms
+* `info`   prints file info and entropy
+* `text`   prints file ASCII strings
+* `hex`    prints file in hex format
+* `cat`    prints file (default)
+
 ## Formats
 Archive formats:
-
-`CAB`, `RAR`, `TAR`, `ZIP`
+```
+CAB, RAR, TAR, ZIP
+```
 
 Compression formats:
-
-`Brotli`, `BZip2`, `Gzip`, `lz4`, `LZW`, `MinLZ`, `S2`, `Snappy`, `xz`, `zlib`, `Zstandard`
+```
+Brotli, BZip2, Gzip, lz4, LZW, MinLZ, S2, Snappy, xz, zlib, Zstandard
+```
 
 ## Hashes
 Cryptographic hashes:
-
-`BLAKE3-256`, `BLAKE3-512`, `MD5`, `SHA1`, `SHA256`, `SHA3`, `SHA3-224`, `SHA3-256`, `SHA3-384`, `SHA3-512`
+```
+BLAKE3-256, BLAKE3-512, MD5, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512
+```
 
 Performance hashes:
-
-`FNV-1`, `FNV-1A`, `XXH64`, `XXH3`
+```
+FNV-1, FNV-1A, XXH64, XXH3
+```
 
 Similarity hashes:
-
-`SDHASH`, `SSDEEP`, `TLSH`
+```
+SDHASH, SSDEEP, TLSH
+```
 
 Checksums:
-
-`ADLER32`, `CRC32-IEEE`, `CRC64-ECMA`, `CRC64-ISO`
+```
+ADLER32, CRC32-IEEE, CRC64-ECMA, CRC64-ISO
+```
 
 ## Examples
 Find occurrences in event logs:
