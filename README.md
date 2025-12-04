@@ -20,18 +20,8 @@ go install github.com/cuhsat/fox/v4@latest
 * [Bidirectional character](https://nvd.nist.gov/vuln/detail/CVE-2021-42574) detection
 * Fast file entropy calculation
 * Built-in `grep`, `head`, `tail`, `hexdump`, `strings` and `wc` like abilities
-* Built-in archive formats:
-    * `CAB`, `RAR`, `TAR`, `ZIP`
-* Built-in compression formats:
-    * `Brotli`, `BZip2`, `Gzip`, `lz4`, `LZW`, `MinLZ`, `S2`, `Snappy`, `xz`, `zlib`, `Zstandard`
-* Built-in cryptographic hashes:
-  * `BLAKE3-256`, `BLAKE3-512`, `MD5`, `SHA1`, `SHA256`, `SHA3`, `SHA3-224`, `SHA3-256`, `SHA3-384`, `SHA3-512`
-* Built-in similarity / fuzzy hashes:
-  * `sdhash`, `SSDeep`, `TLSH`
-* Built-in performance hashes:
-  * `FNV-1`, `FNV-1a`, `XXH64`, `XXH3`
-* Built-in checksums:
-  * `Adler-32`, `CRC32-IEEE`, `CRC64-ECMA`, `CRC64-ISO`
+* Many built-in archive compression formats*
+* Many built-in cryptographic, fuzzy and fast hashes**
 * (TODO) Evidence saving with Chain of Custody signing
 * (TODO) Evidence streaming using [Splunk HEC](https://help.splunk.com/en/splunk-enterprise/leverage-rest-apis/rest-api-reference/10.0/input-endpoints/input-endpoint-descriptions) or [ECS](https://www.elastic.co/docs/reference/ecs)
 
@@ -122,81 +112,33 @@ Standard:
 
 Positional arguments:
   Path(s) to open or '-' for STDIN
-
-Hashes (cryptographic):
-  SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512,
-  MD5, BLAKE3-256, BLAKE3-512
-
-Hashes (performance):
-  FNV-1, FNV-1A, XXH64, XXH3
-
-Hashes (similarity):
-  SDHASH, SSDEEP, TLSH
-
-Checksums:
-  ADLER32, CRC32-IEEE, CRC64-ECMA, CRC64-ISO
-
-Example: Find occurrences in event logs
-  $ fox cat -elogin ./**/*.evtx
-
-Example: Show the MBR in canonical hex
-  $ fox hex -mc -hc512 disk.bin
-
-Example: Hunt down suspicious events
-  $ fox hunt -sxv ./**/*.dd
-
-Report bugs at <mail@foxhunt.wtf>
 ```
 
-### Hashes & Checksums
-Supported cryptographic hashes:
-* `BLAKE3-256`
-* `BLAKE3-512`
-* `MD5`
-* `SHA1`
-* `SHA256`
-* `SHA3`
-* `SHA3-224`
-* `SHA3-256`
-* `SHA3-384`
-* `SHA3-512`
+## Formats
+Archive formats:
 
-Supported similarity / fuzzy hashes:
-* `sdhash`
-* `SSDeep`
-* `TLSH`
+`CAB`, `RAR`, `TAR`, `ZIP`
 
-Supported performance hashes:
-* `FNV-1`
-* `FNV-1a`
-* `XXH64`
-* `XXH3`
+Compression formats:
 
-Supported checksums:
-* `Adler-32`
-* `CRC32-IEEE`
-* `CRC64-ECMA`
-* `CRC64-ISO`
+`Brotli`, `BZip2`, `Gzip`, `lz4`, `LZW`, `MinLZ`, `S2`, `Snappy`, `xz`, `zlib`, `Zstandard`
 
-### Archives & Compressions
-Supported archive formats:
-* `CAB`
-* `RAR`
-* `TAR`
-* `ZIP`
+## Hashes
+Cryptographic hashes:
 
-Supported compression formats:
-* `Brotli`
-* `BZip2`
-* `Gzip`
-* `lz4`
-* `LZW`
-* `MinLZ`
-* `S2`
-* `Snappy`
-* `xz`
-* `zlib`
-* `Zstandard`
+`BLAKE3-256`, `BLAKE3-512`, `MD5`, `SHA1`, `SHA256`, `SHA3`, `SHA3-224`, `SHA3-256`, `SHA3-384`, `SHA3-512`
+
+Performance hashes:
+
+`FNV-1`, `FNV-1A`, `XXH64`, `XXH3`
+
+Similarity hashes:
+
+`SDHASH`, `SSDEEP`, `TLSH`
+
+Checksums:
+
+`ADLER32`, `CRC32-IEEE`, `CRC64-ECMA`, `CRC64-ISO`
 
 ## Examples
 Find occurrences in event logs:
