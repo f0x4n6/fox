@@ -36,14 +36,14 @@ type Hunt struct {
 }
 
 type Info struct {
-	Min   float64  `default:"0.0"`
-	Max   float64  `default:"1.0"`
+	Min   float64  `short:"a" default:"0.0"`
+	Max   float64  `short:"b" default:"1.0"`
 	Paths []string `arg:"" name:"path" type:"path" optional:""`
 }
 
 type Text struct {
-	Min   uint     `default:"3"`
-	Max   uint     `default:"256"`
+	Min   uint     `short:"a" default:"3"`
+	Max   uint     `short:"b" default:"256"`
 	Paths []string `arg:"" type:"path" optional:""`
 }
 

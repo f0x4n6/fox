@@ -26,125 +26,15 @@ go install github.com/cuhsat/fox/v4@latest
 * (TODO) Evidence streaming using [Splunk HEC](https://help.splunk.com/en/splunk-enterprise/leverage-rest-apis/rest-api-reference/10.0/input-endpoints/input-endpoint-descriptions) or [ECS](https://www.elastic.co/docs/reference/ecs)
 
 ## Usage
+Type `fox --help` for more help:
 ```console
-Usage:
-  fox [COMMAND] [FLAGS] <PATHS>
-
-Commands:
-  hunt [FLAGS] <PATHS>     hunt suspicious activities
-    -a, --all              show logs with all severities
-    -x, --ext              show logs with all extensions (slow)
-    -s, --sort             show logs sorted by timestamp (slow)
-    -j, --json             show logs as JSON objects
-    -J, --jsonl            show logs as JSON lines
-    -D, --sqlite           save logs to SQLite3 DB
-
-  hash [FLAGS] <PATHS>     prints file hashes and checksums
-    -a, --algo=ALGO[,]     use algorithm(s) (default: SHA256)
-    -F, --find=HASH[,]     show only files that match
-
-  info [FLAGS] <PATHS>     prints file infos and entropy
-        --min=DECIMAL      minimum entropy value (default: 0.0)
-        --max=DECIMAL      maximal entropy value (default: 1.0)
-
-  text [FLAGS] <PATHS>     prints file ASCII strings
-        --min=NUMBER       minimum string length (default: 3)
-        --max=NUMBER       maximal string length (default: 256)
-
-  hex [FLAGS] <PATHS>      prints file in hex format
-    -m, --mode=[c|hd|xxd]  use compatible mode for output 
-
-  cat [FLAGS] <PATHS>      prints file (default)
-
-File limits:
-  -h, --head               limit head of file by ...
-  -t, --tail               limit tail of file by ...
-  -n, --lines=NUMBER       number of lines
-  -c, --bytes=NUMBER       number of bytes
-
-File loader:
-  -p, --pass=PASSWORD      password for decryption (only RAR and ZIP)
-
-Line filter:
-  -e, --regexp=PATTERN     filter for lines that match pattern
-  -C, --context=NUMBER     number of lines surrounding context of match
-  -B, --before=NUMBER      number of lines leading context before match
-  -A, --after=NUMBER       number of lines trailing context after match
-
-Data stream:
-  -f, --file=FILE          stream data to file name
-  -u, --url=SERVER         stream data to server address
-  -T, --auth=TOKEN         stream data using auth token
-  -E, --ecs                use ECS schema for streaming
-  -H, --hec                use HEC schema for streaming
-
-Disable:
-  -r, --raw                don't process files at all
-  -q, --quiet              don't print anything
-      --no-file            don't print filenames
-      --no-line            don't print line numbers
-      --no-color           don't colorize the output
-      --no-deflate         don't deflate automatically
-      --no-convert         don't convert automatically
-
-Aliases:
-  -L, --logstash           alias for: -E -uhttp://localhost:8080
-  -S, --splunk             alias for: -H -uhttp://localhost:8088/...
-
-Standard:
-  -d, --dry-run            prints only the found filenames
-  -v, --verbose[=LEVEL]    prints more details (v/vv/vvv)
-      --version            prints the version number
-      --help               prints this help message
-
-Positional arguments:
-  Path(s) to open or '-' for STDIN
-```
-
-## Commands
-* `hunt`   hunt suspicious activities
-* `hash`   prints file hash using algorithms
-* `info`   prints file info and entropy
-* `text`   prints file ASCII strings
-* `hex`    prints file in hex format
-* `cat`    prints file (default)
-
-## Formats
-Archive formats:
-```
-CAB, RAR, TAR, ZIP
-```
-
-Compression formats:
-```
-Brotli, BZip2, Gzip, lz4, LZW, MinLZ, S2, Snappy, xz, zlib, Zstandard
-```
-
-## Hashes
-Cryptographic hashes:
-```
-BLAKE3-256, BLAKE3-512, MD5, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512
-```
-
-Performance hashes:
-```
-FNV-1, FNV-1A, XXH64, XXH3
-```
-
-Similarity hashes:
-```
-SDHASH, SSDEEP, TLSH
-```
-
-Checksums:
-```
-ADLER32, CRC32-IEEE, CRC64-ECMA, CRC64-ISO
+$ fox [COMMAND] [FLAGS] <PATHS>
 ```
 
 ## Examples
 Find occurrences in event logs:
 ```console
-$ fox cat -elogin ./**/*.evtx
+$ fox cat -eWinlogon ./**/*.evtx
 ```
 
 Show the MBR in canonical hex:
@@ -152,10 +42,28 @@ Show the MBR in canonical hex:
 $ fox hex -mc -hc512 disk.bin
 ```
 
+Find ASCII strings in binaries:
+```console
+$ fox text -ra8 download.exe
+```
+
+Hash the archive contents:
+```console
+$ fox hash -amd5,sha1 files.zip
+```
+
 Hunt down suspicious events:
 ```console
 $ fox hunt -sxv ./**/*.dd
 ```
+
+## Supports
+
+### File Formats
+BROTLI, BZIP2, CAB, GZIP, EVTX, JSONL, JOURNAL, LZ4, LZW, MINLZ, RAR, S2, SNAPPY, TAR, XZ, ZIP, ZLIB, ZSTD
+
+### Algorithms
+ADLER32, BLAKE3-256, BLAKE3-512, CRC32-IEEE, CRC64-ECMA, CRC64-ISO, FNV-1, FNV-1A, MD5, SDHASH, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512, SSDEEP, TLSH, XXH3, XXH64
 
 ## License
 🦊 is released under the [GPL-3.0](LICENSE.md)

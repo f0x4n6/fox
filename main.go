@@ -58,12 +58,12 @@ Commands:
     -F, --find=HASH[,]     show only files that match
 
   info [FLAGS] <PATHS>     prints file infos and entropy
-        --min=DECIMAL      minimum entropy value (default: 0.0)
-        --max=DECIMAL      maximal entropy value (default: 1.0)
+    -a, --min=DECIMAL      minimum entropy value (default: 0.0)
+    -b, --max=DECIMAL      maximal entropy value (default: 1.0)
 
   text [FLAGS] <PATHS>     prints file ASCII strings
-        --min=NUMBER       minimum string length (default: 3)
-        --max=NUMBER       maximal string length (default: 256)
+    -a, --min=NUMBER       minimum string length (default: 3)
+    -b, --max=NUMBER       maximal string length (default: 256)
 
   hex [FLAGS] <PATHS>      prints file in hex format
     -m, --mode=[c|hd|xxd]  use compatible mode for output 
