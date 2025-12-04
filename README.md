@@ -1,42 +1,70 @@
-[![](docs/assets/img/examiner.png "Forensic Examiner")](https://forensic-examiner.eu)
+![fox](assets/title.png "fox")
 
-The Swiss Army Knife for examining text files. Combining the power of many traditional tools like **grep**, **diff**, **hexdump** and **strings** with the abilities of modern Large Language Models, to leverage your forensic examination process. Standalone binaries are available for Windows, Linux and macOS.
-
-![](docs/assets/img/terminal.png)
-
-## Key Features
-* Read-only [forensic filesystem](https://forensic-examiner.eu/features/filesystem) abstraction
-* Multibyte support with [bidirectional character](https://nvd.nist.gov/vuln/detail/CVE-2021-42574) detection
-* Built-in `grep`, `diff`, `hexdump` and `strings` like [abilities](https://forensic-examiner.eu/start/usage/fox)
-* Built-in parsing of [Linux Journals](https://forensic-examiner.eu/files/logs/linux) and [Windows Event Logs](https://forensic-examiner.eu/files/logs/windows)
-* Built-in popular [cryptographic](https://forensic-examiner.eu/utils/hashes#cryptographic-hashes) and [similarity](https://forensic-examiner.eu/utils/hashes#similarity-hashes) hashes
-* Extraction and deflation of many [archive](https://forensic-examiner.eu/files/loader) formats
-* Evidence bag with [Chain of Custody](https://forensic-examiner.eu/features/evidence) signing
-* Evidence streaming using [Splunk HEC](https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTinput) or [ECS](https://www.elastic.co/docs/reference/ecs)
-* Integrated super timeline in [Common Event Format](https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%201%20What%20is%20CEF.htm)
-* Integrated plugin support for e.g. [The Sleuth Kit](https://www.sleuthkit.org/) or [Eric Zimmerman's tools](https://ericzimmerman.github.io/)
-* Integrated assistant using local [Ollama LLMs](https://ollama.com/search) like *Mistral* or *DeepSeek R1*
-
-## Install
-Install directly using Go:
-```console
-go install github.com/cuhsat/fox/v3@latest
-```
-
-## Build
-Build a full-featured version:
-```console
-go build -o fox main.go
-```
-
-Build a minimal version with stripped AI and UI support:
-```console
-go build -o fox -tags minimal main.go
-```
-
-## License
-This software is released under the [GPL-3.0](LICENSE.md)
+The Forensic Swiss Army Knife. Providing many useful features to leverage your forensic examination process. Standalone binaries available for Windows, Linux and macOS.
 
 ![Status](https://img.shields.io/github/actions/workflow/status/cuhsat/fox/ci.yaml?style=flat-square&label=Status)
-![Date](https://img.shields.io/github/release-date/cuhsat/fox.svg?style=flat-square&label=Date)
+![Commits](https://img.shields.io/github/commit-activity/y/cuhsat/fox.svg?style=flat-square&label=Commits)
 ![Release](https://img.shields.io/github/release/cuhsat/fox.svg?style=flat-square&label=Release)
+
+```console
+go install github.com/cuhsat/fox/v4@latest
+```
+
+## Features
+* Read-only filesystem access
+* [Bidirectional character](https://nvd.nist.gov/vuln/detail/CVE-2021-42574) detection
+* Fast [Shannon entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) calculation
+* Integral `grep`, `head`, `tail`, `hexdump`, `strings` like abilities
+* Hunt mode
+  * Built-in file carving of [Linux Journals](https://systemd.io/JOURNAL_FILE_FORMAT/) and [Windows Event Logs](https://learn.microsoft.com/en-us/windows/win32/eventlog/event-log-file-format)
+  * Built-in super timeline in [Common Event Format](https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%201%20What%20is%20CEF.htm)
+  * Built-in translation list of over 1500 Event IDs
+  * Built-in warning of critical system events
+  * Save as `JSON`, `JSON Lines` or `SQLite3`
+* Supports (see below)
+  * Many popular archive and compression formats
+  * Many popular cryptographic, fuzzy and fast hashes
+  * Data streaming in [Splunk HEC](https://help.splunk.com/en/splunk-enterprise/leverage-rest-apis/rest-api-reference/10.0/input-endpoints/input-endpoint-descriptions) or [ECS](https://www.elastic.co/docs/reference/ecs) format
+
+## Usage
+Type `fox --help` for more help:
+```console
+$ fox [COMMAND] [FLAGS] <PATHS>
+```
+
+## Examples
+Find occurrences in event logs:
+```console
+$ fox cat -eWinlogon ./**/*.evtx
+```
+
+Show the MBR in canonical hex:
+```console
+$ fox hex -mc -hc512 disk.bin
+```
+
+Find ASCII strings in binaries:
+```console
+$ fox text -ra8 download.exe
+```
+
+Hash the archives contents:
+```console
+$ fox hash -amd5,sha1 files.zip
+```
+
+Hunt down suspicious events:
+```console
+$ fox hunt -sxv ./**/*.dd
+```
+
+## Support
+
+### File Formats
+BROTLI, BZIP2, CAB, EVTX, GZIP, JOURNAL, JSONL, LZ4, LZW, MINLZ, RAR, S2, SNAPPY, TAR, XZ, ZIP, ZLIB, ZSTD
+
+### Algorithms
+ADLER32, BLAKE3-256, BLAKE3-512, CRC32-IEEE, CRC64-ECMA, CRC64-ISO, FNV-1, FNV-1A, MD5, SDHASH, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512, SSDEEP, TLSH, XXH3, XXH64
+
+## License
+🦊 is released under the [GPL-3.0](LICENSE.md)

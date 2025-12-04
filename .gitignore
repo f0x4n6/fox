@@ -25,20 +25,14 @@ go.work.sum
 # IDEs
 .idea/
 
-# MkDocs
-.cache/
-.venv/
+# Raw images
+*.dd
 
-# Manpage
-*.1
+# Databases
+*.db
 
-# Completion
-*.ps1
-*.zsh
-*.bash
+# Profiling
+*.pprof
 
 # MacOS crap
 .DS_Store
-
-# Evidence bags
-/evidence.*

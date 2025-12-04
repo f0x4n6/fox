@@ -1,230 +1,91 @@
 package heapset
 
 import (
-	"fmt"
-	"slices"
+	"bufio"
+	"errors"
+	"io"
+	"log"
+	"os"
+	"path/filepath"
 	"sync"
-	"sync/atomic"
 
-	"github.com/cuhsat/fox/v3/internal"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/v3/internal/pkg/types"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/heap"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/loader"
+	"github.com/bmatcuk/doublestar/v4"
+	"github.com/edsrzf/mmap-go"
+
+	"github.com/cuhsat/fox/v4/internal/pkg/files"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/cab"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/rar"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/tar"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/archive/zip"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/br"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/bzip2"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/gzip"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/lz4"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/lzw"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/mz"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/s2"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/sz"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/xz"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/zlib"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/deflate/zstd"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/format/evtx"
+	"github.com/cuhsat/fox/v4/internal/pkg/files/format/journal"
+	"github.com/cuhsat/fox/v4/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/heap"
 )
 
-type Changed func(*heap.Heap)
+const Stdin = "-"
 
-type Range func(int, *heap.Heap) bool
+type Options struct {
+	Limit     *types.Limits
+	Filter    *types.Filters
+	Password  string
+	NoDeflate bool
+	NoConvert bool
+	Verbose   int
+}
 
 type HeapSet struct {
 	sync.RWMutex
-
-	loader *loader.Loader // file loader
-
-	changed Changed // file changed
-
+	opts  *Options     // set options
 	heaps []*heap.Heap // set heaps
-	index *int32       // set index
 }
 
-func New(paths []string) *HeapSet {
-	hs := HeapSet{
-		loader: loader.New(),
-		index:  new(int32),
+func New(paths []string, opts *Options) *HeapSet {
+	hs := HeapSet{opts: opts}
+
+	if isPiped(os.Stdin) {
+		paths = append(paths, Stdin)
 	}
 
-	go hs.notify()
+	for _, path := range paths {
+		if path == Stdin {
+			hs.addPipe()
+			return &hs
+		}
 
-	for _, h := range hs.loader.Load(paths) {
-		hs.atomicAdd(h)
+		_, err := os.Stat(path)
+
+		if errors.Is(err, os.ErrNotExist) {
+			log.Printf("%s does not exist\n", path)
+		}
+
+		hs.loadPath(path)
 	}
-
-	if hs.Len() == 0 {
-		hs.OpenHelp()
-	}
-
-	// load first heap
-	hs.LoadHeap()
 
 	return &hs
 }
 
-func (hs *HeapSet) Len() int32 {
+func (hs *HeapSet) Len() int {
 	hs.RLock()
 	defer hs.RUnlock()
-	return int32(len(hs.heaps))
+	return len(hs.heaps)
 }
 
-func (hs *HeapSet) Range(fn Range) {
+func (hs *HeapSet) Get() []*heap.Heap {
 	hs.RLock()
-
-	for i, h := range hs.heaps {
-		if !fn(i, h.Ensure()) {
-			break
-		}
-	}
-
-	hs.RUnlock()
-}
-
-func (hs *HeapSet) Heap() (int32, *heap.Heap) {
-	idx := atomic.LoadInt32(hs.index)
-	return idx + 1, hs.atomicGet(idx)
-}
-
-func (hs *HeapSet) Open(path string) {
-	idx := hs.Len()
-
-	for _, h := range hs.loader.Open(path) {
-		hs.atomicAdd(h)
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.atomicGet(idx).Reload()
-}
-
-func (hs *HeapSet) OpenHelp() {
-	idx, ok := hs.findByName("Welcome")
-
-	if !ok {
-		idx = hs.Len()
-
-		f := fs.Create("/fox/help")
-		_, _ = f.WriteString(fmt.Sprintf(fox.Fox+fox.Help, fox.Version, fox.Website))
-
-		hs.atomicAdd(heap.New(
-			"Welcome",
-			f.Name(),
-			f.Name(),
-			types.Ignore,
-		))
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.atomicGet(idx).Reload()
-}
-
-func (hs *HeapSet) OpenFile(path, base, title string, tp types.Heap) {
-	if !fs.Exists(path) {
-		return
-	}
-
-	idx, ok := hs.findByPath(path)
-
-	if !ok {
-		idx = hs.Len()
-
-		hs.atomicAdd(heap.New(title, path, base, tp))
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.LoadHeap()
-}
-
-func (hs *HeapSet) OpenChat(path, base, title string) {
-	idx, ok := hs.findByName(title)
-
-	if !ok {
-		idx = hs.Len()
-
-		hs.atomicAdd(heap.New(title, path, base, types.Chat))
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.LoadHeap()
-}
-
-func (hs *HeapSet) OpenPlugin(path, base, title string) {
-	idx, ok := hs.findByName(title)
-
-	if !ok {
-		idx = hs.Len()
-
-		hs.atomicAdd(heap.New(title, path, base, types.Plugin))
-	} else {
-		old := hs.atomicGet(idx)
-
-		hs.atomicAdd(heap.New(title, path, base, types.Plugin))
-
-		old.ThrowAway()
-	}
-
-	atomic.StoreInt32(hs.index, idx)
-
-	hs.LoadHeap()
-}
-
-func (hs *HeapSet) PrevHeap() *heap.Heap {
-	idx := atomic.AddInt32(hs.index, -1)
-
-	if idx < 0 {
-		atomic.StoreInt32(hs.index, hs.Len()-1)
-	}
-
-	return hs.LoadHeap()
-}
-
-func (hs *HeapSet) NextHeap() *heap.Heap {
-	idx := atomic.AddInt32(hs.index, 1)
-
-	if idx >= hs.Len() {
-		atomic.StoreInt32(hs.index, 0)
-	}
-
-	return hs.LoadHeap()
-}
-
-func (hs *HeapSet) LoadHeap() *heap.Heap {
-	h := hs.atomicGet(atomic.LoadInt32(hs.index))
-
-	if h.Ensure().Type == types.Regular {
-		hs.watchFile(h.Path) // changed file
-	}
-
-	return h
-}
-
-func (hs *HeapSet) CloseHeap() *heap.Heap {
-	if hs.Len() == 1 {
-		return nil // close program
-	}
-
-	idx := atomic.LoadInt32(hs.index)
-
-	h := hs.atomicGet(idx)
-
-	hs.atomicDel(idx)
-
-	h.ThrowAway()
-
-	atomic.AddInt32(hs.index, -1)
-
-	return hs.NextHeap()
-}
-
-func (hs *HeapSet) CloseOther() {
-	hs.RLock()
-
-	var v []*heap.Heap
-
-	for _, h := range hs.heaps {
-		if h.Type == types.Stdout {
-			v = append(v, h)
-		} else {
-			h.ThrowAway()
-		}
-	}
-
-	hs.heaps = v
-
-	hs.RUnlock()
-
-	atomic.StoreInt32(hs.index, 0)
+	defer hs.RUnlock()
+	return hs.heaps[:]
 }
 
 func (hs *HeapSet) ThrowAway() {
@@ -237,50 +98,265 @@ func (hs *HeapSet) ThrowAway() {
 	hs.heaps = hs.heaps[:0]
 
 	hs.Unlock()
-
-	atomic.AddInt32(hs.index, -1)
 }
 
-func (hs *HeapSet) findByPath(path string) (int32, bool) {
-	hs.RLock()
-	defer hs.RUnlock()
+func (hs *HeapSet) loadPath(path string) {
+	match, err := doublestar.FilepathGlob(path)
 
-	for i, h := range hs.heaps {
-		if h.Base == path {
-			return int32(i), true
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for _, m := range match {
+		fi, err := os.Stat(m)
+
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		if fi.IsDir() {
+			hs.loadDir(m)
+		} else {
+			hs.loadFile(m)
+		}
+	}
+}
+
+func (hs *HeapSet) loadDir(path string) {
+	dir, err := os.ReadDir(path)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for _, f := range dir {
+		if !f.IsDir() {
+			hs.loadFile(filepath.Join(path, f.Name()))
+		}
+	}
+}
+
+func (hs *HeapSet) loadFile(path string) {
+	f, err := os.OpenFile(path, os.O_RDONLY, 0x400)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	defer f.Close()
+
+	fi, err := f.Stat()
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// empty files will cause issues
+	if fi.Size() == 0 {
+		hs.addData(path, []byte{})
+		return
+	}
+
+	b, err := mmap.Map(f, mmap.RDONLY, 0)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	hs.process(path, b, false)
+}
+
+func (hs *HeapSet) process(path string, b []byte, data bool) {
+	var ok bool
+
+	if !hs.opts.NoDeflate {
+		if b, ok = hs.deflate(b); ok {
+			data = true
+		}
+
+		if hs.extract(path, b) {
+			return
 		}
 	}
 
-	return 0, false
-}
-
-func (hs *HeapSet) findByName(name string) (int32, bool) {
-	hs.RLock()
-	defer hs.RUnlock()
-
-	for i, h := range hs.heaps {
-		if h.Title == name {
-			return int32(i), true
+	if !hs.opts.NoConvert {
+		if b, ok = hs.convert(b); ok {
+			data = true
 		}
 	}
 
-	return 0, false
+	if data {
+		hs.addData(path, b)
+	} else {
+		hs.addFile(path, b)
+	}
 }
 
-func (hs *HeapSet) atomicAdd(h *heap.Heap) {
+func (hs *HeapSet) extract(path string, b []byte) bool {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("archive corrupt or password wrong")
+			return
+		}
+	}()
+
+	var fn files.Extract
+
+	switch {
+	case cab.Detect(b):
+		fn = cab.Extract
+	case rar.Detect(b):
+		fn = rar.Extract
+	case tar.Detect(b):
+		fn = tar.Extract
+	case zip.Detect(b):
+		fn = zip.Extract
+	default:
+		return false
+	}
+
+	var wg sync.WaitGroup
+
+	for _, e := range fn(b, path, hs.opts.Password) {
+		wg.Add(1)
+
+		go func() {
+			hs.process(e.Path, e.Data, true)
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+
+	return true
+}
+
+func (hs *HeapSet) deflate(b []byte) ([]byte, bool) {
+	var fn files.Deflate
+
+	switch {
+	case br.Detect(b):
+		fn = br.Deflate
+	case bzip2.Detect(b):
+		fn = bzip2.Deflate
+	case gzip.Detect(b):
+		fn = gzip.Deflate
+	case lz4.Detect(b):
+		fn = lz4.Deflate
+	case lzw.Detect(b):
+		fn = lzw.Deflate
+	case mz.Detect(b):
+		fn = mz.Deflate
+	case s2.Detect(b):
+		fn = s2.Deflate
+	case sz.Detect(b):
+		fn = sz.Deflate
+	case xz.Detect(b):
+		fn = xz.Deflate
+	case zlib.Detect(b):
+		fn = zlib.Deflate
+	case zstd.Detect(b):
+		fn = zstd.Deflate
+	default:
+		return b, false
+	}
+
+	r, err := fn(b)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return r, true
+}
+
+func (hs *HeapSet) convert(b []byte) ([]byte, bool) {
+	var fn files.Convert
+
+	switch {
+	case evtx.Detect(b):
+		fn = evtx.Convert
+	case journal.Detect(b):
+		fn = journal.Convert
+	default:
+		return b, false
+	}
+
+	r, err := fn(b)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return r, true
+}
+
+func (hs *HeapSet) addFile(path string, b []byte) {
+	hs.addHeap(path, types.Regular, b)
+
+	if hs.opts.Verbose > 0 {
+		log.Printf("loaded heap from file %s\n", path)
+	}
+}
+
+func (hs *HeapSet) addData(name string, b []byte) {
+	hs.addHeap(name, types.Deflate, b)
+
+	if hs.opts.Verbose > 0 {
+		log.Printf("loaded heap from data %s\n", name)
+	}
+}
+
+func (hs *HeapSet) addPipe() {
+	if !isPiped(os.Stdin) {
+		log.Fatal("stdin not open")
+	}
+
+	buf, err := io.ReadAll(bufio.NewReader(os.Stdin))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	hs.addHeap(Stdin, types.Deflate, buf)
+
+	if hs.opts.Verbose > 0 {
+		log.Println("loaded heap from stdin")
+	}
+}
+
+func (hs *HeapSet) addHeap(s string, t types.Heap, b []byte) {
 	hs.Lock()
-	hs.heaps = append(hs.heaps, h)
-	hs.Unlock()
+	defer hs.Unlock()
+
+	for _, h := range hs.heaps {
+		if h.Name == s {
+			return // already loaded
+		}
+	}
+
+	hs.heaps = append(hs.heaps, heap.New(
+		&heap.Context{
+			Name:   s,
+			Type:   t,
+			Limit:  hs.opts.Limit,
+			Filter: hs.opts.Filter,
+		}, b,
+	))
 }
 
-func (hs *HeapSet) atomicGet(idx int32) *heap.Heap {
-	hs.RLock()
-	defer hs.RUnlock()
-	return hs.heaps[idx]
-}
+func isPiped(f *os.File) bool {
+	fi, err := f.Stat()
 
-func (hs *HeapSet) atomicDel(idx int32) {
-	hs.Lock()
-	hs.heaps = slices.Delete(hs.heaps, int(idx), int(idx)+1)
-	hs.Unlock()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return (fi.Mode() & os.ModeCharDevice) != os.ModeCharDevice
 }

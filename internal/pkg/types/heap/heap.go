@@ -1,69 +1,64 @@
 package heap
 
 import (
-	"log"
-	"os"
 	"runtime"
 	"sync"
 
 	"github.com/edsrzf/mmap-go"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/flags"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
-	"github.com/cuhsat/fox/v3/internal/pkg/types"
-	"github.com/cuhsat/fox/v3/internal/pkg/types/smap"
+	"github.com/cuhsat/fox/v4/internal/pkg/types"
+	"github.com/cuhsat/fox/v4/internal/pkg/types/smap"
 )
+
+type Context struct {
+	Name   string
+	Type   types.Heap
+	Limit  *types.Limits
+	Filter *types.Filters
+}
 
 type Heap struct {
 	sync.RWMutex
 
-	Cache sync.Map // render cache
-
-	Title string // heap title
-	Path  string // file path
-	Base  string // base path
-
+	Name string     // heap name
 	Type types.Heap // heap type
 
-	mmap *mmap.MMap // memory map
-	smap *smap.SMap // string map
+	mmap mmap.MMap // memory map
+	smap smap.SMap // string map
 
-	filters []*Filter // filters
-
-	tags Tags    // tagged lines
-	hash Hash    // file hash sums
-	size int64   // file size
-	seek int64   // file seek
-	file fs.File // file handle
+	size int64 // file size
 }
 
-func New(title, path, base string, ht types.Heap) *Heap {
-	heap := &Heap{
-		Title: title,
-		Path:  path,
-		Base:  base,
-		Type:  ht,
+func New(ctx *Context, m mmap.MMap) *Heap {
+	h := &Heap{
+		Name: ctx.Name,
+		Type: ctx.Type,
+		mmap: m,
+		size: int64(len(m)),
 	}
 
-	return heap
+	// reduce mmap
+	h.mmap = ctx.Limit.ReduceMMap(h.mmap)
+
+	// reduce smap
+	h.smap = ctx.Limit.ReduceSMap(smap.Map(h.mmap))
+
+	// filter smap
+	h.smap = ctx.Filter.FilterSMap(h.smap)
+
+	return h
 }
 
-func (h *Heap) MMap() *mmap.MMap {
+func (h *Heap) MMap() mmap.MMap {
 	h.RLock()
 	defer h.RUnlock()
 	return h.mmap
 }
 
-func (h *Heap) SMap() *smap.SMap {
+func (h *Heap) SMap() smap.SMap {
 	h.RLock()
 	defer h.RUnlock()
 	return h.smap
-}
-
-func (h *Heap) FMap() *smap.SMap {
-	h.RLock()
-	defer h.RUnlock()
-	return h.LastFilter().fmap
 }
 
 func (h *Heap) Size() int64 {
@@ -72,155 +67,35 @@ func (h *Heap) Size() int64 {
 	return h.size
 }
 
-func (h *Heap) Read() []byte {
+func (h *Heap) Len() int {
 	h.RLock()
 	defer h.RUnlock()
-	start := h.seek
-	h.seek = h.size
-	return (*h.mmap)[min(start, h.size):]
-}
-
-func (h *Heap) Bytes() []byte {
-	return []byte(h.FMap().String())
-}
-
-func (h *Heap) Length() int {
-	h.RLock()
-	defer h.RUnlock()
-	return len(*h.smap)
+	return len(h.smap)
 }
 
 func (h *Heap) String() string {
 	switch h.Type {
-	case types.Regular:
-		return h.Path
 	case types.Stdin:
-		return "pipe"
+		return "stdin"
+	case types.Stdout:
+		return "stdout"
+	case types.Stderr:
+		return "stderr"
 	default:
-		return h.Title
+		return h.Name
 	}
-}
-
-func (h *Heap) Ensure() *Heap {
-	if h.file == nil {
-		h.Reload()
-
-		// apply global filters once
-		if h.Type != types.Chat {
-			filters := flags.Get().Filters
-
-			for _, filter := range filters.Patterns {
-				h.AddFilter(
-					filter,
-					filters.Before,
-					filters.After,
-				)
-			}
-		}
-	}
-
-	return h
-}
-
-func (h *Heap) Reload() {
-	var err error
-
-	h.Lock()
-
-	if h.file == nil {
-		h.file = fs.Open(h.Path)
-	}
-
-	fi, err := h.file.Stat()
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	h.size = fi.Size()
-
-	// invalidate hashes
-	if h.hash != nil {
-		clear(h.hash)
-	}
-
-	h.hash = make(Hash, 20)
-
-	// invalidate cache
-	h.Cache.Clear()
-
-	if h.mmap != nil {
-		_ = h.mmap.Unmap()
-	}
-
-	if h.size == 0 {
-		h.mmap = new(mmap.MMap) // empty files will cause issues
-	} else {
-		var m mmap.MMap
-
-		switch f := h.file.(type) {
-
-		// regular file
-		case *os.File:
-			m, err = mmap.Map(f, mmap.RDONLY, 0)
-
-		// memory file
-		case fs.File:
-			m, err = fs.Map(f)
-		}
-
-		if err != nil {
-			log.Println(err)
-		}
-
-		h.mmap = &m
-	}
-
-	limit := flags.Get().Limits
-
-	// reduce mmap
-	h.mmap = limit.ReduceMMap(h.mmap)
-
-	// reduce smap
-	h.smap = limit.ReduceSMap(smap.Map(h.mmap))
-
-	// resets tags
-	h.tags = make(Tags, len(*h.smap))
-
-	// resets filters
-	h.filters = h.filters[:0]
-	h.filters = append(h.filters, &Filter{
-		new(Pattern),
-		new(Context),
-		h.smap,
-	})
-
-	h.Unlock()
-
-	runtime.GC()
 }
 
 func (h *Heap) ThrowAway() {
 	h.Lock()
 
-	h.Cache.Clear()
-
-	clear(h.filters)
-	clear(h.hash)
-	clear(h.tags)
-
-	h.size = 0
-	h.smap = nil
-
-	if h.mmap != nil {
+	if h.Type == types.Regular {
 		_ = h.mmap.Unmap()
-		h.mmap = nil
 	}
 
-	if h.file != nil {
-		_ = h.file.Close()
-		h.file = nil
-	}
+	h.mmap = nil
+	h.smap = nil
+	h.size = 0
 
 	h.Unlock()
 

@@ -1,55 +1,69 @@
 package text
 
 import (
+	"fmt"
 	"strings"
-	"unicode"
+
+	"golang.org/x/term"
 )
 
 const (
-	LRE = '\u202a'
-	RLE = '\u202b'
-	LRO = '\u202d'
-	RLO = '\u202e'
-	LRI = '\u2066'
-	RLI = '\u2067'
-	FSI = '\u2068'
-	PDF = '\u202c'
-	PDI = '\u2069'
+	SP  = 0x20
+	DEL = 0x7E
+	LRE = 0x202A
+	RLE = 0x202B
+	PDF = 0x202C
+	LRO = 0x202D
+	RLO = 0x202E
+	LRI = 0x2066
+	RLI = 0x2067
+	FSI = 0x2068
+	PDI = 0x2069
 )
 
-const (
-	MinASCII = 0x20
-	MaxASCII = 0x7e
-)
+func Header(s string) string {
+	var sb strings.Builder
 
-func ToASCII(s string) string {
+	w, _, err := term.GetSize(0)
+
+	if err != nil {
+		w = 78 // default width
+	}
+
+	l := strings.Repeat("─", w-2)
+
+	sb.WriteString(fmt.Sprintf("┌%s┐\n", l))
+	sb.WriteString(fmt.Sprintf("│ %-*s │\n", w-4, s))
+	sb.WriteString(fmt.Sprintf("└%s┘", l))
+
+	return sb.String()
+}
+
+func ToAscii(s string) string {
 	var sb strings.Builder
 
 	for _, r := range s {
-		sb.WriteRune(AsASCII(r))
+		if r < SP || r > DEL {
+			sb.WriteRune('.')
+		} else {
+			sb.WriteRune(r)
+		}
 	}
 
 	return sb.String()
 }
 
-func AsASCII(r rune) rune {
-	if r < MinASCII || r > MaxASCII {
-		return '.'
-	} else {
-		return r
-	}
-}
+func Sanitize(s string) string {
+	var sb strings.Builder
 
-func AsUnicode(r rune) rune {
-	// mitigate CVE-2021-42574
-	switch r {
-	case LRE, RLE, LRO, RLO, LRI, RLI, FSI, PDF, PDI:
-		return '×'
-	default:
-		if !unicode.IsPrint(r) {
-			return '·'
-		} else {
-			return r
+	for _, r := range s {
+		switch r { // mitigate CVE-2021-42574
+		case LRE, RLE, LRO, RLO, LRI, RLI, FSI, PDF, PDI:
+			sb.WriteRune('×')
+		default:
+			sb.WriteRune(r)
 		}
 	}
+
+	return sb.String()
 }

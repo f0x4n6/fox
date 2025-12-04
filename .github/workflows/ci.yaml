@@ -25,34 +25,11 @@ jobs:
         name: Setup Cosign
         uses: sigstore/cosign-installer@v3
       -
-        name: Setup Pandoc
-        uses: pandoc/actions/setup@v1
-      -
         name: Setup Go
         uses: actions/setup-go@v5
       -
-        name: Setup Go versioninfo
-        run: |
-          go get github.com/josephspurrier/goversioninfo/cmd/goversioninfo
-          go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo
-      -
         name: Run tests
         run: go test -v -race ./...
-      -
-        name: Run builds
-        run: |
-          go build -o fox main.go
-          go build -o fox -tags minimal main.go
-      -
-        name: Run setup
-        run: |
-          chmod +x fox
-          ./fox completion powershell > fox.ps1
-          ./fox completion bash > fox.bash
-          ./fox completion zsh > fox.zsh
-      -
-        name: Run clean
-        run: rm fox
       -
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
@@ -62,40 +39,3 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HOMEBREW_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
-
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      -
-        name: Configure Git Credentials
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      -
-        name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-      -
-        name: Setup environment
-        run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      -
-        name: Setup cache
-        uses: actions/cache@v4
-        with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: ~/.cache
-          restore-keys: |
-            mkdocs-material-
-      -
-        name: Setup packages
-        run: pip install mkdocs-material
-      -
-        name: Deploy site
-        run: mkdocs gh-deploy --force

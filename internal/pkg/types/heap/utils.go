@@ -1,26 +1,27 @@
 package heap
 
 import (
+	"fmt"
 	"math"
-	"regexp"
 	"strings"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/text"
+	"github.com/cuhsat/fox/v4/internal/pkg/text"
 )
 
-func (h *Heap) Entropy(n, m float64) float64 {
+type String struct {
+	Off string
+	Str string
+}
+
+func (h *Heap) Entropy(mn, mx float64) (float64, bool) {
 	var a [256]float64
 	var v float64
 
-	ch := make(chan byte, 1024)
-
-	go h.stream(ch)
-
-	for b := range ch {
+	for _, b := range h.mmap {
 		a[b]++
 	}
 
-	l := float64(len(*h.MMap()))
+	l := float64(len(h.MMap()))
 
 	for i := range 256 {
 		if a[i] != 0 {
@@ -31,68 +32,52 @@ func (h *Heap) Entropy(n, m float64) float64 {
 
 	v /= 8
 
-	if v < n || v > m {
-		return -1 // filtered
+	// heap filtered
+	if v < mn || v > mx {
+		return 0, false
 	}
 
-	return v
+	return v, true
 }
 
-func (h *Heap) Strings(n, m int, c bool, re *regexp.Regexp) <-chan text.String {
-	ch := make(chan byte, 1024)
+func (h *Heap) Strings(mn, mx uint) <-chan String {
+	var ch = make(chan String, 4096)
 
-	str := make(chan text.String)
-	cls := make(chan text.String)
+	var buf []byte
+	var off int
+	var b byte
 
-	go h.stream(ch)
-	go text.Carve(ch, str, n, m)
+	// flush closure
+	flush := func() {
+		str := string(buf)
 
-	if !c && re == nil {
-		return str
-	}
+		v := uint(len(strings.TrimSpace(str)))
 
-	go text.Match(str, cls, c, re)
-
-	return cls
-}
-
-func (h *Heap) stream(ch chan<- byte) {
-	h.RLock()
-
-	for _, b := range *h.mmap {
-		ch <- b
-	}
-
-	h.RUnlock()
-
-	close(ch)
-}
-
-func (h *Heap) parse(lines string) (nrs []int) {
-	for _, t := range strings.Split(lines, ",") {
-		r := strings.Split(t, "-")
-
-		if strings.HasPrefix(t, "%") {
-			n := text.Int(strings.TrimPrefix(t, "%"))
-
-			for i := n; i <= h.Length(); i += n {
-				nrs = append(nrs, i)
-			}
-		} else if len(r) > 1 {
-			a := text.Int(r[0])
-			b := text.Int(r[1])
-
-			if a > 0 && b > 0 && a <= b {
-				for i := a; i <= b; i++ {
-					nrs = append(nrs, i)
-				}
-			}
-		} else {
-			if nr := text.Int(t); nr > 0 {
-				nrs = append(nrs, nr)
+		if v >= mn && v <= mx {
+			ch <- String{
+				fmt.Sprintf("%08x", max(off-(len(buf)+1), 0)),
+				str,
 			}
 		}
+
+		buf = buf[:0]
 	}
 
-	return
+	// carve closure
+	carve := func() {
+		for off, b = range h.mmap {
+			if b >= text.SP && b <= text.DEL {
+				buf = append(buf, b)
+			} else {
+				flush()
+			}
+		}
+
+		flush()
+		close(ch)
+	}
+
+	go carve()
+
+	return ch
 }

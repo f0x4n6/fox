@@ -1,6 +1,7 @@
 package rar
 
 import (
+	"bytes"
 	"io"
 	"log"
 	"path/filepath"
@@ -8,22 +9,17 @@ import (
 
 	"github.com/nwaples/rardecode"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/files"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/files"
 )
 
-func Detect(path string) bool {
-	return files.HasMagic(path, 0, []byte{
+func Detect(b []byte) bool {
+	return files.HasMagic(b, 0, []byte{
 		0x52, 0x61, 0x72, 0x21, 0x1A, 0x07,
 	})
 }
 
-func Deflate(path, pass string) (i []*files.Item) {
-	a := fs.Open(path)
-	defer sys.Handler(a.Close)
-
-	r, err := rardecode.NewReader(a, pass)
+func Extract(b []byte, root, pass string) (e []files.Entry) {
+	r, err := rardecode.NewReader(bytes.NewBuffer(b), pass)
 
 	if err != nil {
 		log.Println(err)
@@ -46,19 +42,16 @@ func Deflate(path, pass string) (i []*files.Item) {
 			continue
 		}
 
-		t := fs.Create(filepath.Join(path, h.Name))
-
-		_, err = io.Copy(t, r)
-		_ = t.Close()
+		buf, err := io.ReadAll(r)
 
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		i = append(i, &files.Item{
-			Path: t.Name(),
-			Name: h.Name,
+		e = append(e, files.Entry{
+			Path: filepath.Join(root, h.Name),
+			Data: buf,
 		})
 	}
 

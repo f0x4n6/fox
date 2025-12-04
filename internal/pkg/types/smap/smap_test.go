@@ -6,14 +6,13 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"slices"
 	"testing"
 
 	"github.com/edsrzf/mmap-go"
 )
 
 func BenchmarkMap(b *testing.B) {
-	f, m, err := fixture("test.txt")
+	f, m, err := fixture("bible.txt")
 
 	if err != nil {
 		b.Fatal(err)
@@ -23,7 +22,7 @@ func BenchmarkMap(b *testing.B) {
 		_ = f.Close()
 	}(f)
 
-	defer func(m *mmap.MMap) {
+	defer func(m mmap.MMap) {
 		_ = m.Unmap()
 	}(m)
 
@@ -35,7 +34,7 @@ func BenchmarkMap(b *testing.B) {
 }
 
 func BenchmarkRender(b *testing.B) {
-	f, m, err := fixture("test.txt")
+	f, m, err := fixture("bible.txt")
 
 	if err != nil {
 		b.Fatal(err)
@@ -45,7 +44,7 @@ func BenchmarkRender(b *testing.B) {
 		_ = f.Close()
 	}(f)
 
-	defer func(m *mmap.MMap) {
+	defer func(m mmap.MMap) {
 		_ = m.Unmap()
 	}(m)
 
@@ -69,7 +68,7 @@ func BenchmarkFormat(b *testing.B) {
 		_ = f.Close()
 	}(f)
 
-	defer func(m *mmap.MMap) {
+	defer func(m mmap.MMap) {
 		_ = m.Unmap()
 	}(m)
 
@@ -82,32 +81,8 @@ func BenchmarkFormat(b *testing.B) {
 	}
 }
 
-func BenchmarkWrap(b *testing.B) {
-	f, m, err := fixture("test.txt")
-
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	defer func(f *os.File) {
-		_ = f.Close()
-	}(f)
-
-	defer func(m *mmap.MMap) {
-		_ = m.Unmap()
-	}(m)
-
-	s := Map(m)
-
-	b.ResetTimer()
-
-	for b.Loop() {
-		s.Wrap(2, 80)
-	}
-}
-
 func BenchmarkGrep(b *testing.B) {
-	f, m, err := fixture("test.txt")
+	f, m, err := fixture("bible.txt")
 
 	if err != nil {
 		b.Fatal(err)
@@ -117,7 +92,7 @@ func BenchmarkGrep(b *testing.B) {
 		_ = f.Close()
 	}(f)
 
-	defer func(m *mmap.MMap) {
+	defer func(m mmap.MMap) {
 		_ = m.Unmap()
 	}(m)
 
@@ -132,56 +107,28 @@ func BenchmarkGrep(b *testing.B) {
 	}
 }
 
-func BenchmarkPick(b *testing.B) {
-	f, m, err := fixture("test.txt")
-
-	if err != nil {
-		b.Fatal(err)
-	}
-
-	defer func(f *os.File) {
-		_ = f.Close()
-	}(f)
-
-	defer func(m *mmap.MMap) {
-		_ = m.Unmap()
-	}(m)
-
-	s := Map(m)
-
-	b.ResetTimer()
-
-	for b.Loop() {
-		s.Pick([]int{1, 12, 123, 1234, 12345})
-	}
-}
-
 func TestMap(t *testing.T) {
-	f, m, err := fixture("test.txt")
+	f, m, err := fixture("bible.txt")
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	w, h := Map(m).Size()
+	if len(Map(m)) != 31107 {
+		t.Fatal("wrong size")
+	}
 
 	_ = m.Unmap()
 	_ = f.Close()
-
-	if w != 545 || h != 31107 {
-		t.Fatal("wrong size")
-	}
 }
 
 func TestRender(t *testing.T) {
 	b := []byte("\ttest\n")
 	v := "  test\n"
 
-	s := Map((*mmap.MMap)(&b)).Render(2)
+	s := Map(b).Render(2)
 
-	w, h := s.Size()
-
-	if w != 6 || h != 1 {
+	if len(s) != 1 {
 		t.Fatal("wrong length")
 	}
 
@@ -194,28 +141,9 @@ func TestFormat(t *testing.T) {
 	b := []byte(`[{"test":123}]`)
 	v := "[\n  {\n    \"test\": 123\n  }\n]\n"
 
-	s := Map((*mmap.MMap)(&b)).Format(2)
+	s := Map(b).Format(2)
 
-	w, h := s.Size()
-
-	if w != 15 || h != 5 {
-		t.Fatal("wrong length")
-	}
-
-	if s.String() != v {
-		t.Fatal("wrong string")
-	}
-}
-
-func TestWrap(t *testing.T) {
-	b := []byte(`testtest`)
-	v := "test\ntest\n"
-
-	s := Map((*mmap.MMap)(&b)).Wrap(2, 4)
-
-	w, h := s.Size()
-
-	if w != 4 || h != 2 {
+	if len(s) != 5 {
 		t.Fatal("wrong length")
 	}
 
@@ -225,21 +153,21 @@ func TestWrap(t *testing.T) {
 }
 
 func TestGrep(t *testing.T) {
-	f, m, err := fixture("test.ioc")
-	v := "test@example.org\nhttps://example.org\n"
+	f, m, err := fixture("bible.txt")
+	v := "Authorized King James Version\n"
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	re := regexp.MustCompile("example")
+	re := regexp.MustCompile("King James")
 
 	s := Map(m).Grep(re)
 
 	_ = m.Unmap()
 	_ = f.Close()
 
-	if len(*s) != 2 {
+	if len(s) != 1 {
 		t.Fatal("wrong length")
 	}
 
@@ -248,31 +176,7 @@ func TestGrep(t *testing.T) {
 	}
 }
 
-func TestPick(t *testing.T) {
-	f, m, err := fixture("test.txt")
-	v := []int{1, 12, 123, 1234, 12345}
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	s := Map(m).Pick(v)
-
-	_ = m.Unmap()
-	_ = f.Close()
-
-	if len(*s) != 5 {
-		t.Fatal("wrong length")
-	}
-
-	for _, str := range *s {
-		if !slices.Contains(v, str.Nr) {
-			t.Fatal("wrong number")
-		}
-	}
-}
-
-func fixture(name string) (*os.File, *mmap.MMap, error) {
+func fixture(name string) (*os.File, mmap.MMap, error) {
 	_, c, _, ok := runtime.Caller(0)
 
 	if !ok {
@@ -293,5 +197,5 @@ func fixture(name string) (*os.File, *mmap.MMap, error) {
 		return nil, nil, err
 	}
 
-	return f, &m, nil
+	return f, m, nil
 }

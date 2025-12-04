@@ -1,6 +1,7 @@
 package cab
 
 import (
+	"bytes"
 	"io"
 	"log"
 	"path/filepath"
@@ -8,22 +9,17 @@ import (
 
 	"github.com/google/go-cabfile/cabfile"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/files"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/files"
 )
 
-func Detect(path string) bool {
-	return files.HasMagic(path, 0, []byte{
+func Detect(b []byte) bool {
+	return files.HasMagic(b, 0, []byte{
 		0x4D, 0x53, 0x43, 0x46,
 	})
 }
 
-func Deflate(path, _ string) (i []*files.Item) {
-	a := fs.Open(path)
-	defer sys.Handler(a.Close)
-
-	r, err := cabfile.New(a)
+func Extract(b []byte, root, _ string) (e []files.Entry) {
+	r, err := cabfile.New(bytes.NewReader(b))
 
 	if err != nil {
 		log.Println(err)
@@ -42,19 +38,16 @@ func Deflate(path, _ string) (i []*files.Item) {
 			continue
 		}
 
-		t := fs.Create(filepath.Join(path, s))
-
-		_, err = io.Copy(t, h)
-		_ = t.Close()
+		buf, err := io.ReadAll(h)
 
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		i = append(i, &files.Item{
-			Path: t.Name(),
-			Name: s,
+		e = append(e, files.Entry{
+			Path: filepath.Join(root, s),
+			Data: buf,
 		})
 	}
 

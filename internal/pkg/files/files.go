@@ -1,44 +1,22 @@
 package files
 
-import (
-	"bytes"
-	"io"
-	"log"
+import "bytes"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
-)
-
-type Item struct {
-	Path string
-	Name string
+type Entry struct {
+	Path string // Entry path
+	Data []byte // Entry data
 }
 
-type Deflate func(string, string) []*Item
+type Convert func([]byte) ([]byte, error)
 
-func HasMagic(p string, o int, m []byte) bool {
-	buf := make([]byte, o+len(m))
+type Deflate func([]byte) ([]byte, error)
 
-	f := fs.Open(p)
-	defer sys.Handler(f.Close)
+type Extract func([]byte, string, string) []Entry
 
-	fi, err := f.Stat()
-
-	if err != nil {
-		log.Println(err)
+func HasMagic(b []byte, off int, m []byte) bool {
+	if len(b) < off+len(m) {
 		return false
 	}
 
-	if fi.Size() < int64(o+len(m)) {
-		return false
-	}
-
-	_, err = io.ReadFull(f, buf)
-
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-
-	return bytes.Equal(buf[o:], m)
+	return bytes.Equal(b[off:off+len(m)], m)
 }

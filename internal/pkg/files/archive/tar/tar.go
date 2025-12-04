@@ -2,27 +2,23 @@ package tar
 
 import (
 	"archive/tar"
+	"bytes"
 	"io"
 	"log"
 	"path/filepath"
 	"strings"
 
-	"github.com/cuhsat/fox/v3/internal/pkg/files"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys"
-	"github.com/cuhsat/fox/v3/internal/pkg/sys/fs"
+	"github.com/cuhsat/fox/v4/internal/pkg/files"
 )
 
-func Detect(path string) bool {
-	return files.HasMagic(path, 257, []byte{
+func Detect(b []byte) bool {
+	return files.HasMagic(b, 257, []byte{
 		0x75, 0x73, 0x74, 0x61, 0x72,
 	})
 }
 
-func Deflate(path, _ string) (i []*files.Item) {
-	a := fs.Open(path)
-	defer sys.Handler(a.Close)
-
-	r := tar.NewReader(a)
+func Extract(b []byte, root, _ string) (e []files.Entry) {
+	r := tar.NewReader(bytes.NewBuffer(b))
 
 	for {
 		h, err := r.Next()
@@ -40,19 +36,16 @@ func Deflate(path, _ string) (i []*files.Item) {
 			continue
 		}
 
-		t := fs.Create(filepath.Join(path, h.Name))
-
-		_, err = io.Copy(t, r)
-		_ = t.Close()
+		buf, err := io.ReadAll(r)
 
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		i = append(i, &files.Item{
-			Path: t.Name(),
-			Name: h.Name,
+		e = append(e, files.Entry{
+			Path: filepath.Join(root, h.Name),
+			Data: buf,
 		})
 	}
 

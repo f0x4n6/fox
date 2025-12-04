@@ -11,7 +11,6 @@ import (
 	"sync"
 
 	"github.com/edsrzf/mmap-go"
-	"github.com/mattn/go-runewidth"
 )
 
 type action func(ch chan<- String, c *chunk)
@@ -19,24 +18,24 @@ type action func(ch chan<- String, c *chunk)
 type SMap []String
 
 type String struct {
-	Nr  int    // string nr
-	Grp int    // string group
+	Nr  uint   // string nr
+	Grp uint   // string group
 	Str string // string data
 }
 
 type chunk struct {
-	min int // chunk start
-	max int // chunk end
+	min uint // chunk start
+	max uint // chunk end
 }
 
-func Map(m *mmap.MMap) *SMap {
-	s := new(SMap)
+func Map(m mmap.MMap) SMap {
+	s := make(SMap, 0)
 
-	scanner := bufio.NewScanner(bytes.NewReader(*m))
+	scanner := bufio.NewScanner(bytes.NewReader(m))
 
 	for scanner.Scan() {
-		*s = append(*s, String{
-			Nr:  len(*s) + 1,
+		s = append(s, String{
+			Nr:  uint(len(s)) + 1,
 			Str: scanner.Text(),
 		})
 	}
@@ -44,20 +43,10 @@ func Map(m *mmap.MMap) *SMap {
 	return s
 }
 
-func (s *SMap) Lines() []string {
-	var r []string
-
-	for _, str := range *s {
-		r = append(r, str.Str)
-	}
-
-	return r
-}
-
-func (s *SMap) String() string {
+func (s SMap) String() string {
 	var sb strings.Builder
 
-	for _, str := range *s {
+	for _, str := range s {
 		sb.WriteString(str.Str)
 		sb.WriteRune('\n')
 	}
@@ -65,29 +54,21 @@ func (s *SMap) String() string {
 	return sb.String()
 }
 
-func (s *SMap) Extern(fn func(str String)) *SMap {
-	return apply(func(ch chan<- String, c *chunk) {
-		for _, s := range (*s)[c.min:c.max] {
-			fn(s)
-		}
-	}, len(*s))
-}
-
-func (s *SMap) Render(e int) *SMap {
+func (s SMap) Render(e int) SMap {
 	tab := strings.Repeat(" ", e)
 	return apply(func(ch chan<- String, c *chunk) {
-		for _, s := range (*s)[c.min:c.max] {
+		for _, s := range s[c.min:c.max] {
 			ch <- String{s.Nr, s.Grp, expand(s.Str, tab)}
 		}
-	}, len(*s))
+	}, len(s))
 }
 
-func (s *SMap) Format(e int) *SMap {
+func (s SMap) Format(e int) SMap {
 	tab := strings.Repeat(" ", e)
 	return apply(func(ch chan<- String, c *chunk) {
 		var buf bytes.Buffer
 
-		for _, s := range (*s)[c.min:c.max] {
+		for _, s := range s[c.min:c.max] {
 			buf.Reset()
 
 			if json.Indent(&buf, []byte(s.Str), "", tab) != nil {
@@ -99,82 +80,25 @@ func (s *SMap) Format(e int) *SMap {
 				ch <- String{s.Nr, s.Grp, string(b)}
 			}
 		}
-	}, len(*s))
+	}, len(s))
 }
 
-func (s *SMap) Wrap(e, w int) *SMap {
-	tab := strings.Repeat(" ", e)
+func (s SMap) Grep(re *regexp.Regexp) SMap {
 	return apply(func(ch chan<- String, c *chunk) {
-		var i = 0
-		var l string
-
-		for _, s := range (*s)[c.min:c.max] {
-			i, l = 0, expand(s.Str, tab)
-
-			for i < runewidth.StringWidth(l)-w {
-				ch <- String{s.Nr, s.Grp, l[i : i+w]}
-				i += w
-			}
-
-			ch <- String{s.Nr, s.Grp, l[i:]}
-		}
-	}, len(*s))
-}
-
-func (s *SMap) Grep(re *regexp.Regexp) *SMap {
-	return apply(func(ch chan<- String, c *chunk) {
-		for _, s := range (*s)[c.min:c.max] {
+		for _, s := range s[c.min:c.max] {
 			if re.MatchString(s.Str) {
 				ch <- s
 			}
 		}
-	}, len(*s))
+	}, len(s))
 }
 
-func (s *SMap) Pick(nrs []int) *SMap {
-	return apply(func(ch chan<- String, c *chunk) {
-		for _, s := range (*s)[c.min:c.max] {
-			if slices.Contains(nrs, s.Nr) {
-				ch <- s
-			}
-		}
-	}, len(*s))
-}
-
-func (s *SMap) Find(nr int) (int, bool) {
-	if s == nil {
-		return 0, false
-	}
-
-	for i, str := range *s {
-		if str.Nr == nr {
-			return i, true
-		}
-	}
-
-	return 0, false
-}
-
-func (s *SMap) Size() (w, h int) {
-	if s == nil {
-		return 0, 0
-	}
-
-	for _, str := range *s {
-		w = max(w, runewidth.StringWidth(str.Str))
-	}
-
-	h = len(*s)
-
-	return
-}
-
-func (s *SMap) CanFormat() bool {
-	if len(*s) == 0 {
+func (s SMap) CanFormat() bool {
+	if len(s) == 0 {
 		return false
 	}
 
-	return json.Valid([]byte((*s)[0].Str))
+	return json.Valid([]byte(s[0].Str))
 }
 
 func chunks(n int) (c []*chunk) {
@@ -182,15 +106,15 @@ func chunks(n int) (c []*chunk) {
 
 	for i := range m {
 		c = append(c, &chunk{
-			min: i * n / m,
-			max: ((i + 1) * n) / m,
+			min: uint(i * n / m),
+			max: uint(((i + 1) * n) / m),
 		})
 	}
 
 	return
 }
 
-func apply(fn action, n int) *SMap {
+func apply(fn action, n int) SMap {
 	ch := make(chan String, n)
 
 	go func() {
@@ -213,7 +137,7 @@ func apply(fn action, n int) *SMap {
 	return sort(ch)
 }
 
-func sort(ch <-chan String) *SMap {
+func sort(ch <-chan String) SMap {
 	s := make(SMap, 0)
 
 	for str := range ch {
@@ -222,13 +146,13 @@ func sort(ch <-chan String) *SMap {
 
 	slices.SortStableFunc(s, func(a, b String) int {
 		if a.Grp != b.Grp {
-			return a.Grp - b.Grp
+			return int(a.Grp - b.Grp)
 		} else {
-			return a.Nr - b.Nr
+			return int(a.Nr - b.Nr)
 		}
 	})
 
-	return &s
+	return s
 }
 
 func expand(s, t string) string {
