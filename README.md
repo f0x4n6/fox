@@ -2,8 +2,9 @@
 
 The Forensic Swiss Army Knife. Providing many useful features to leverage your forensic examination process. Standalone binaries available for Windows, Linux and macOS.
 
-![Release](https://img.shields.io/github/release/cuhsat/fox.svg?style=flat-square&label=Release)
 ![Status](https://img.shields.io/github/actions/workflow/status/cuhsat/fox/ci.yaml?style=flat-square&label=Status)
+![Commits](https://img.shields.io/github/commit-activity/y/cuhsat/fox.svg?style=flat-square&label=Status)
+![Release](https://img.shields.io/github/release/cuhsat/fox.svg?style=flat-square&label=Release)
 
 ```console
 go install github.com/cuhsat/fox/v4@latest
