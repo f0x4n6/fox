@@ -1,10 +1,4 @@
-// The Cyber Forensic Swiss Army Knife.
-//
-// Copyright 2025 Christian Uhsat. All rights reserved.
-// Use of this source code is governed by the GPL-3.0
-// license that can be found in the LICENSE.md file.
-//
-// For more information visit: https://foxhunt.wtf
+// Visit https://foxhunt.wtf
 package main
 
 import (
@@ -39,7 +33,7 @@ var long = strings.TrimSpace(`
 |   __|  |  |  >    <     |   _   |  | |  |   '  |  |
 |  |   \ '--' /  /\  \    |  | |  |  '-'  |  |\  |  |
 '--'    '----'--'  '--'   '--' '--'-------'--' '-'--'
-The Cyber Forensic Swiss Army Knife %s
+The Forensic Swiss Army Knife %s
 
 Usage:
   fox [COMMAND] [FLAGS] <PATHS>

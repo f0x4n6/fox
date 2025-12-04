@@ -1,6 +1,6 @@
-![Fox](assets/logo.png "Forensic Examiner")
+![fox](assets/title.png "fox")
 
-The Cyber Forensic Swiss Army Knife. Standalone binaries available for Windows, Linux and macOS.
+The Forensic Swiss Army Knife. Providing many useful features to leverage your forensic examination process. Standalone binaries available for Windows, Linux and macOS.
 
 ![Release](https://img.shields.io/github/release/cuhsat/fox.svg?style=flat-square&label=Release)
 ![Status](https://img.shields.io/github/actions/workflow/status/cuhsat/fox/ci.yaml?style=flat-square&label=Status)
@@ -10,20 +10,20 @@ go install github.com/cuhsat/fox/v4@latest
 ```
 
 ## Features
-* Hunt suspicious system activities with:
-  * an integrated super timeline in [Common Event Format](https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%201%20What%20is%20CEF.htm) 
-  * build from carved [Linux Journals](https://systemd.io/JOURNAL_FILE_FORMAT/) and [Windows Event Logs](https://learn.microsoft.com/en-us/windows/win32/eventlog/event-log-file-format)
-  * with an extensive translation list of Windows Event IDs
-  * and preconfigured critical events to examine 
-  * support for `JSON`, `JSON Lines` and `SQLite3` output
-* Enforced read-only filesystem access
+* Read-only filesystem access
 * [Bidirectional character](https://nvd.nist.gov/vuln/detail/CVE-2021-42574) detection
-* Fast file entropy calculation
-* Built-in `grep`, `head`, `tail`, `hexdump`, `strings` and `wc` like abilities
-* Many built-in archive compression formats*
-* Many built-in cryptographic, fuzzy and fast hashes**
-* (TODO) Evidence saving with Chain of Custody signing
-* (TODO) Evidence streaming using [Splunk HEC](https://help.splunk.com/en/splunk-enterprise/leverage-rest-apis/rest-api-reference/10.0/input-endpoints/input-endpoint-descriptions) or [ECS](https://www.elastic.co/docs/reference/ecs)
+* Fast [Shannon entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)) calculation
+* Integral `grep`, `head`, `tail`, `hexdump`, `strings` like abilities
+* Hunt mode
+  * Built-in file carving of [Linux Journals](https://systemd.io/JOURNAL_FILE_FORMAT/) and [Windows Event Logs](https://learn.microsoft.com/en-us/windows/win32/eventlog/event-log-file-format)
+  * Built-in super timeline in [Common Event Format](https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%201%20What%20is%20CEF.htm)
+  * Built-in translation list of over 1500 Event IDs
+  * Built-in warning of critical system events
+  * Save as `JSON`, `JSON Lines` or `SQLite3`
+* Supports (see below)
+  * Many popular archive and compression formats
+  * Many popular cryptographic, fuzzy and fast hashes
+  * Data streaming in [Splunk HEC](https://help.splunk.com/en/splunk-enterprise/leverage-rest-apis/rest-api-reference/10.0/input-endpoints/input-endpoint-descriptions) or [ECS](https://www.elastic.co/docs/reference/ecs) format
 
 ## Usage
 Type `fox --help` for more help:
@@ -47,7 +47,7 @@ Find ASCII strings in binaries:
 $ fox text -ra8 download.exe
 ```
 
-Hash the archive contents:
+Hash the archives contents:
 ```console
 $ fox hash -amd5,sha1 files.zip
 ```
@@ -57,10 +57,10 @@ Hunt down suspicious events:
 $ fox hunt -sxv ./**/*.dd
 ```
 
-## Supports
+## Support
 
 ### File Formats
-BROTLI, BZIP2, CAB, GZIP, EVTX, JSONL, JOURNAL, LZ4, LZW, MINLZ, RAR, S2, SNAPPY, TAR, XZ, ZIP, ZLIB, ZSTD
+BROTLI, BZIP2, CAB, EVTX, GZIP, JOURNAL, JSONL, LZ4, LZW, MINLZ, RAR, S2, SNAPPY, TAR, XZ, ZIP, ZLIB, ZSTD
 
 ### Algorithms
 ADLER32, BLAKE3-256, BLAKE3-512, CRC32-IEEE, CRC64-ECMA, CRC64-ISO, FNV-1, FNV-1A, MD5, SDHASH, SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512, SSDEEP, TLSH, XXH3, XXH64
