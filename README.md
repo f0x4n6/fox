@@ -1,6 +1,6 @@
 ![Fox](assets/logo.png "Forensic Examiner")
 
-Fox is the [Fo]rensic E[x]aminers Swiss Army Knife. Available for Windows, Linux and macOS as AMD64 and ARM64 standalone native binaries.
+The Cyber Forensic Swiss Army Knife. Standalone binaries available for Windows, Linux and macOS.
 
 ![Release](https://img.shields.io/github/release/cuhsat/fox.svg?style=flat-square&label=Release)
 ![Status](https://img.shields.io/github/actions/workflow/status/cuhsat/fox/ci.yaml?style=flat-square&label=Status)
@@ -35,17 +35,184 @@ go install github.com/cuhsat/fox/v4@latest
 * (TODO) Evidence saving with Chain of Custody signing
 * (TODO) Evidence streaming using [Splunk HEC](https://help.splunk.com/en/splunk-enterprise/leverage-rest-apis/rest-api-reference/10.0/input-endpoints/input-endpoint-descriptions) or [ECS](https://www.elastic.co/docs/reference/ecs)
 
-## Examples
-TODO
+## Usage
+```console
+Usage: fox [COMMAND] <PATHS>
+
+  hunt   hunt suspicious activities
+  hash   prints file hash using algorithm(s)
+  info   prints file info and entropy
+  text   prints file ASCII strings
+  hex    prints file in hex format
+  cat    prints file (default)
+
+Type "fox --help" for more help...
+```
+
+```console
+Usage:
+  fox [COMMAND] [FLAGS] <PATHS>
+
+Commands:
+  hunt [FLAGS] <PATHS>     hunt suspicious activities
+    -a, --all              show logs with all severities
+    -x, --ext              show logs with all extensions (slow)
+    -s, --sort             show logs sorted by timestamp (slow)
+    -j, --json             show logs as JSON objects
+    -J, --jsonl            show logs as JSON lines
+    -D, --sqlite           save logs to SQLite3 DB
+
+  hash [FLAGS] <PATHS>     prints file hashes and checksums
+    -a, --algo=ALGO[,]     use algorithm(s) (default: SHA256)
+    -F, --find=HASH[,]     show only files that match
+
+  info [FLAGS] <PATHS>     prints file infos and entropy
+        --min=DECIMAL      minimum entropy value (default: 0.0)
+        --max=DECIMAL      maximal entropy value (default: 1.0)
+
+  text [FLAGS] <PATHS>     prints file ASCII strings
+        --min=NUMBER       minimum string length (default: 3)
+        --max=NUMBER       maximal string length (default: 256)
+
+  hex [FLAGS] <PATHS>      prints file in hex format
+    -m, --mode=[c|hd|xxd]  use compatible mode for output 
+
+  cat [FLAGS] <PATHS>      prints file (default)
+
+File limits:
+  -h, --head               limit head of file by ...
+  -t, --tail               limit tail of file by ...
+  -n, --lines=NUMBER       number of lines
+  -c, --bytes=NUMBER       number of bytes
+
+File loader:
+  -p, --pass=PASSWORD      password for decryption (only RAR and ZIP)
+
+Line filter:
+  -e, --regexp=PATTERN     filter for lines that match pattern
+  -C, --context=NUMBER     number of lines surrounding context of match
+  -B, --before=NUMBER      number of lines leading context before match
+  -A, --after=NUMBER       number of lines trailing context after match
+
+Data stream:
+  -f, --file=FILE          stream data to file name
+  -u, --url=SERVER         stream data to server address
+  -T, --auth=TOKEN         stream data using auth token
+  -E, --ecs                use ECS schema for streaming
+  -H, --hec                use HEC schema for streaming
+
+Disable:
+  -r, --raw                don't process files at all
+  -q, --quiet              don't print anything
+      --no-file            don't print filenames
+      --no-line            don't print line numbers
+      --no-color           don't colorize the output
+      --no-deflate         don't deflate automatically
+      --no-convert         don't convert automatically
+
+Aliases:
+  -L, --logstash           alias for: -E -uhttp://localhost:8080
+  -S, --splunk             alias for: -H -uhttp://localhost:8088/...
+
+Standard:
+  -d, --dry-run            prints only the found filenames
+  -v, --verbose[=LEVEL]    prints more details (v/vv/vvv)
+      --version            prints the version number
+      --help               prints this help message
+
+Positional arguments:
+  Path(s) to open or '-' for STDIN
+
+Hashes (cryptographic):
+  SHA1, SHA256, SHA3, SHA3-224, SHA3-256, SHA3-384, SHA3-512,
+  MD5, BLAKE3-256, BLAKE3-512
+
+Hashes (performance):
+  FNV-1, FNV-1A, XXH64, XXH3
+
+Hashes (similarity):
+  SDHASH, SSDEEP, TLSH
+
+Checksums:
+  ADLER32, CRC32-IEEE, CRC64-ECMA, CRC64-ISO
 
 Example: Find occurrences in event logs
-$ fox cat -elogin ./**/*.evtx
+  $ fox cat -elogin ./**/*.evtx
 
-Example: Show the MBR as canonical hex
-$ fox hex -mc -hc512 disk.bin
+Example: Show the MBR in canonical hex
+  $ fox hex -mc -hc512 disk.bin
 
 Example: Hunt down suspicious events
+  $ fox hunt -sxv ./**/*.dd
+
+Report bugs at <mail@foxhunt.wtf>
+```
+
+### Hashes & Checksums
+Supported cryptographic hashes:
+* `BLAKE3-256`
+* `BLAKE3-512`
+* `MD5`
+* `SHA1`
+* `SHA256`
+* `SHA3`
+* `SHA3-224`
+* `SHA3-256`
+* `SHA3-384`
+* `SHA3-512`
+
+Supported similarity / fuzzy hashes:
+* `sdhash`
+* `SSDeep`
+* `TLSH`
+
+Supported performance hashes:
+* `FNV-1`
+* `FNV-1a`
+* `XXH64`
+* `XXH3`
+
+Supported checksums:
+* `Adler-32`
+* `CRC32-IEEE`
+* `CRC64-ECMA`
+* `CRC64-ISO`
+
+### Archives & Compressions
+Supported archive formats:
+* `CAB`
+* `RAR`
+* `TAR`
+* `ZIP`
+
+Supported compression formats:
+* `Brotli`
+* `BZip2`
+* `Gzip`
+* `lz4`
+* `LZW`
+* `MinLZ`
+* `S2`
+* `Snappy`
+* `xz`
+* `zlib`
+* `Zstandard`
+
+## Examples
+Find occurrences in event logs:
+```console
+$ fox cat -elogin ./**/*.evtx
+```
+
+Show the MBR in canonical hex:
+```console
+$ fox hex -mc -hc512 disk.bin
+```
+
+Hunt down suspicious events:
+```console
 $ fox hunt -sxv ./**/*.dd
+```
 
 ## License
 🦊 is released under the [GPL-3.0](LICENSE.md)

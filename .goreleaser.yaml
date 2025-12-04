@@ -60,8 +60,8 @@ signs:
 nfpms:
   - vendor: fox
     homepage: https://foxhunt.wtf
-    maintainer: Christian Uhsat <root@foxhunt.wtf>
-    description: The Forensic Examiners Swiss Army Knife.
+    maintainer: Christian Uhsat <mail@foxhunt.wtf>
+    description: The Cyber Forensic Swiss Army Knife.
     license: GPL-3.0
     formats:
       - archlinux

@@ -1,4 +1,4 @@
-// Fox - The Forensic Examiners Swiss Army Knife.
+// The Cyber Forensic Swiss Army Knife.
 //
 // Copyright 2025 Christian Uhsat. All rights reserved.
 // Use of this source code is governed by the GPL-3.0
@@ -39,7 +39,7 @@ var long = strings.TrimSpace(`
 |   __|  |  |  >    <     |   _   |  | |  |   '  |  |
 |  |   \ '--' /  /\  \    |  | |  |  '-'  |  |\  |  |
 '--'    '----'--'  '--'   '--' '--'-------'--' '-'--'
-The Forensic Examiners Swiss Army Knife %s
+The Cyber Forensic Swiss Army Knife %s
 
 Usage:
   fox [COMMAND] [FLAGS] <PATHS>
@@ -130,13 +130,13 @@ Checksums:
 Example: Find occurrences in event logs
   $ fox cat -elogin ./**/*.evtx
 
-Example: Show the MBR as canonical hex
+Example: Show the MBR in canonical hex
   $ fox hex -mc -hc512 disk.bin
 
 Example: Hunt down suspicious events
   $ fox hunt -sxv ./**/*.dd
 
-Report bugs at <issue@foxhunt.wtf>
+Report bugs at <mail@foxhunt.wtf>
 `)
 
 type Fox struct {
