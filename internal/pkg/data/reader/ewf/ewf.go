@@ -24,3 +24,19 @@ func Reader(f *os.File) (io.ReaderAt, error) {
 
 	return r, nil
 }
+
+func Combine(f ...*os.File) (io.ReaderAt, error) {
+	var rs []io.ReaderAt
+
+	for _, r := range f {
+		rs = append(rs, r)
+	}
+
+	r, err := parser.OpenEWFFile(nil, rs...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return r, nil
+}
